@@ -1,0 +1,35 @@
+
+body 
+{
+  padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+#container_main, 
+#container_order, 
+#container_menu, 
+#container_account, 
+#container_dashboard, 
+#grid_view, 
+#list_view, 
+#overview
+{
+  visibility:hidden;
+  display:none;
+}
+.invisible
+{
+  visibility:hidden;
+  display:none;
+}
+.visible
+{
+  visibility:visible !important;
+  display:block !important;
+}
+.remove
+{
+  width:20px;
+}
+.big
+{
+  font-size:16px;
+}
