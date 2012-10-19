@@ -25,6 +25,7 @@ define([
                                              
     initialize: function() {
       this.model.view = this;
+      this.model.on("change:name", this.populateSizeDropdown);
     },
                                              
     bindFields: function() {
@@ -39,43 +40,24 @@ define([
     addToOrder: function(e) {
       if (this.model.isValid()) {
         this.trigger("itemAdded", this.model);
-        this.name.val("");
-        this.size.children().remove();
-        this.price.val("");
-        this.quantity.text("1");
-        this.comments.val("");
+        this.reset();
       } else {
         $("#add_to_order").effect("shake", { times:2 }, 150);
       }
     },
       
-    populateDropdown : function(data, textStatus, jqXHR) {
-      var items = _.map(data, function(item) {
-        return item.name;
-      });
+    populateDropdown : function() {
+      var _populateDropdown = function(data, textStatus, jqXHR) {
+        var items = _.map(data, function(item) {
+          return item.name;
+        });
       $("#name").typeahead({source: items});
+      };
+      io.makeRequest("/items", "GET", "", _populateDropdown);
     },
                                              
     setName: function(e) {
-      var populateSizes = function(item) {
-        var populateSizesDropdown = function(data, textStatus, jqXHR) {
-          if (textStatus === "success") {
-            $("#size > option").remove();
-            $("#size").append(new Option("Select a size"));
-            for (var i = 0; i < data.length; i++) {
-              $("#size").append(new Option(data[i]));
-            }
-          } else {
-            $("#size").append(new Option("Select a size"));
-            $("#size").append(new Option("Mini"));
-            $("#size").append(new Option("Small"));
-            $("#size").append(new Option("Large"));
-          }
-        };
-        io.makeRequest("/sizes/" + item, "GET", "", populateSizesDropdown);
-      };
       this.model.set({"name": this.name.val()}, {"error" : function() {  }});
-      populateSizes(this.name.val());
     },
 
     setSize: function(e) {
@@ -108,16 +90,39 @@ define([
     setComments: function(e) {
       this.model.set({"comments": this.comments.val()});
     },
+    
+    populateSizeDropdown: function(model, item) {
+      var populateSizesDropdown = function(data, textStatus, jqXHR) {
+        if (textStatus === "success") {
+          $("#size > option").remove();
+          $("#size").append(new Option("Select a size"));
+          for (var i = 0; i < data.length; i++) {
+            $("#size").append(new Option(data[i]));
+          }
+        } else {
+          $("#size").append(new Option("Select a size"));
+          $("#size").append(new Option("Mini"));
+          $("#size").append(new Option("Small"));
+          $("#size").append(new Option("Large"));
+        }
+      };
+        io.makeRequest("/sizes/" + item, "GET", "", populateSizesDropdown);
+    },
 
     reset: function() {
       this.model = new Item;
+      this.name.val("");
+      this.size.children().remove();
+      this.price.val("");
+      this.quantity.text("1");
+      this.comments.val("");
     },
                                              
     render: function() {
       var rendered = this.template.render({});
       this.$el.html(rendered);
       this.bindFields();
-      io.makeRequest("/items", "GET", "", this.populateDropdown);
+      this.populateDropdown();
       return this;
     }
 });
