@@ -3,17 +3,24 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/order/order.html'
-], function($, _, Backbone, orderContainerView) {
+  'text!/templates/order/order.html',
+  'views/order/form',
+  'views/order/grid',
+  'models/item',
+  'models/order'
+], function($, _, Backbone, orderContainerViewTemplate, OrderFormView, 
+            OrderGridView, Item, Order) {
   
   var OrderContainerView = Backbone.View.extend({
     el: "#canvas",
-  
-    template: Hogan.compile(orderContainerView),
+                                                  
+    setName: function() {
+      debugger;
+    },
+                                                  
+    template: Hogan.compile(orderContainerViewTemplate),
                                                   
     initialize: function() {
-      //this.ofv = new OrderFormView({"model": new Item});
-      //this.ogv = new OrderGridView({"model": new Order});
       //this.ofv.bind("itemAdded", this.itemAdded, this);
     },
 
@@ -29,13 +36,20 @@ define([
     },
 
     render: function() {
-    
       var data = {};
       var rendered = this.template.render(data);
       this.$el.html(rendered);
-    
-      //this.ofv.render();
-      //this.ogv.render();
+      
+      this.orderFormView = new OrderFormView({"model": new Item});
+      this.orderGridView = new OrderGridView({"model": new Order});
+      
+      // Render subviews
+      this.orderFormView.render();
+      var grid = this.orderGridView.render().el;
+      
+      // Attach subviews to DOM
+      //$("#order_form").html(form);
+      $("#order_grid").html(grid);
     }
 });
   

@@ -1,7 +1,13 @@
 
-var Order = Backbone.Model.extend({
+define([
+  'jquery',
+  'underscore',
+  'backbone',
+  'collections/itemlist'
+], function($, _, Backbone, ItemList) {
+  
+  var Order = Backbone.Model.extend({
   initialize: function(options) {
-
     this.items = new ItemList;
   },
 
@@ -24,4 +30,7 @@ var Order = Backbone.Model.extend({
   remove: function(item) {
     item.destroy();
   }
+});
+  
+  return Order;
 });

@@ -1,10 +1,15 @@
 
-var ItemList = Backbone.Collection.extend({
-
+define([
+  'jquery',
+  'underscore',
+  'backbone',
+  'models/item'
+], function($, _, Backbone, Item) {
+  
+  var ItemList = Backbone.Collection.extend({
   model: Item,
 
   initialize: function(options) {
-
     this.url = "/items2";
   },
 
@@ -15,7 +20,6 @@ var ItemList = Backbone.Collection.extend({
   },
 
   toJSON: function() {
-
     return {
       "items":
         this.map(function(item) {
@@ -30,4 +34,7 @@ var ItemList = Backbone.Collection.extend({
         })
       };
     }
+});
+  
+  return ItemList;
 });

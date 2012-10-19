@@ -2,73 +2,9 @@
 <div id="container_order" class="container">
   <h1>Place your order</h1>
   <div class="row">
-    <div class="span4">
-      <form id="order_form">
-        <div class="control-group" id="name_input">
-	  <label>Name</label>
-          <div class="controls">
-	    <input id="name" type="text" placeholder="Enter an item" autocomplete="off" />
-            <span class="help-inline"></span>
-        </div></div>
-        <div class="control-group" id="size_input">
-	  <label>Size</label>
-          <div class="controls">
-	    <select id="size">
-              <option selected="selected">Select a size</option>
-	    </select>
-            <span class="help-inline"></span>
-        </div></div>
-        <div class="control-group" id="price_input">
-          <label>Price</label>
-          <div class ="controls">
-	    <input id="price" type="text" placeholder="Enter a price" autocomplete="off" />
-            <span class="help-inline"></span>
-        </div></div>
-        <div class="control-group" id="quantity_input">
-          <label>Quantity</label>
-          <div class ="controls">
-	    <span>
-              <button id="quantity-dcr" class="btn btn-mini" type="button"><i class="icon-minus-sign"></i>
-              </button>
-              <span id="quantity">1</span>
-              <button id="quantity-incr" class="btn btn-mini" type="button"><i class="icon-plus-sign"></i>
-              </button>
-              <span class="help-inline"></span>
-        </div></div>
-        <div class="control-group" id="comments_input">
-	  <label>Comments</label>
-          <div class ="controls">
-	    <textarea id="comments" rows=3 placeholder="Optional"></textarea>
-            <span class="help-inline"></span>
-        </div></div>
-        <button id="add_to_order" class="btn">
-          <i class="icon-plus-sign"></i>
-          Add To Order
-        </button>
-      </form>
+    <div id="order_form" class="span4">
     </div>
-    <div class="span8">
-      <table id="order_list" class="table table-hover">
-	<thead>
-	  <th><i class="icon-trash"></i></th>
-          <th>Quantity</th>
-	  <th>Order</th>
-	  <th>Size</th>
-	  <th>Comments</th>
-	  <th>Price</th>
-	</thead>
-      </table>
-      <span id="order_info">
-        <i class="icon-info-sign"></i>
-        <h5 style="display:inline;padding-left:5px;">There are no items in this order.</h5>
-      </span>
-      <hr>
-      
-      <form id="place_order_form" class="pull-right">
-	<label><strong>Total $<span id="total"> 0.00</span></strong></label>
-      </form>
-      <br>
-      <br>
+    <div id="order_grid" class="span8">
     </div>
   </div>
   

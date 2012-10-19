@@ -4,7 +4,8 @@ require.config({
     jquery: 'libs/jquery',
     underscore: 'libs/underscore',
     backbone: 'libs/backbone',
-    hogan: 'libs/hogan'
+    hogan: 'libs/hogan',
+    io: 'libs/io'
   }
 
 });

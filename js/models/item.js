@@ -1,9 +1,11 @@
 
-/**
- * @Type: Model
- * The model representing an item in an order
- */
-var Item = Backbone.Model.extend({
+define([
+  'jquery',
+  'underscore',
+  'backbone'
+], function($, _, Backbone) {
+  
+  var Item = Backbone.Model.extend({
 
   defaults: {
     "quantity" : 1,
@@ -52,4 +54,7 @@ var Item = Backbone.Model.extend({
       "comments" : this.attributes.comments
     };
   }
+});
+  
+  return Item;
 });
