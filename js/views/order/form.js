@@ -38,22 +38,13 @@ define([
     },
     
     addToOrder: function(e) {
+      e.preventDefault();
       if (this.model.isValid()) {
         this.trigger("itemAdded", this.model);
         this.reset();
       } else {
         $("#add_to_order").effect("shake", { times:2 }, 150);
       }
-    },
-      
-    populateDropdown : function() {
-      var _populateDropdown = function(data, textStatus, jqXHR) {
-        var items = _.map(data, function(item) {
-          return item.name;
-        });
-      $("#name").typeahead({source: items});
-      };
-      io.makeRequest("/items", "GET", "", _populateDropdown);
     },
                                              
     setName: function(e) {
@@ -90,6 +81,23 @@ define([
     setComments: function(e) {
       this.model.set({"comments": this.comments.val()});
     },
+                                             
+    reset: function() {
+      this.model = new Item;
+      this.name.val("");
+      this.size.children().remove();
+      this.price.val("");
+      this.quantity.text("1");
+      this.comments.val("");
+    },
+                                             
+    render: function() {
+      var rendered = this.template.render({});
+      this.$el.html(rendered);
+      this.bindFields();
+      this.populateDropdown();
+      return this;
+    },
     
     populateSizeDropdown: function(model, item) {
       var populateSizesDropdown = function(data, textStatus, jqXHR) {
@@ -108,22 +116,15 @@ define([
       };
         io.makeRequest("/sizes/" + item, "GET", "", populateSizesDropdown);
     },
-
-    reset: function() {
-      this.model = new Item;
-      this.name.val("");
-      this.size.children().remove();
-      this.price.val("");
-      this.quantity.text("1");
-      this.comments.val("");
-    },
                                              
-    render: function() {
-      var rendered = this.template.render({});
-      this.$el.html(rendered);
-      this.bindFields();
-      this.populateDropdown();
-      return this;
+    populateDropdown : function() {
+      var _populateDropdown = function(data, textStatus, jqXHR) {
+        var items = _.map(data, function(item) {
+          return item.name;
+        });
+      $("#name").typeahead({source: items});
+      };
+      io.makeRequest("/items", "GET", "", _populateDropdown);
     }
 });
   
