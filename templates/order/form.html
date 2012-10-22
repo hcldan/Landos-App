@@ -1,43 +1,47 @@
-<form id="order_form">
-  <div class="control-group" id="name_input">
-    <label>Name</label>
-    <div class="controls">
-      <input id="name" type="text" placeholder="Enter an item" autocomplete="off" />
-      <span class="help-inline"></span>
-  </div></div>
-  <div class="control-group" id="size_input">
-    <label>Size</label>
-    <div class="controls">
-      <select id="size">
-        <option selected="selected">Select a size</option>
-      </select>
-      <span class="help-inline"></span>
-  </div></div>
-  <div class="control-group" id="price_input">
-    <label>Price</label>
-    <div class ="controls">
-      <input id="price" type="text" placeholder="Enter a price" autocomplete="off" />
-      <span class="help-inline"></span>
-  </div></div>
-  <div class="control-group" id="quantity_input">
-    <label>Quantity</label>
-    <div class ="controls">
-      <span>
+  <form id="order_form">
+    <div class="control-group" id="name_input">
+      <label>Name</label>
+      <div class="controls">
+        <input id="name" type="text" placeholder="Enter an item" autocomplete="off" />
+        <span id="help-name" class="help-inline"></span>
+      </div>
+    </div>
+    <div class="control-group" id="size_input">
+      <label>Size</label>
+      <div class="controls">
+        <select id="size">
+          <option selected="selected">Select a size</option>
+        </select>
+        <span id="help-size" class="help-inline"></span>
+      </div>
+    </div>
+    <div class="control-group" id="price_input">
+      <label>Price</label>
+      <div class ="controls">
+        <input id="price" type="text" placeholder="Enter a price" autocomplete="off" />
+        <span id="help-price" class="help-inline"></span>
+      </div>
+    </div>
+    <div class="control-group" id="quantity_input">
+      <label>Quantity</label>
+      <div class ="controls">
         <button id="quantity-dcr" class="btn btn-mini" type="button"><i class="icon-minus-sign"></i>
         </button>
         <span id="quantity">1</span>
         <button id="quantity-incr" class="btn btn-mini" type="button"><i class="icon-plus-sign"></i>
         </button>
-        <span class="help-inline"></span>
-  </div></div>
-  <div class="control-group" id="comments_input">
-    <label>Comments</label>
-    <div class ="controls">
-      <textarea id="comments" rows=3 placeholder="Optional"></textarea>
-      <span class="help-inline"></span>
-  </div></div>
-  <button id="add_to_order" class="btn">
-    <i class="icon-plus-sign"></i>
-    Add To Order
-  </button>
-</form>
+        <span id="help-quantity" class="help-inline"></span>
+      </div>
+    </div>
+    <div class="control-group" id="comments_input">
+      <label>Comments</label>
+      <div class ="controls">
+        <textarea id="comments" rows=3 placeholder="Optional"></textarea>
+        <span id="help-comments" class="help-inline"></span>
+      </div>
+    </div>
+    <button id="add_to_order" class="btn">
+      <i class="icon-plus-sign"></i>
+      Add To Order
+    </button>
+  </form>

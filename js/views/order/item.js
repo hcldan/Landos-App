@@ -3,14 +3,13 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/order/table.html'
-  'views/order/item'
-], function($, _, Backbone, orderTableTemplate, OrderItemView) {
+  'text!/templates/order/item.html'
+], function($, _, Backbone, orderItemTemplate) {
   
   var OrderItemView = Backbone.View.extend({
     tagName: "tr",
 
-    template: Hogan.compile($.trim($("#orderItem_tmpl").text())),
+    template: Hogan.compile(orderItemTemplate),
 
     events: {
       "click .icon-remove" : "remove"

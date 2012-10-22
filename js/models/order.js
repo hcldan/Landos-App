@@ -3,8 +3,9 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'collections/itemlist'
-], function($, _, Backbone, ItemList) {
+  'collections/itemlist',
+  'utils'
+], function($, _, Backbone, ItemList, utils) {
   
   var Order = Backbone.Model.extend({
   initialize: function(options) {
@@ -16,15 +17,16 @@ define([
   },
 
   add: function(item, callback) {
-    this.items.create(item, {"wait" : true,
-                             "success": callback,
-                             "error" : this.error,
-                             "headers" : headers(),
-                             "beforeSend" : addAuth});
+    this.items.create(item, {
+      "wait" : true,
+      "success": callback,
+      "error" : this.error,
+      "headers" : utils.getHeaders()
+    });
   },
 
   error: function(model, response) {
-
+    this.view.trigger("order:error", "There was an error");
   },
 
   remove: function(item) {

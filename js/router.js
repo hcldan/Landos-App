@@ -4,7 +4,7 @@ define([
   'underscore',
   'backbone',
   'views/main/maincontainerview',
-  'views/order/ordercontainerview',
+  'views/order/container',
   'views/menu/menucontainerview',
   'views/account/accountcontainerview',
   'views/dashboard/dashboardcontainerview'
@@ -26,6 +26,10 @@ define([
   
   var initialize = function() {
     var router = new MainRouter();
+
+    // Save credentials to sessionStorage
+    sessionStorage.setItem("user", "bob");
+    sessionStorage.setItem("runId", "324234234");
     
     var mainContainerView = new MainContainerView();
     //var orderContainerView = new OrderContainerView();
