@@ -42,11 +42,6 @@ define([
       // Render subviews
       this.orderFormView.render();
       this.orderGridView.render();
-      //var grid = this.orderGridView.render().el;
-      
-      // Attach subviews to DOM
-      //$("#order_form").html(form);
-      //$("#order_grid").html(grid);
     }
 });
   

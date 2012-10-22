@@ -10,6 +10,7 @@ define([
   var Order = Backbone.Model.extend({
   initialize: function(options) {
     this.items = new ItemList;
+    this.items.bind("reset", function() {this.trigger("items:reset");}, this);
   },
 
   total: function() {

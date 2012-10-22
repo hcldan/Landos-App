@@ -3,11 +3,11 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'views/main/maincontainerview',
+  'views/main/container',
   'views/order/container',
-  'views/menu/menucontainerview',
-  'views/account/accountcontainerview',
-  'views/dashboard/dashboardcontainerview'
+  'views/menu/container',
+  'views/account/container',
+  'views/dashboard/container'
 ], function($, _, Backbone, 
             MainContainerView, 
             OrderContainerView, 
