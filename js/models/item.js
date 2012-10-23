@@ -18,7 +18,7 @@ define([
 
   validate: function(attrs) {
     var changedAttributes = this.changedAttributes(attrs);
-    _validate = {
+    var _validate = {
       "id" : function(v) { return true; },
       "name" : function(v) { return v && v.length > 0; },
       "size" : function(v) { return v && v.length > 0; },
@@ -27,6 +27,7 @@ define([
       "comments" : function(v) { return true; }
     };
 
+    // use underscore or hasOwnProperty
     if (changedAttributes) {
       for (var attr in changedAttributes) {
 
@@ -44,6 +45,7 @@ define([
     }
   },
 
+  // TODO: This may not be neccessary
   toJSON: function() {
     return {
       "id" : this.attributes.id,

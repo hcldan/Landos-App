@@ -57,11 +57,11 @@ define([
         $("#add_to_order").effect("shake", { times:2 }, 150);
       }
     },
-                                             
+
     setName: function(e) {
+      this.clearError("name");
       this.model.set({"name": this.$name.val()}, {
-        "error" : this.showError("name"),
-        "success" : this.showSuccess("name")
+        "error" : this.showError
       });
     },
 
@@ -70,9 +70,10 @@ define([
     },
 
     setPrice: function(e) {
+      this.clearError("price");
       this.model.set({"price": parseFloat(this.$price.val())}, {
-        "error" : this.showError("price"),
-        "success" : this.showSuccess("price")
+        error : this.showError,
+        success: this.showSuccess
       });
     },
 
@@ -100,8 +101,11 @@ define([
                                              
     reset: function() {
       this.model = new Item;
+      // move this to the item constructor
       this.model.view = this;
+      // pass in as events hash
       this.model.on("change:name", this.populateSizeDropdown);
+      // TODO: rename
       this.populateDropdown();
 
       // Reset fields
@@ -121,24 +125,19 @@ define([
     },
     
     populateSizeDropdown: function(model, item) {
+      // move this into closure
       var populateSizesDropdown = function(data, textStatus, jqXHR) {
-        if (textStatus === "success") {
-          $("#size > option").remove();
-          $("#size").append(new Option("Select a size"));
-          for (var i = 0; i < data.length; i++) {
-            $("#size").append(new Option(data[i]));
-          }
-        } else {
-          $("#size").append(new Option("Select a size"));
-          $("#size").append(new Option("Mini"));
-          $("#size").append(new Option("Small"));
-          $("#size").append(new Option("Large"));
+        $("#size > option").remove();
+        $("#size").append(new Option("Select a size"));
+        for (var i = 0; i < data.length; i++) {
+          $("#size").append(new Option(data[i]));
         }
       };
-        io.makeRequest("/sizes/" + item, "GET", "", populateSizesDropdown);
+      io.makeRequest("/sizes/" + item, "GET", "", populateSizesDropdown);
     },
-                                             
+    
     populateDropdown : function() {
+      // move this into closure
       var _populateDropdown = function(data, textStatus, jqXHR) {
         var items = _.map(data, function(item) {
           return item.name;
@@ -148,7 +147,7 @@ define([
       io.makeRequest("/items", "GET", "", _populateDropdown);
     },
 
-    showError: function(location) {
+    showError: function(model, location) {
       var errors = {
         "name" : "Please enter a valid name",
         "size" : "Please enter a valid size",
@@ -156,14 +155,23 @@ define([
         "quantity" : "Please enter a valid quantity",
         "comments" : "",
       }
+      var $input = $("#" + location + "_input");
+      $input.addClass("error");
+
       var $helpLocation = $("#help-" + location);
       var error = errors[location];
       $helpLocation.html(error);
     },
 
-    showSuccess: function(location) {
+    showSuccess: function(model, location) {
+      debugger;
+    },
+
+    clearError:function(location) {
+      var $input = $("#" + location + "_input");
+      $input.removeClass("error");
       var $helpLocation = $("#help-" + location);
-      $helpLocation.html("");
+      $helpLocation.html("");      
     }
 });
   

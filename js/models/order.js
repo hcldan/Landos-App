@@ -27,7 +27,7 @@ define([
   },
 
   error: function(model, response) {
-    this.view.trigger("order:error", "There was an error");
+    this.view.trigger("order:error", response);
   },
 
   remove: function(item) {

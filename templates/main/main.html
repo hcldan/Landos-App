@@ -4,7 +4,10 @@
     <h1>Welcome to the Lando's App!</h1>
     <h3 style="float:left;padding-right:10px">Run Status:</h3>
     <div id="run_status">
+      <h3 class="{{class}}">{{status}}</h3>
     </div>
-    <button id="order_btn_nav" class="btn invisible">Place an order</button>
+    {{#isRun}}
+    <button id="order_btn_nav" class="btn">Place an order</button>
+    {{/isRun}}
   </div>
 </div>

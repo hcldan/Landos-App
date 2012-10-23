@@ -35,6 +35,10 @@ define([
         });
       });
 
+      if (this.model.orders.length === 0) {
+        this.$el.html("<h3>There were no orders to display.</h3>");
+      }
+
       $("#account_total").text(" " + this.model.total());
       return this;
     }

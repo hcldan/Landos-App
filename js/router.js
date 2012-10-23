@@ -31,30 +31,28 @@ define([
     sessionStorage.setItem("user", "bob");
     sessionStorage.setItem("runId", "324234234");
     
-    var mainContainerView = new MainContainerView();
-    //var orderContainerView = new OrderContainerView();
-    var menuContainerView = new MenuContainerView();
-    var accountContainerView = new AccountContainerView();
-    var dashboardContainerView = new DashboardContainerView();
-    
     router.on("route:showMain", function() {
+      var mainContainerView = mainContainerView || new MainContainerView();
       mainContainerView.render();
     });
     
     router.on("route:showOrder", function() {
-      var orderContainerView = new OrderContainerView();
+      var orderContainerView = orderContainerView || new OrderContainerView();
       orderContainerView.render();
     });
     
     router.on("route:showMenu", function() {
+      var menuContainerView = menuContainerView || new MenuContainerView();
       menuContainerView.render();
     });
     
     router.on("route:showAccount", function() {
+      var accountContainerView = accountContainerView || new AccountContainerView();
       accountContainerView.render();
     });
     
     router.on("route:showDashboard", function() {
+      var dashboardContainerView = dashboardContainerView || new DashboardContainerView();
       dashboardContainerView.render();
     });
     

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <Module specificationVersion='2'>
+   <ModulePrefs title="The Lando's App!" height="550">
+     <Require feature="osapi"/>
+     <Require feature="embedded-experiences"/>
+     <Optional feature="content-rewrite">
+       <Param name="exclude-url">*</Param> 
+     </Optional>
+     
+   </ModulePrefs>
+   <Content type="html" view="default">
+     <![CDATA[
+      <script>
+        var hasContext = false;
+      </script>
+      ]]>
+   </Content>
+   <Content type="html" view="embedded">
+     <![CDATA[
+      <script>
+        var hasContext = true;
+      </script>
+      ]]>
+   </Content>
+   <Content type="html" view="default,embedded" href="index.html" />
+ </Module>
+

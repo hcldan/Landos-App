@@ -15,15 +15,23 @@ define([
                                                   
     initialize: function() {
       var success = _.bind(function() {
-          this.orderTableView = new OrderTableView(this.model.items);
-          this.model.items.bind("destroy", this.render, this);
-          //this.model.items.bind("reset", this.render, this);
-          this.render();
-        }, this);
+        this.orderTableView = new OrderTableView(this.model.items);
+        this.model.items.bind("destroy", this.render, this);
+        this.render();
+      }, this);
+      var error = _.bind(function(model, response) {
+        this.trigger("order:error", response);
+      }, this);
       this.model.view = this;
+
+      // Propagate error to container
+      this.model.bind("order:error", function(model, response) { 
+        this.trigger("order:error");
+      });
       this.model.items.fetch({
         "headers" : utils.getHeaders(),
-        "success" : success
+        "success" : success,
+        "error" : error
       });
     },
     

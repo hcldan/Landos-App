@@ -14,14 +14,7 @@ define([
   var OrderContainerView = Backbone.View.extend({
     el: "#canvas",
                                                   
-    setName: function() {
-      debugger;
-    },
-                                                  
     template: Hogan.compile(orderContainerViewTemplate),
-                                                  
-    initialize: function() {
-    },
 
     itemAdded: function(item) {
       var callback = _.bind(function() {
@@ -31,6 +24,14 @@ define([
       this.orderGridView.model.add(item, callback);
     },
 
+    showError: function(response) {
+      var status = response.status;
+      
+      $("#info").addClass("alert");
+      $("#info").addClass("alert-error");
+      $("#info").html("<strong> Oops, there was a problem on our end.</strong>");
+    },
+
     render: function() {
       var rendered = this.template.render({});
       this.$el.html(rendered);
@@ -38,6 +39,7 @@ define([
       this.orderFormView = new OrderFormView({"model": new Item});
       this.orderGridView = new OrderGridView({"model": new Order});
       this.orderFormView.bind("itemAdded", this.itemAdded, this);
+      this.orderGridView.bind("order:error", this.showError, this);
       
       // Render subviews
       this.orderFormView.render();
