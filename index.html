@@ -3,7 +3,20 @@
   <head>
     <title>The Lando's App!</title>
     <script src="js/libs/hogan.js"></script>
-    <script data-main="js/main" src="js/libs/require.js"></script>
+    <script>
+      var require = {
+        baseUrl: "http://localhost:8080/js/",
+        paths: {
+          "jquery": 'libs/jquery',
+          "underscore": 'libs/underscore',
+          "backbone": 'libs/backbone',
+          "hogan": 'libs/hogan',
+          "io": 'libs/io',
+          "templates": "../templates"
+        }
+    };
+    </script>
+    <script data-main="main" src="js/libs/require.js"></script>
     
     <link type="text/css" href="css/bootstrap.css" rel="stylesheet">
     <link type="text/css" href="css/docs.css" rel="stylesheet">
@@ -43,7 +56,6 @@
     </div>    
     
     <div id="canvas" class="container">
-    
     </div>
 
   </body>
