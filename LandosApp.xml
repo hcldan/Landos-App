@@ -22,6 +22,71 @@
       </script>
       ]]>
    </Content>
-   <Content type="html" view="default,embedded" href="index.html" />
+
+   <Content type="html" view="default,embedded">
+    <![CDATA[
+    <script src="js/libs/hogan.js"></script>
+    <script>
+      var require = {
+        config: {
+          text: {
+            env: "gadget",
+            useXhr: function (url, protocol, hostname, port) {
+              return true;
+            }
+          }
+        },
+        baseUrl: "http://localhost:8080/js/",
+        paths: {
+          "jquery": 'libs/jquery',
+          "underscore": 'libs/underscore',
+          "backbone": 'libs/backbone',
+          "hogan": 'libs/hogan',
+          "io": 'libs/io',
+          "collapse": "libs/bootstrap-collapse",
+          "templates" : "http://localhost:8080/templates"
+        }
+    };
+    </script>
+    <script data-main="main" src="js/libs/require.js"></script>
+    
+    <link type="text/css" href="css/bootstrap.css" rel="stylesheet">
+    <link type="text/css" href="css/docs.css" rel="stylesheet">
+    <link type="text/css" href="css/bootstrap-responsive.css" rel="stylesheet">
+    <style>
+    .success
+    {
+      color:green;
+    }
+    .error
+    {
+      color:red;
+    }
+    </style>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a id="home_btn" class="brand" href="#main_nav"> The Lando's App!</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a id="order_btn" href="#order_nav">Order</a></li>
+              <li><a id="menu_btn" href="#menu_nav">Menu</a></li>
+        <li><a id="account_btn" href="#account_nav">Account</a></li>
+              <li><a id="dashboard_btn" href="#dashboard_nav">Dashboard</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>    
+    
+    <div id="canvas" class="container">
+    </div>
+  ]]>
+   </Content>
  </Module>
 

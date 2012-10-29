@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/account/account.html',
+  'text!templates/account/account.html',
   'views/account/history',
   'models/account'
 ], function($, _, Backbone, accountContainerViewTemplate, AccountHistoryView, Account) {

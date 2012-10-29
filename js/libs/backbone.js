@@ -12,16 +12,16 @@
     factory(root, exports, require('underscore'));
   } else if (typeof define === 'function' && define.amd) {
     // AMD
-    define(['underscore', 'jquery', 'exports'], function(_, $, exports) {
+    define(['underscore', 'jquery', 'exports', 'io'], function(_, $, exports, io) {
       // Export global even in AMD case in case this script is loaded with
       // others that may still expect a global Backbone.
-      root.Backbone = factory(root, exports, _, $);
+      root.Backbone = factory(root, exports, _, $, io);
     });
   } else {
     // Browser globals
     root.Backbone = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender));
   }
-}(this, function(root, Backbone, _, $) {
+}(this, function(root, Backbone, _, $, io) {
 
   // Initial Setup
   // -------------
@@ -1352,7 +1352,11 @@
     }
 
     // Make the request, allowing the user to override any Ajax options.
-    return $.ajax(_.extend(params, options));
+    //return $.ajax(_.extend(params, options));
+
+    var requestParams = _.extend(params, options);
+      
+    return io.makeRequest(requestParams.url, requestParams.type, requestParams.data, requestParams.success, requestParams.headers);
   };
 
   // Wrap an optional error callback with a fallback error event.

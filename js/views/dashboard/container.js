@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/dashboard/dashboard.html',
+  'text!templates/dashboard/dashboard.html',
   'views/dashboard/overview'
 ], function($, _, Backbone, dashboardContainerViewTemplate, OverviewView) {
   

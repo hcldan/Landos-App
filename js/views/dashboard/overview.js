@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/dashboard/overview.html'
+  'text!templates/dashboard/overview.html'
 ], function($, _, Backbone, overviewViewTemplate) {
   
   var OverviewView = Backbone.View.extend({

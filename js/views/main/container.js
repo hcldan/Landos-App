@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/main/main.html',
+  'text!templates/main/main.html',
   'utils'
 ], function($, _, Backbone, mainContainerViewTemplate, utils){
   

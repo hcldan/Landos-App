@@ -234,6 +234,22 @@ define(['module'], function (module) {
             }
             callback(file);
         };
+    } else if (masterConfig.env === 'gadget' && 
+        typeof gadgets !== "undefined") {
+        text.get = function (url, callback, errback) {
+            var params  = {};
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.NONE;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.TEXT;
+            params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 0;
+
+            var _callback = function(data) {
+                var _data = data.data;
+                callback(_data);
+            }
+
+            gadgets.io.makeRequest(url, _callback, params);
+        };
     } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
             text.createXhr())) {
         text.get = function (url, callback, errback) {

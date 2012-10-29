@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/menu/menu.html'
+  'text!templates/menu/menu.html'
 ], function($, _, Backbone, menuContainerViewTemplate) {
   
   var MenuContainerView = Backbone.View.extend({

@@ -4,7 +4,7 @@
     <title>The Lando's App!</title>
     <script src="js/libs/hogan.js"></script>
     <script>
-      var require = {
+      var require = require || {
         baseUrl: "http://localhost:8080/js/",
         paths: {
           "jquery": 'libs/jquery',
@@ -12,7 +12,8 @@
           "backbone": 'libs/backbone',
           "hogan": 'libs/hogan',
           "io": 'libs/io',
-          "templates": "../templates"
+          "collapse": "libs/bootstrap-collapse",
+          "templates" : "http://localhost:8080/templates"
         }
     };
     </script>

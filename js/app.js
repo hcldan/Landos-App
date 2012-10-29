@@ -3,8 +3,9 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'router'
-], function($, _, Backbone, Router){
+  'router',
+  'collapse'
+], function($, _, Backbone, Router, collapse){
   var initialize = function(){
     Router.initialize();
   };

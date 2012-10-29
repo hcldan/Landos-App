@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/dashboard/listview.html'
+  'text!templates/dashboard/listview.html'
 ], function($, _, Backbone, dashboardListViewTemplate) {
   
   var DashboardListView = Backbone.View.extend({

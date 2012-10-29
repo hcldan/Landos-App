@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/account/order.html'
+  'text!templates/account/order.html'
 ], function($, _, Backbone, accountOrderTemplate) {
 
   var AccountOrderView = Backbone.View.extend({

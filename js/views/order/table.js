@@ -3,7 +3,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!/templates/order/table.html',
+  'text!templates/order/table.html',
   'views/order/item'
 ], function($, _, Backbone, orderTableTemplate, OrderItemView) {
   

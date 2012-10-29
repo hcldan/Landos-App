@@ -5,7 +5,7 @@ define([
   'backbone',
   'io',
   'libs/bootstrap-typeahead',
-  'text!/templates/order/form.html',
+  'text!templates/order/form.html',
   'models/item'
 ], function($, _, Backbone, io, typeahead, orderFormTemplate, Item) {
   
