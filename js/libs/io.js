@@ -5,7 +5,32 @@ define([
   'backbone'
 ], function($, _, Backbone) {
 
-  var IO = {
+  var formatUrl = function(url) {
+    //var urlRoot = "http://kargath.notesdev.ibm.com";
+    var urlRoot = "http://localhost:8080";
+
+    // ensure that the url is properly formatted
+    if (url[0] !== "/") {
+      url = "/" + url;
+    }
+
+    return urlRoot + url;
+  };
+
+  var regularIo = {
+    makeRequest: function(url, type, data, callback, headers) {
+      $.ajax({
+        "type": type,
+        "url": formatUrl(url),
+        "contentType" : "application/json",
+        "data": data,
+        "success": callback,
+        "dataType": "json"
+      });
+    }
+  };
+
+  var gadgetIo = {
     makeRequest: function(url, type, data, callback, headers) {
       var requestType = gadgets.io.MethodType.GET;
 
@@ -34,7 +59,7 @@ define([
           rData = [];
         }
 
-        if (data.rc === 200) {
+        if (data.rc === 200 || data.rc === 201) {
           successText = "success";
         } else {
           successText = "error";
@@ -43,20 +68,14 @@ define([
         callback(rData, successText);
       };
 
-      //var urlRoot = "http://kargath.notesdev.ibm.com";
-
-      var urlRoot = "http://localhost:8080"
-
-        // ensure that the url is properly formatted
-        if (url[0] !== "/") {
-          url = "/" + url;
-        }
-
-        url = urlRoot + url;
-
-        gadgets.io.makeRequest(url, cb, params);
+      gadgets.io.makeRequest(formatUrl(url), cb, params);
       } 
     };
-    return IO;
+
+    if (typeof gadgets !== 'undefined') {
+      return gadgetIo;
+    } else {
+      return regularIo;
+    }
   });
   

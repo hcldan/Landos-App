@@ -1352,11 +1352,12 @@
     }
 
     // Make the request, allowing the user to override any Ajax options.
-    //return $.ajax(_.extend(params, options));
-
-    var requestParams = _.extend(params, options);
-      
-    return io.makeRequest(requestParams.url, requestParams.type, requestParams.data, requestParams.success, requestParams.headers);
+    if (typeof gadgets !== 'undefined') {
+      var requestParams = _.extend(params, options);
+      return io.makeRequest(requestParams.url, requestParams.type, requestParams.data, requestParams.success, requestParams.headers);      
+    } else {
+      return $.ajax(_.extend(params, options));
+    }
   };
 
   // Wrap an optional error callback with a fallback error event.
