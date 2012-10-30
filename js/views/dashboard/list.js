@@ -3,8 +3,10 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!templates/dashboard/listview.html'
-], function($, _, Backbone, dashboardListViewTemplate) {
+  'text!templates/dashboard/listview.html',
+  'collections/orderlist',
+  'utils'
+], function($, _, Backbone, dashboardListViewTemplate, OrderList, utils) {
   
   var DashboardListView = Backbone.View.extend({
     el: "#dashboard_canvas",
@@ -12,15 +14,20 @@ define([
     template: Hogan.compile(dashboardListViewTemplate),
     
     initialize: function() {
+      var success = _.bind(function() {
+        this.orders.setItems
+        this.render();
+      }, this);
+
       this.orders = new OrderList;
       this.orders.url = "/orders/all";
-      this.orders.fetch({"beforeSend" : addAuth, 
-                         "success" : this.orders.setItems, 
-                         "headers" : headers()});
+      this.orders.fetch({
+        "headers" : utils.getHeaders(),
+        "success" : success
+      });
     },
 
     render: function() {
-      /*
        var context = this.orders.toJSON();
        for (var i = 0; i < context.length; i++) {
        var order = context[i];
@@ -31,10 +38,6 @@ define([
        }
        var rendered = this.template.render({"orders" : this.orders.toJSON()});
        this.$el.html(rendered);
-       */
-      var data = {};
-      var rendered = this.template.render(data);
-      this.$el.html(rendered);
     }
 });
   

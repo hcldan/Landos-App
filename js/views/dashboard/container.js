@@ -4,8 +4,11 @@ define([
   'underscore',
   'backbone',
   'text!templates/dashboard/dashboard.html',
-  'views/dashboard/overview'
-], function($, _, Backbone, dashboardContainerViewTemplate, OverviewView) {
+  'views/dashboard/overview',
+  'views/dashboard/table',
+  'views/dashboard/list',
+  'models/dashboard'
+], function($, _, Backbone, dashboardContainerViewTemplate, OverviewView, DashboardTableView, DashboardListView, Dashboard) {
   
   var DashboardContainerView = Backbone.View.extend({
     el: "#canvas",
@@ -23,28 +26,27 @@ define([
     },
 
     render: function() {
-      var data = {};
-      var rendered = this.template.render(data);
+      var rendered = this.template.render({});
       this.$el.html(rendered);
       
       // Render the visible subview
-      this.ov = new OverviewView;
-      this.ov.render();
+      this.overview = new OverviewView;
+      this.overview.render();
     },
                                                       
     showOverview: function(e) {
       e.preventDefault();
-      this.ov.render();
+      this.overview.render();
     },
 
     showGridView: function(e) {
       e.preventDefault();
-      //this.dt = this.dt || new DashboardTableView({"model" : Dashboard});
+      this.tableView = new DashboardTableView({"model" : Dashboard});
     },
 
     showListView: function(e) {
       e.preventDefault();
-      //this.dv = this.dv || new DashboardListView({"model" : Dashboard});
+      this.listView = new DashboardListView({"model" : Dashboard});
     },
                                                       
     showUserView: function(e) {

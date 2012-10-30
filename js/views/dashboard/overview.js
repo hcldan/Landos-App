@@ -16,7 +16,6 @@ define([
     },
                                             
     initialize: function() {
-      // need to create a model to store the run id
     },
 
     render: function() {
