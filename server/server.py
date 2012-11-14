@@ -4,7 +4,7 @@ import json
 import uuid
 import datetime
 
-#conn = sqlite3.connect('data_new.sqlite', check_same_thread = False)
+########## Item CRUD Methods ##########
 
 @route('/item', method='POST')
 def create_item():
@@ -49,6 +49,13 @@ def create_item():
 
 @route('/item/:id', method='GET')
 def get_item(id):
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
+    c = conn.cursor()
+    if request.headers.get("Authorization"):
+        (user, run_id) = parse_auth(request.headers["Authorization"])
+    else:
+        abort(401, "Unauthorized")
+
     c.execute("SELECT name, size, price, quantity, comments from items where id=?", (id,))
     result = c.fetchone()
 
@@ -68,24 +75,32 @@ def get_item(id):
     
 @route('/item/:id', method='PUT')
 def update_item(id):
-
     abort(501, 'Not implemented')
 
 @route('/item/:id', method='DELETE')
 def delete_item(id):
-    c = conn.cursor()
-    c.execute("DELETE from items where id=?", (id,))
-    conn.commit()
-
-@route('/items2', method='GET')
-def get_items_for_user():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
     c = conn.cursor()
     if request.headers.get("Authorization"):
         (user, run_id) = parse_auth(request.headers["Authorization"])
     else:
         abort(401, "Unauthorized")
 
-    print "AAAAAAA"
+    c = conn.cursor()
+    c.execute("DELETE from items where id=?", (id,))
+    conn.commit()
+
+########## Collection methods ##########
+
+@route('/items2', method='GET')
+def get_items_for_user():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
+    c = conn.cursor()
+    if request.headers.get("Authorization"):
+        (user, run_id) = parse_auth(request.headers["Authorization"])
+    else:
+        abort(401, "Unauthorized")
+
     print str(user) + str(run_id)    
     c.execute("SELECT id, name, size, price, quantity, comments from items where user=? and run_id=?", (user, run_id))
     results = c.fetchall()
@@ -107,8 +122,28 @@ def get_items_for_user():
 
     return json.dumps(items)
 
+@route('/items', method='GET')
+def get_items():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
+    c = conn.cursor()
+    c.execute('SELECT id,name,description,category from item')
+    items = c.fetchall()
+    
+    items_l = []
+
+    for item in items:
+        items_d = {}
+        items_d["id"] = item[0]
+        items_d["name"] = item[1]
+        items_d["description"] = item[2]
+        items_d["category"] = item[3]
+        items_l.append(items_d)
+
+    return json.dumps(items_l)
+
 @route('/orders/all', method='GET')
 def get_all_orders():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
     c = conn.cursor()
     if request.headers.get("Authorization"):
         (user, run_id) = parse_auth(request.headers["Authorization"])
@@ -156,6 +191,7 @@ def get_all_orders():
 
 @route('/orders', method='GET')
 def get_orders():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
     c = conn.cursor()
     if request.headers.get("Authorization"):
         (user, run_id) = parse_auth(request.headers["Authorization"])
@@ -204,8 +240,11 @@ def get_orders():
 
     return json.dumps(orders)
 
+########## Run Management Methods ##########
+
 @route('/run/create', method='POST')
 def create_run():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
     c = conn.cursor()
     data = request.body.readline()
     if not data:
@@ -235,6 +274,7 @@ def create_run():
 
 @route('/run/current', method='GET')
 def get_current_run():
+    conn = sqlite3.connect('data_new.sqlite', timeout=10)
     c = conn.cursor()
     c.execute("SELECT run_id from runs where date(date) like date('now')")
     run = c.fetchone()
@@ -245,6 +285,8 @@ def get_current_run():
         run_id = run[0]
     
     return json.dumps({"run_id" : run_id})
+
+########## Payment Methods ##########
 
 @route('/order/pay', method='POST')
 def pay_order():
@@ -265,17 +307,23 @@ def pay_order():
 
     return json.dumps({"status" : "Payment Received"})
 
+########## Error methods ##########
+
 @error(400)
 def error400(error):
-    return json.dumps({"error" : ""})
+    return json.dumps({"error" : "Bad request", "status_code" : 400})
+
+@error(401)
+def error400(error):
+    return json.dumps({"error" : "Unauthorized", "status_code" : 401})
 
 @error(501)
 def error501(error):
-    return json.dumps({"error" : "Not implemented"})
+    return json.dumps({"error" : "Not implemented", "status_code" : 501})
 
 @error(404)
 def error404(error):
-    return json.dumps({"error" : "No item found"})
+    return json.dumps({"error" : "No item found", "status_code" : 404})
 
 @route('/sizes/:id', method='GET')
 def get_sizes(id):
@@ -283,19 +331,7 @@ def get_sizes(id):
 
     return json.dumps(sizes)
 
-
-
-
-
-@error(400)
-def error400(error):
-    return json.dumps({"error" : ""})
-
-# for now, we will accept all users
-def user_exists(id):
-    c.execute('SELECT * from user where id=?', (id,))
-    user = c.fetchone()
-    return True
+########## User Methods ##########
 
 @route('/user', method='POST')
 def make_user():
@@ -319,91 +355,7 @@ def make_user():
     except Exception as e:
         abort(400, str(e))
 
-@route('/items', method='GET')
-def get_items():
-    c = conn.cursor()
-    c.execute('SELECT id,name,description,category from item')
-    items = c.fetchall()
-    
-    items_l = []
-
-    for item in items:
-        items_d = {}
-        items_d["id"] = item[0]
-        items_d["name"] = item[1]
-        items_d["description"] = item[2]
-        items_d["category"] = item[3]
-        items_l.append(items_d)
-
-    return json.dumps(items_l)
-
-@route('/categories', method='GET')
-def get_categories():
-    c.execute("SELECT distinct category from item")
-    results = c.fetchall()
-    categories = []
-
-    for result in results:
-        for category in result:
-            categories.append(category)
-
-    return json.dumps(categories)
-
-@route('/categories/items', method='GET')
-def get_categories():
-    c.execute("SELECT name,description,category from item")
-    results = c.fetchall()
-    categories = {}
-
-    for result in results:
-        items_d = {}
-        items_d["name"] = result[0]
-        items_d["description"] = result[1]
-        category = result[2]
-
-        if not categories.has_key(category):
-            categories[category] = []
-
-        categories[category].append(items_d)
-
-    return json.dumps(categories)
-
-@route('/order/pay', method='POST')
-def pay_order():
-    data = request.body.readline()
-    if not data:
-        abort(400, 'No Data Recieved')
-    order = json.loads(data)
-    if not order.has_key('user'):
-        abort(400, 'No user specified')
-    if not order.has_key('run_id'):
-        abort(400, 'No run_id specified')
-
-    order_id = order["order_id"]
-        
-    c.execute("UPDATE orders set status=? where rowid=?", ("Payment Received", order_id))
-
-    conn.commit()
-
-    return json.dumps({"status" : "Payment Received"})
-
-@route('order/:id/items', method='GET')
-def get_order_items(order_id):
-    c.execute('SELECT item_id,size,comments from order_items where order_id=?', (order_id,))
-    order_items = c.fetchall()
-
-    order_items_l = []
-
-    for order_item in order_items:
-        order_items_d = {}
-        order_items_d["name"] = get_item_name(order_item[0])
-        order_items_d["size"] = order_item[1]
-        order_items_d["comments"] = order_item[2]
-        if  not order_items_d["comments"] == "":
-            order_items_d["name"] += " (" + order_items_d["comments"] + ")"
-        order_items_l.append(order_items_d)
-
-    return order_items_l
+########## Static file methods ##########
 
 @route('/<filename:path>')
 def send_static(filename):
