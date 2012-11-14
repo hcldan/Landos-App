@@ -4,9 +4,12 @@ define([
   'underscore',
   'backbone'
 ], function($, _, Backbone) {
-  
+
+  // Models a individual component of an order. Responsible for validating
+  // user input and synchronizing data with the server.
   var Item = Backbone.Model.extend({
 
+  // Default values for appropriate fields
   defaults: {
     "quantity" : 1,
     "comments" : ""
@@ -16,6 +19,12 @@ define([
     this.urlRoot = "/item";
   },
 
+  // Validates both components of the model and the validity of the model
+  // itself. If the model has changed attributes, the assumption is that an
+  // individual field is requesting validation. If the model does not have
+  // changed attributes, the assumption is that the entire model is being
+  // validated. There are cases where these assumptions are not true, but are
+  // not worth investigating further.
   validate: function(attrs) {
     var changedAttributes = this.changedAttributes(attrs);
     var _validate = {

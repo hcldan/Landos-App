@@ -5,7 +5,8 @@ define([
   'backbone',
   'collections/orderlist'
 ], function($, _, Backbone, OrderList) {
-  
+
+  // Provides a model for the admin dashboard  
   var Dashboard = Backbone.Model.extend({
   initialize: function() {
     this.orders = new OrderList;

@@ -6,7 +6,7 @@ define([
   'collections/orderlist',
   'utils'
 ], function($, _, Backbone, OrderList, utils) {
-
+  // Models a user's order history.
   var Account = Backbone.Model.extend({
     initialize: function() {
       this.orders = new OrderList;
@@ -16,6 +16,7 @@ define([
       }, this);
     },
 
+    // Fetch orders from the server
     update: function() {
       this.orders.fetch({ 
        "success" : this.orders.setItems, 
@@ -23,6 +24,7 @@ define([
      });
     },
 
+    // TODO: remove
     total: function() {
       return this.orders.sum();
     }
