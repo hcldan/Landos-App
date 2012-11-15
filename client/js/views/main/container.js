@@ -6,13 +6,14 @@ define([
   'text!templates/main/main.html',
   'utils'
 ], function($, _, Backbone, mainContainerViewTemplate, utils){
-  
+
+  // The container for the initial page that every user sees when they open
+  // the application.
   var MainContainerView = Backbone.View.extend({
     el: '#canvas',
 
     events: {
       "click #order_btn_nav" : function() {
-        
       }
     },
                                                

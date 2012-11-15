@@ -7,13 +7,15 @@ define([
   'views/order/table',
   'utils'
 ], function($, _, Backbone, orderGridTemplate, OrderTableView, utils) {
-  
+
+  // Displays the contents of the current order.  
   var OrderGridView = Backbone.View.extend({
     el: "#order_grid",
     
     template: Hogan.compile(orderGridTemplate),
                                                   
     initialize: function() {
+      // Initalize callback functions
       var success = _.bind(function() {
         this.orderTableView = new OrderTableView(this.model.items);
         this.model.items.bind("destroy", this.render, this);
@@ -28,6 +30,8 @@ define([
       this.model.bind("order:error", function(model, response) { 
         this.trigger("order:error");
       });
+
+      // Attempt to populate the model.
       this.model.items.fetch({
         "headers" : utils.getHeaders(),
         "success" : success,

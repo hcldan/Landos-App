@@ -2,6 +2,6 @@
 require([
   'app'
 ], function(App){
-  debugger;
+  // The main entry point into the app.
   App.initialize();
 });

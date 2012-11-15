@@ -5,7 +5,8 @@ define([
   'backbone',
   'text!templates/order/item.html'
 ], function($, _, Backbone, orderItemTemplate) {
-  
+
+  // Displays an item of an order in the order grid.  
   var OrderItemView = Backbone.View.extend({
     tagName: "tr",
 

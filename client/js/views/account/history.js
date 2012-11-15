@@ -7,7 +7,9 @@ define([
   'views/account/order',
   'views/account/item'
 ], function($, _, Backbone, accountHistoryViewTemplate, AccountOrderView, AccountItemView) {
-  
+
+  // The AccountHistoryView displays the order history for a user. Attaches to
+  // a preexisting DOM element.
   var AccountHistoryView = Backbone.View.extend({
     el: "#account_history",
 

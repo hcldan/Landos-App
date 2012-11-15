@@ -9,13 +9,9 @@ define([
   'models/item'
 ], function($, _, Backbone, io, typeahead, orderFormTemplate, Item) {
   
-  /**
-  * @Type: View
-  * @Description: Represents the order form. Handles rendering, 
-  * form validation, and prepopulating fields.
-  * @Model: Item
-  * @Events: itemAdded - Fires when a valid item is submitted to the server.
-  */
+  // Represents the order form. Handles rendering, form validation, and
+  // prepopulating fields. Attaches to a preexisting DOM element. Fires the
+  // 'itemAdded' event when a user presses the 'Add to order' button.
   var OrderFormView = Backbone.View.extend({
     el: "#order_form",
                                              
@@ -36,7 +32,7 @@ define([
       this.model.on("change:name", this.populateSizeDropdown);
     },
 
-    /* Cache selectors for easier reference. */
+    // Cache selectors for easier reference.
     bindFields: function() {
       this.$name = $("#name");
       this.$size = $("#size");
@@ -48,6 +44,7 @@ define([
       this.$quantity.val(this.model.get("quantity"));
     },
     
+    // The click handler for the 'Add to order' button
     addToOrder: function(e) {
       e.preventDefault();
       if (this.model.isValid()) {
@@ -57,6 +54,8 @@ define([
         $("#add_to_order").effect("shake", { times:2 }, 150);
       }
     },
+
+    // Setters for the model
 
     setName: function(e) {
       this.clearError("name");
@@ -77,6 +76,8 @@ define([
       });
     },
 
+    // Prevents the user from selecting more than 10 of a certain item.
+    // Given the usecase, this seems like a sane default.
     incrQuantity: function(e) {
       var quantity = parseInt(this.$quantity.text()) + 1;
       if (quantity > 10) {
@@ -99,6 +100,7 @@ define([
       this.model.set({"comments": this.$comments.val()});
     },
                                              
+    // Resets the underlying Item model and UI.
     reset: function() {
       this.model = new Item;
       // move this to the item constructor
@@ -124,29 +126,29 @@ define([
       return this;
     },
     
+    // Dynamically populates the size dropdown based on which item a user selects.
     populateSizeDropdown: function(model, item) {
-      // move this into closure
-      var populateSizesDropdown = function(data, textStatus, jqXHR) {
+      io.makeRequest("/sizes/" + item, "GET", "", function(data, textStatus, jqXHR) {
         $("#size > option").remove();
         $("#size").append(new Option("Select a size"));
         for (var i = 0; i < data.length; i++) {
           $("#size").append(new Option(data[i]));
         }
-      };
-      io.makeRequest("/sizes/" + item, "GET", "", populateSizesDropdown);
+      });
     },
     
+    // Populates the Item#name typeahead data from the server.
     populateDropdown : function() {
-      // move this into closure
-      var _populateDropdown = function(data, textStatus, jqXHR) {
+      var _populateDropdown = 
+      io.makeRequest("/items", "GET", "", function(data, textStatus, jqXHR) {
         var items = _.map(data, function(item) {
           return item.name;
         });
         $("#name").typeahead({source: items});
-      };
-      io.makeRequest("/items", "GET", "", _populateDropdown);
+      });
     },
 
+    // Display validation errors in the appropriate places.
     showError: function(model, location) {
       var errors = {
         "name" : "Please enter a valid name",
@@ -163,10 +165,11 @@ define([
       $helpLocation.html(error);
     },
 
+    // TODO: Remove
     showSuccess: function(model, location) {
-      debugger;
     },
 
+    // Remove a validation error message
     clearError:function(location) {
       var $input = $("#" + location + "_input");
       $input.removeClass("error");

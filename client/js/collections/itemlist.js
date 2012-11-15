@@ -5,20 +5,14 @@ define([
   'backbone',
   'models/item'
 ], function($, _, Backbone, Item) {
-  // ### Name 
-  // ItemList
-  // ### Type 
-  // Collection
-  // ### Description
-  // Holds a list of items client-side and synchronizes with the server.
-  // ### Endpoint
-  // /items2
+  
+  // Stores a list of items. Synchronizes changes with the server.
   var ItemList = Backbone.Collection.extend({
-  model: Item,
+    model: Item,
 
-  initialize: function(options) {
-    this.url = "/items2";
-  },
+    initialize: function(options) {
+      this.url = "/items2";
+    },
 
   // Returns the total price of all the items in the list.
   sum: function() {
@@ -31,18 +25,18 @@ define([
   toJSON: function() {
     return {
       "items":
-        this.map(function(item) {
-          return {
-            "id" : item.attributes.id,
-            "name" : item.attributes.name,
-            "size" : item.attributes.size,
-            "price" : item.attributes.price,
-            "quantity" : item.attributes.quantity,
-            "comments" : item.attributes.comments
-          };
-        })
-      };
-    }
+      this.map(function(item) {
+        return {
+          "id" : item.attributes.id,
+          "name" : item.attributes.name,
+          "size" : item.attributes.size,
+          "price" : item.attributes.price,
+          "quantity" : item.attributes.quantity,
+          "comments" : item.attributes.comments
+        };
+      })
+    };
+  }
 });
   
   return ItemList;

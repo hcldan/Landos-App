@@ -5,7 +5,8 @@ define([
   'backbone',
   'text!templates/menu/menu.html'
 ], function($, _, Backbone, menuContainerViewTemplate) {
-  
+
+  // The menu is not currently used.  
   var MenuContainerView = Backbone.View.extend({
     el: "#canvas",
   

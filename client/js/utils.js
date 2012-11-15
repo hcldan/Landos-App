@@ -4,7 +4,8 @@ define([
   'underscore',
   'backbone',
 ], function($, _, Backbone) {
-  
+
+  // Basic utilities for retrieving static application information.  
   var Utils = function() {
     this.getHeaders = function() {
       var user = sessionStorage.getItem("user");

@@ -6,7 +6,8 @@ define([
   'text!templates/order/table.html',
   'views/order/item'
 ], function($, _, Backbone, orderTableTemplate, OrderItemView) {
-  
+
+  // Displays the contents of an order as a table.  
   var OrderTableView = Backbone.View.extend({
     tagName: "table",
 

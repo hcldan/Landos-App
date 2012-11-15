@@ -32,7 +32,7 @@ define([
     initialize: function() {
       this.url = "/orders";
     },
-
+  // TODO: Not implemented
   sum: function() {
     return 0;
   }

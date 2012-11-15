@@ -36,7 +36,7 @@ define([
       "comments" : function(v) { return true; }
     };
 
-    // use underscore or hasOwnProperty
+    // TODO: use underscore or hasOwnProperty.
     if (changedAttributes) {
       for (var attr in changedAttributes) {
 
@@ -54,7 +54,7 @@ define([
     }
   },
 
-  // TODO: This may not be neccessary
+  // TODO: Remove. This may not be neccessary
   toJSON: function() {
     return {
       "id" : this.attributes.id,

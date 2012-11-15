@@ -6,6 +6,7 @@ define([
   'router',
   'collapse'
 ], function($, _, Backbone, Router, collapse){
+  // All application logic is controlled by the router.
   var initialize = function(){
     Router.initialize();
   };
