@@ -14,11 +14,12 @@ define([
 
     events: {
       "click #order_btn_nav" : function() {
+        this.trigger("click:order");
       }
     },
                                                
     template: Hogan.compile(mainContainerViewTemplate),
-                                               
+
     render: function(){
       var context = {
         "class" : utils.isRun() ? "success" : "error",

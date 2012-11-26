@@ -6,8 +6,8 @@ define([
 ], function($, _, Backbone) {
 
   var formatUrl = function(url) {
-    //var urlRoot = "http://kargath.notesdev.ibm.com";
-    var urlRoot = "http://localhost:8080";
+    var urlRoot = "http://kargath.notesdev.ibm.com:8080";
+    //var urlRoot = "http://localhost:8080";
 
     // ensure that the url is properly formatted
     if (url[0] !== "/") {

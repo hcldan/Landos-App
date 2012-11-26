@@ -27,6 +27,8 @@
     <![CDATA[
     <script src="js/libs/hogan.js"></script>
     <script>
+      var gUserId = "";
+      var gRunId = "";
       var require = {
         config: {
           text: {
@@ -36,7 +38,7 @@
             }
           }
         },
-        baseUrl: "http://localhost:8080/js/",
+        baseUrl: "http://kargath.notesdev.ibm.com:8080/js/",
         paths: {
           "jquery": 'libs/jquery',
           "underscore": 'libs/underscore',
@@ -44,11 +46,10 @@
           "hogan": 'libs/hogan',
           "io": 'libs/io',
           "collapse": "libs/bootstrap-collapse",
-          "templates" : "http://localhost:8080/templates"
+          "templates" : "http://kargath.notesdev.ibm.com:8080/templates"
         }
     };
     </script>
-    <script data-main="main" src="js/libs/require.js"></script>
     
     <link type="text/css" href="css/bootstrap.css" rel="stylesheet">
     <link type="text/css" href="css/docs.css" rel="stylesheet">
@@ -73,11 +74,7 @@
           </a>
           <a id="home_btn" class="brand" href="#main_nav"> The Lando's App!</a>
           <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li><a id="order_btn" href="#order_nav">Order</a></li>
-              <li><a id="menu_btn" href="#menu_nav">Menu</a></li>
-        <li><a id="account_btn" href="#account_nav">Account</a></li>
-              <li><a id="dashboard_btn" href="#dashboard_nav">Dashboard</a></li>
+            <ul id="main-nav-list" class="nav">
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -86,7 +83,56 @@
     
     <div id="canvas" class="container">
     </div>
+
+    <script>
+      // Set UserId
+      gadgets.util.registerOnLoadHandler(function() {
+        var batch = osapi.newBatch();
+        batch.add('viewer', osapi.people.getViewer());
+        batch.add('owner', osapi.people.getOwner());
+        batch.execute(function(response) {
+          // format the username so that we can use it
+          var l = response.viewer.id.split(":");
+          if (l.length > 1) {
+            l.reverse();
+            gUserId = l[0].concat("@" + l[1]);
+          } else {
+            gUserId = response.viewer.id;
+          }
+        });
+      });
+
+      var injectRequireJs = function() {
+        var head = document.getElementsByTagName('head').item(0);
+        var script = document.createElement("script");
+        script.setAttribute("data-main", "main");
+        script.src = require.baseUrl + "libs/require.js";
+        head.appendChild(script);
+      };
+
+      if (hasContext) {
+        // Set the RunId
+        gadgets.util.registerOnLoadHandler(function() {
+          opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', function(key) {
+          var _runId = opensocial.data.getDataContext().getDataSet(key);
+          var setRunId = function(data) {
+            if (data && data.data && data.data.run_id === _runId) {
+                gRunId = _runId;
+            }
+            injectRequireJs();
+          };
+          var params = {};
+          params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+          params[gadgets.io.RequestParameters.METHOD] = "GET";
+          params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 0;
+
+          gadgets.io.makeRequest("http://kargath.notesdev.ibm.com:8080/run/current", setRunId, params)
+          });
+        });
+      } else {
+        injectRequireJs();
+      }
+    </script>
   ]]>
    </Content>
  </Module>
-

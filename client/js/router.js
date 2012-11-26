@@ -3,17 +3,21 @@ define([
   'jquery',
   'underscore',
   'backbone',
+  'views/nav/nav',
   'views/main/container',
   'views/order/container',
   'views/menu/container',
   'views/account/container',
-  'views/dashboard/container'
-], function($, _, Backbone, 
+  'views/dashboard/container',
+  'utils'
+], function($, _, Backbone,
+            NavView,
             MainContainerView, 
             OrderContainerView, 
             MenuContainerView,
             AccountContainerView,
-            DashboardContainerView){
+            DashboardContainerView,
+            Utils){
   var MainRouter = Backbone.Router.extend({
     routes: {
       "main_nav":    "showMain",
@@ -27,12 +31,14 @@ define([
   var initialize = function() {
     var router = new MainRouter();
 
-    // Save credentials to sessionStorage
-    sessionStorage.setItem("user", "bob");
-    sessionStorage.setItem("runId", "324234234");
-    
+    var navView = new NavView();
+    navView.render();
+
     router.on("route:showMain", function() {
-      var mainContainerView = mainContainerView || new MainContainerView();
+      var mainContainerView = mainContainerView || new MainContainerView()
+      mainContainerView.on("click:order", function() {
+        router.navigate("order_nav", {"trigger": "true"});
+      })
       mainContainerView.render();
     });
     
