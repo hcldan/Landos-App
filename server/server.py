@@ -362,6 +362,6 @@ def make_user():
 def send_static(filename):
     return static_file(filename, root='/var/www/Landos-App/client')
 
-#debug(True)
+debug(True)
 
 #run(host='0.0.0.0', port=8080, server='paste')

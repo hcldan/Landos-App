@@ -86,6 +86,15 @@
     </div>
 
     <script>
+      var injectRequireJs = function() {
+      var head = document.getElementsByTagName('head').item(0);
+      var script = document.createElement("script");
+      script.setAttribute("data-main", "main");
+      script.src = require.baseUrl + "libs/require.js";
+      head.appendChild(script);
+      };
+      
+
       // Set UserId
       gadgets.util.registerOnLoadHandler(function() {
         var batch = osapi.newBatch();
@@ -100,16 +109,12 @@
           } else {
             gUserId = response.viewer.id;
           }
+          
+          if (gRunId || !hasContext) {
+            injectRequireJs();
+          }
         });
       });
-
-      var injectRequireJs = function() {
-        var head = document.getElementsByTagName('head').item(0);
-        var script = document.createElement("script");
-        script.setAttribute("data-main", "main");
-        script.src = require.baseUrl + "libs/require.js";
-        head.appendChild(script);
-      };
 
       if (hasContext) {
         // Set the RunId
@@ -119,8 +124,11 @@
           var setRunId = function(data) {
             if (data && data.data && data.data.run_id === _runId) {
                 gRunId = _runId;
+
+                if (gUserId) {	    
+                  injectRequireJs();
+                }
             }
-            injectRequireJs();
           };
           var params = {};
           params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
@@ -131,7 +139,9 @@
           });
         });
       } else {
-        injectRequireJs();
+          if (gUserId) {
+            injectRequireJs();
+          }
       }
     </script>
   ]]>
