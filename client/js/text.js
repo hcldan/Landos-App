@@ -243,9 +243,20 @@ define(['module'], function (module) {
             params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.TEXT;
             params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 0;
 
+            var retryAttempts = 0;
+
             var _callback = function(data) {
-                var _data = data.data;
-                callback(_data);
+                if (data.errors.length > 0) {
+                    if (retryAttempts <= 5) {
+                        gadgets.warn("Text!Error: Attempting to fetch again");
+                        window.setTimeout(function() {gadgets.io.makeRequest(url, _callback,params)}, 200);
+                    } else {
+                      document.write("There was an error. Please try loading the gadget again.")
+                    }
+                } else {
+                    var _data = data.data;
+                    callback(_data);
+                }
             }
 
             gadgets.io.makeRequest(url, _callback, params);

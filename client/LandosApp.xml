@@ -39,6 +39,7 @@
           }
         },
         baseUrl: "http://kargath.notesdev.ibm.com:8080/js/",
+        waitSeconds: 15,
         paths: {
           "jquery": 'libs/jquery',
           "underscore": 'libs/underscore',

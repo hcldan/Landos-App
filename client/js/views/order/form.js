@@ -128,7 +128,7 @@ define([
     
     // Dynamically populates the size dropdown based on which item a user selects.
     populateSizeDropdown: function(model, item) {
-      io.makeRequest("/sizes/" + item, "GET", "", function(data, textStatus, jqXHR) {
+      io.makeRequest("/sizes/" + encodeURI(item), "GET", "", function(data, textStatus, jqXHR) {
         $("#size > option").remove();
         $("#size").append(new Option("Select a size"));
         for (var i = 0; i < data.length; i++) {

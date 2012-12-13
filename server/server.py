@@ -3,6 +3,7 @@ import sqlite3
 import json
 import uuid
 import datetime
+import mail
 
 ########## Item CRUD Methods ##########
 
@@ -81,10 +82,10 @@ def update_item(id):
 def delete_item(id):
     conn = sqlite3.connect('data_new.sqlite', timeout=10)
     c = conn.cursor()
-    if request.headers.get("Authorization"):
-        (user, run_id) = parse_auth(request.headers["Authorization"])
-    else:
-        abort(401, "Unauthorized")
+    #if request.headers.get("Authorization"):
+    #    (user, run_id) = parse_auth(request.headers["Authorization"])
+    #else:
+    #    abort(401, "Unauthorized")
 
     c = conn.cursor()
     c.execute("DELETE from items where id=?", (id,))
@@ -258,8 +259,6 @@ def create_run():
 
     if run:
         abort(200, "A run already exists")
-
-    mail.send_run_email(run_id, c)
         
     run_id = uuid.uuid4().hex
     user_id = order["user"]
@@ -268,6 +267,8 @@ def create_run():
     c.execute("INSERT into runs values (?, ?, ?)", (run_id, user_id, date_placed))
 
     conn.commit()
+
+    mail.send_run_email(run_id, c)
 
     response.status = 201
     return json.dumps({"run_id" : run_id})
@@ -359,8 +360,8 @@ def make_user():
 
 @route('/<filename:path>')
 def send_static(filename):
-    return static_file(filename, root='C:/Users/roneill/code/landosapp/assets/')
+    return static_file(filename, root='/var/www/Landos-App/client')
 
-debug(True)
+#debug(True)
 
-run(host='0.0.0.0', port=8080, server='paste')
+#run(host='0.0.0.0', port=8080, server='paste')
