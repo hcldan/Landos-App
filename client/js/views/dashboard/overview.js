@@ -3,8 +3,9 @@ define([
   'jquery',
   'underscore',
   'backbone',
+  'io',
   'text!templates/dashboard/overview.html'
-], function($, _, Backbone, overviewViewTemplate) {
+], function($, _, Backbone, io, overviewViewTemplate) {
   
   var OverviewView = Backbone.View.extend({
     el: "#dashboard_canvas",
