@@ -2,17 +2,13 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>landos</display-name>
    
-  <filter>
-    <filter-name>guiceFilter</filter-name>
-    <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
-  </filter>
- 
-  <filter-mapping>
-    <filter-name>guiceFilter</filter-name>
-    <url-pattern>/data/*</url-pattern>
-  </filter-mapping>
-  
-  <listener>
-    <listener-class>com.ibm.opensocial.landos.guice.GuiceServletConfig</listener-class>
-  </listener>
+  <servlet>
+    <servlet-name>DataServlet</servlet-name>
+    <servlet-class>com.ibm.opensocial.landos.DataServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>DataServlet</servlet-name>
+    <url-pattern>/data*</url-pattern>
+  </servlet-mapping>
 </web-app>
