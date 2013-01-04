@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import org.apache.wink.json4j.JSONException;
+import org.apache.wink.json4j.JSONWriter;
+
 public class DataServlet extends HttpServlet {
   private static final long serialVersionUID = 8636321669435402465L;
   private static final String CLAZZ = DataServlet.class.getName();
@@ -38,8 +41,16 @@ public class DataServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     resp.setHeader("CACHE-CONTROL", "no-cache");
     resp.setContentType("application/json");
-    resp.getOutputStream().println("\"yay!\"");
-    resp.getOutputStream().close();
+    
+    String osid = req.getHeader("OPENSOCIAL-ID");
+    JSONWriter writer = new JSONWriter(resp.getWriter());
+    try {
+      writer.object()
+        .key("id").value(osid)
+      .endObject();
+    } catch (Exception e) {
+      throw new ServletException(e);
+    }
   }
 }
 
