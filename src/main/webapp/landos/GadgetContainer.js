@@ -38,6 +38,7 @@ define('landos/GadgetContainer', [
         osapi.people.getViewer().execute(function(viewer) {
           osapi.http.get({
             href: env.getAPIUri('data'),
+            format: 'json',
             headers: {
               'OPENSOCIAL-ID': [viewer.id]
             }
