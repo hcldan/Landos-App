@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -31,6 +32,7 @@ public class SubscribeServlet extends BaseServlet {
         .key("subscribed").value(isSubscribed(osid))
       .endObject();
     } catch (Exception e) {
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
       throw new ServletException(e);
     } finally {
       writer.close();
