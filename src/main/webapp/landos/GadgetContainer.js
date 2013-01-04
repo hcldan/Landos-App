@@ -6,14 +6,16 @@ define('landos/GadgetContainer', [
   'dijit/_Container',
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
-  'landos/env'
-], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env) {
+  'landos/env',
+  'dojo/Deferred'
+], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
     /** {landos/LoadingPanel} loading panel widget */
     loading: undef,
     
+    // Other variables
     /** {boolean} Subscription status */
     subscribed: false,
     
@@ -51,7 +53,7 @@ define('landos/GadgetContainer', [
               headers: {
                 'OPENSOCIAL-ID': [viewer.id]
               }
-            }))
+            }));
             batch.execute(function(results) {
               for (var key in results) {
                 if (results.hasOwnProperty(key)) {
