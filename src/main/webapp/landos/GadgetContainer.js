@@ -30,7 +30,7 @@ define('landos/GadgetContainer', [
       
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
-        this.set('subscribed', result.subscribe.subscribed);
+        this.set('subscribed', result.subscribe.content.subscribed);
         this.loading.hide();
       })).otherwise(lang.hitch(this, function(reason) {
         gadgets.error(reason);
