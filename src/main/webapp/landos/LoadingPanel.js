@@ -1,4 +1,4 @@
-define('landos/GadgetContainer', [
+define('landos/LoadingPanel', [
   'require',
   'dojo/_base/lang',
   'dojo/_base/declare',
