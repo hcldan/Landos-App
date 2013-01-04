@@ -8,7 +8,18 @@
       <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/claro.css</Param> 
     </Optional>
   </ModulePrefs>
-  <Content type="html" view="default,embedded" href="default.html"></Content>
+  <Content type="html" view="default,embedded"><![CDATA[
+	  <head>
+	    <link type="text/css" rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/claro.css"></link>
+	    <style type="text/css">
+	      body {
+	        background:url("//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/images/loadingAnimation.gif") no-repeat center center;
+	      }
+	    </style>
+	    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js" data-dojo-config="async: true"></script>
+	  </head>
+	  <body></body>
+  ]]></Content>
 
    <Content type="html" view="old">
     <![CDATA[
