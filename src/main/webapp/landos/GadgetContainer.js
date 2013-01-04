@@ -45,7 +45,7 @@ define('landos/GadgetContainer', [
             }));
             batch.add('subscribe', osapi.http.get({
               href: env.getAPIUri('subscribe'),
-              format: 'text',
+              format: 'json',
               headers: {
                 'OPENSOCIAL-ID': [viewer.id]
               }
@@ -54,7 +54,7 @@ define('landos/GadgetContainer', [
               var resolve = {};
               for (var result in results) {
                 if (results.hasOwnProperty(result)) {
-                  if (result.error) {
+                  if (result.error || result.status != 200) {
                     return onData.reject(results);
                   }
                   resolve[result.id] = result.content;
