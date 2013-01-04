@@ -53,9 +53,9 @@ public class SubscribeServlet extends BaseServlet {
           ret = result.getInt(1) > 0;
         }
       } finally {
+        result.close();
         stmt.close();
         connection.close();
-        result.close();
       }
     }
     return ret;
