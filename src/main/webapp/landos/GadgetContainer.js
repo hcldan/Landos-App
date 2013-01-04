@@ -6,14 +6,16 @@ define('landos/GadgetContainer', [
   'dijit/_Container',
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
-  'landos/env',
-  'dojo/Deferred'
-], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
+  'landos/env'
+], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
     /** {landos/LoadingPanel} loading panel widget */
     loading: undef,
+    
+    /** {boolean} Subscription status */
+    subscribed: false,
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
@@ -24,11 +26,12 @@ define('landos/GadgetContainer', [
       this.inherited(arguments);
       this.loading.show();
 
+      this.subscribed = new Deferred();
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
-        debugger;
-        this.loading.hide();  
-      })).otherwise(lang.hitch(this, function(reason){
+        this.set('subscribed', result.subscribe.subscribed);
+        this.loading.hide();
+      })).otherwise(lang.hitch(this, function(reason) {
         gadgets.error(reason);
       }));
       
