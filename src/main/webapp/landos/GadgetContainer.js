@@ -37,7 +37,7 @@ define('landos/GadgetContainer', [
       gadgets.util.registerOnLoadHandler(function() {
         osapi.people.getViewer().execute(function(viewer) {
           osapi.http.get({
-            href: env.getAPIUri('landos/data'),
+            href: env.getAPIUri('data'),
             headers: {
               'OPENSOCIAL-ID': [viewer.id]
             }
