@@ -24,7 +24,7 @@
 	    <!-- Last -->
 	    <script src="init.js"></script>
 	  </head>
-	  <body><div data-dojo-type="landos/GadgetContainer"></div></body>
+	  <body class="claro"><div data-dojo-type="landos/GadgetContainer"></div></body>
   ]]></Content>
 
    <Content type="html" view="old">
