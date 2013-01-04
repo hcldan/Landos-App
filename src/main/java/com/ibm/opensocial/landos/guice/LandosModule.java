@@ -7,6 +7,6 @@ public class LandosModule extends ServletModule {
   @Override
   protected void configureServlets() {    
 //    bind(.class).to(.class);
-    serve("/data", "/data/*").with(DataServlet.class);
+    serve("*").with(DataServlet.class);
   }
 }
