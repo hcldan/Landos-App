@@ -6,9 +6,17 @@
     <servlet-name>DataServlet</servlet-name>
     <servlet-class>com.ibm.opensocial.landos.DataServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>DataServlet</servlet-name>
     <url-pattern>/data/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>SubscribeServlet</servlet-name>
+    <servlet-class>com.ibm.opensocial.landos.SubscribeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SubscribeServlet</servlet-name>
+    <url-pattern>/subscribe/*</url-pattern>
   </servlet-mapping>
 </web-app>

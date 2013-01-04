@@ -26,7 +26,7 @@ define('landos/GadgetContainer', [
 
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
-        gadgets.log(result.id);
+        debugger;
         this.loading.hide();  
       })).otherwise(lang.hitch(this, function(reason){
         gadgets.error(reason);
@@ -35,15 +35,25 @@ define('landos/GadgetContainer', [
       gadgets.util.registerOnLoadHandler(function() {
         osapi.people.getViewer().execute(function(viewer) {
           if (viewer && viewer.id) {
-            osapi.http.get({
+            
+            var batch = osapi.newBatch();
+            batch.add('data', osapi.http.get({
               href: env.getAPIUri('data'),
               format: 'json',
               headers: {
                 'OPENSOCIAL-ID': [viewer.id]
               }
-            }).execute(function(result) {
+            }));
+            batch.add('subscribe', osapi.http.get({
+              href: env.getAPIUri('subscribe'),
+              format: 'json',
+              headers: {
+                'OPENSOCIAL-ID': [viewer.id]
+              }
+            }))
+            batch.execute(function(result) {
               if (result.status == 200) {
-                onData.resolve(result.content);
+                onData.resolve(result);
               } else {
                 onData.reject(result);
               }
