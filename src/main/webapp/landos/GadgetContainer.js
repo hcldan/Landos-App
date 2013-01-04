@@ -55,6 +55,16 @@ define('landos/GadgetContainer', [
               }
             }));
             batch.execute(function(results) {
+              // Deal with occasional wonkey batch response format...  
+              if (results.length) {
+                // TODO: Report this to shindig if it can be easily reproduced.
+                var arr = results;
+                results = {};
+                for (var i = 0; i < arr.length; i++) {
+                  var result = arr[i]; 
+                  results[result.id] = result;
+                }
+              }
               for (var key in results) {
                 if (results.hasOwnProperty(key)) {
                   var result = results[key];
