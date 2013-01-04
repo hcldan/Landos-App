@@ -50,6 +50,8 @@ public class DataServlet extends HttpServlet {
       .endObject();
     } catch (Exception e) {
       throw new ServletException(e);
+    } finally {
+      writer.close();
     }
   }
 }
