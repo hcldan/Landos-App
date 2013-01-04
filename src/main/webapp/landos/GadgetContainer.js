@@ -4,10 +4,11 @@ define('landos/GadgetContainer', [
   'dojo/_base/declare',
   'dijit/_WidgetBase',
   'dijit/_Container',
-  'dijit/_TemplatedMixin'
-], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin) {
+  'dijit/_TemplatedMixin',
+  'dijit/_WidgetsInTemplateMixin'
+], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin) {
   var undef;
-  return declare([_WidgetBase, _Container, _TemplatedMixin], {
+  return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
     /** {landos/LoadingPanel} loading panel widget */
     loading: undef,
