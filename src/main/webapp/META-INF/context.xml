@@ -1,0 +1,15 @@
+<Context>
+  <Resource name="jdbc/landos" 
+    auth="Container"
+    type="javax.sql.DataSource" 
+    username="landos" 
+    password="food"
+    driverClassName="com.mysql.jdbc.Driver"
+    url="jdbc:mysql://localhost:3306/landos?useUnicode=true&amp;characterEncoding=UTF-8"
+    maxActive="10" 
+    maxIdle="1"
+    removeAbandoned="true"
+    removeAbandonedTimeout="60"
+    logAbandoned="true"
+  />
+</Context>
