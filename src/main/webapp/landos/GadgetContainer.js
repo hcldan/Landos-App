@@ -52,8 +52,9 @@ define('landos/GadgetContainer', [
             }))
             batch.execute(function(results) {
               var resolve = {};
-              for (var result in results) {
-                if (results.hasOwnProperty(result)) {
+              for (var key in results) {
+                if (results.hasOwnProperty(key)) {
+                  var result = results[key];
                   if (result.error || result.status != 200) {
                     return onData.reject(results);
                   }
