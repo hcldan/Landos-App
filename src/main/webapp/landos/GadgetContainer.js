@@ -45,19 +45,20 @@ define('landos/GadgetContainer', [
             }));
             batch.add('subscribe', osapi.http.get({
               href: env.getAPIUri('subscribe'),
-              format: 'json',
+              format: 'text',
               headers: {
                 'OPENSOCIAL-ID': [viewer.id]
               }
             }))
             batch.execute(function(results) {
               var resolve = {};
-              for (var i = 0; i < results.length; i++) {
-                var result = results[i];
-                if (result.error) {
-                  return onData.reject(results);
+              for (var result in results) {
+                if (results.hasOwnProperty(result)) {
+                  if (result.error) {
+                    return onData.reject(results);
+                  }
+                  resolve[result.id] = result.content;
                 }
-                resolve[result.id] = result.content;
               }
               onData.resolve(resolve);
             }); 

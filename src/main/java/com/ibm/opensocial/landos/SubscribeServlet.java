@@ -44,16 +44,14 @@ public class SubscribeServlet extends BaseServlet {
     if (user != null) {
       Connection connection = null;
       PreparedStatement stmt = null;
-      ResultSet result = null;
       try {
         connection = dbSource.getConnection();
         stmt = connection.prepareStatement("SELECT COUNT(*) from `subscribed` WHERE `user`=?");
-        result = stmt.executeQuery();
+        ResultSet result = stmt.executeQuery();
         if (result.first()) {
           ret = result.getInt(1) > 0;
         }
       } finally {
-        result.close();
         stmt.close();
         connection.close();
       }
