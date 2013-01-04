@@ -26,25 +26,31 @@ define('landos/GadgetContainer', [
 
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
-        
+        gadgets.log(result.id);
         this.loading.hide();  
       })).otherwise(lang.hitch(this, function(reason){
-//        require(['dojo/json'], function(json) {
-          gadgets.error(reason);
-//        });
+        gadgets.error(reason);
       }));
       
       gadgets.util.registerOnLoadHandler(function() {
         osapi.people.getViewer().execute(function(viewer) {
-          osapi.http.get({
-            href: env.getAPIUri('data'),
-            format: 'json',
-            headers: {
-              'OPENSOCIAL-ID': [viewer.id]
-            }
-          }).execute(function(result) {
-            debugger;
-          });
+          if (viewer && viewer.id) {
+            osapi.http.get({
+              href: env.getAPIUri('data'),
+              format: 'json',
+              headers: {
+                'OPENSOCIAL-ID': [viewer.id]
+              }
+            }).execute(function(result) {
+              if (result.status == 200) {
+                onData.resolve(result.content);
+              } else {
+                onData.reject(result);
+              }
+            }); 
+          } else {
+            onData.reject(viewer);
+          }
         });
       });
     }
