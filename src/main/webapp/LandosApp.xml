@@ -23,6 +23,7 @@
 	    <link type="text/css" rel="stylesheet" href="landos/LoadingPanel.css"></link>
 	    
 	    <!-- Js to be combined for us by shindig. -->
+	    <script src="landos/env.js"></script>
 	    <script src="landos/GadgetContainer.js"></script>
 	    <script src="landos/LoadingPanel.js"></script>
 	    

@@ -1,5 +1,6 @@
 package com.ibm.opensocial.landos;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,6 +9,8 @@ import javax.naming.InitialContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 public class DataServlet extends HttpServlet {
@@ -29,6 +32,14 @@ public class DataServlet extends HttpServlet {
         LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
       }
     }
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setContentType("application/json");
+    resp.getOutputStream().println("\"yay!\"");
+    resp.getOutputStream().close();
   }
 }
 
