@@ -35,7 +35,6 @@ define('landos/GadgetContainer', [
       gadgets.util.registerOnLoadHandler(function() {
         osapi.people.getViewer().execute(function(viewer) {
           if (viewer && viewer.id) {
-            
             var batch = osapi.newBatch();
             batch.add('data', osapi.http.get({
               href: env.getAPIUri('data'),
@@ -46,17 +45,21 @@ define('landos/GadgetContainer', [
             }));
             batch.add('subscribe', osapi.http.get({
               href: env.getAPIUri('subscribe'),
-              format: 'json',
+              format: 'text',
               headers: {
                 'OPENSOCIAL-ID': [viewer.id]
               }
             }))
-            batch.execute(function(result) {
-              if (result.status == 200) {
-                onData.resolve(result);
-              } else {
-                onData.reject(result);
+            batch.execute(function(results) {
+              var resolve = {};
+              for (var i = 0; i < results.length; i++) {
+                var result = results[i];
+                if (result.error) {
+                  return onData.reject(results);
+                }
+                resolve[result.id] = result.content;
               }
+              onData.resolve(resolve);
             }); 
           } else {
             onData.reject(viewer);
