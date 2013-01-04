@@ -51,17 +51,15 @@ define('landos/GadgetContainer', [
               }
             }))
             batch.execute(function(results) {
-              var resolve = {};
               for (var key in results) {
                 if (results.hasOwnProperty(key)) {
                   var result = results[key];
                   if (result.error || result.status != 200) {
                     return onData.reject(results);
                   }
-                  resolve[result.id] = result.content;
                 }
               }
-              onData.resolve(resolve);
+              onData.resolve(results);
             }); 
           } else {
             onData.reject(viewer);
