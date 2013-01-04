@@ -25,8 +25,7 @@ define('landos/GadgetContainer', [
     startup: function() {
       this.inherited(arguments);
       this.loading.show();
-
-      this.subscribed = new Deferred();
+      
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
         this.set('subscribed', result.subscribe.subscribed);
