@@ -17,9 +17,13 @@
 	      }
 	    </style>
 	    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js" data-dojo-config="async: true"></script>
+	    <!-- Css to be combined for us by shindig. -->
+	    <link type="text/css" rel="stylesheet" href="landos/GadgetContainer.css"></link>
+	    <link type="text/css" rel="stylesheet" href="landos/LoadingPanel.css"></link>
 	    
-	    <!-- Modules to be combined for us by shindig. -->
+	    <!-- Js to be combined for us by shindig. -->
 	    <script src="landos/GadgetContainer.js"></script>
+	    <script src="landos/LoadingPanel.js"></script>
 	    
 	    <!-- Last -->
 	    <script src="init.js"></script>

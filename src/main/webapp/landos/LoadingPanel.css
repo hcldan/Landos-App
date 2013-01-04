@@ -1,0 +1,16 @@
+.loadingPanel {
+  height: 100%;
+  width: 100%;
+  background: black;
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+  filter: alpha(opacity=20);
+  -moz-opacity:0.2;
+  -khtml-opacity: 0.2;
+  opacity: 0.2;
+}
+
+.loadingPanel .animation {
+  height: 100%;
+  width: 100%;
+  background:url("//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/images/loadingAnimation.gif") no-repeat center center;
+}
