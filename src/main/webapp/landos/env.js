@@ -16,7 +16,7 @@ define('landos/env', [], function() {
       return {
         format: 'json',
         headers: {
-          'OPENSOCIAL-ID': [viewer.id]
+          'OPENSOCIAL-ID': [user]
         }
       };
     },
