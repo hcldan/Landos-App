@@ -36,11 +36,10 @@ define('landos/SubscribeButton', [
         parent.viewer.then(lang.hitch(this, function(viewer) {
           var params = lang.mixin({ href: env.getAPIUri('subscribe') + '/' + encodeURIComponent(viewer) }, env.getRequestParams(viewer));
           osapi.http[this.checked ? 'delete' : 'put'](params).execute(lang.hitch(this, function(result) {
-            if (result.error || result.stats != 200) {
+            if (result.error || result.status != 200) {
               this.wire.reject(result);
             } else {
-              debugger;
-              this.wire.reject(result); // for now
+              this.wire.resolve(result); // for now
             }
           }));
         }));
