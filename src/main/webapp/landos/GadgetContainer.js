@@ -19,7 +19,7 @@ define('landos/GadgetContainer', [
     
     // Other variables
     /** {boolean} Subscription status */
-    subscribed: false,
+    subscribed: undef,
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'

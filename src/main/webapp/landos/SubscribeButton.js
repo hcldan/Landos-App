@@ -8,18 +8,18 @@ define('landos/SubscribeButton', [
   var undef;
   return declare(ToggleButton, {
     wire: undef,
-    primed: false,
+    disabled: true,
     
     startup: function() {
       this.inherited(arguments);
       this.getParent().watch('subscribed', lang.hitch(this, function(name, oldValue, value) {
-        this.set({ checked: value, primed: true });
+        this.set({ checked: value, disabled: false });
       }));
     },
     
     _setCheckedAttr: function(/*Boolean*/ value, /*Boolean?*/ priorityChange) {
       var parent = this.getParent();
-      if (this.primed && (!this.wire || this.wire.isFulfilled())) {
+      if (!this.disabled && (!this.wire || this.wire.isFulfilled())) {
         var inherited = this.getInherited(arguments);
         
         this.wire = new Deferred();
