@@ -1,6 +1,8 @@
 package com.ibm.opensocial.landos;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,12 +26,12 @@ public class SubscribeServlet extends BaseServlet {
     resp.setHeader("CACHE-CONTROL", "no-cache");
     resp.setContentType("application/json");
     
-    String osid = req.getHeader("OPENSOCIAL-ID");
+    String user = getActionUser(req);
     JSONWriter writer = new JSONWriter(resp.getWriter());
     try {
       writer.object()
-        .key("id").value(osid)
-        .key("subscribed").value(isSubscribed(osid))
+        .key("id").value(user)
+        .key("subscribed").value(isSubscribed(user))
       .endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
@@ -37,6 +39,84 @@ public class SubscribeServlet extends BaseServlet {
     } finally {
       writer.close();
     }
+  }
+  
+  @Override
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setContentType("application/json");
+
+    String user = getActionUser(req);
+    JSONWriter writer = new JSONWriter(resp.getWriter());
+    try {
+      boolean isSubscribed = isSubscribed(user) || subscribe(user);
+      
+      writer.object()
+        .key("id").value(user)
+        .key("subscribed").value(isSubscribed)
+      .endObject();
+      resp.setStatus(isSubscribed ? 200 : 500);
+    } catch (Exception e) {
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
+      throw new ServletException(e);
+    } finally {
+      writer.close();
+    }
+  }
+  
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setContentType("application/json");
+    
+    String user = getActionUser(req);
+    JSONWriter writer = new JSONWriter(resp.getWriter());
+    try {
+      boolean isSubscribed = isSubscribed(user) && unsubscribe(user);
+      
+      writer.object()
+        .key("id").value(user)
+        .key("subscribed").value(isSubscribed)
+      .endObject();
+      resp.setStatus(isSubscribed ? 200 : 500);
+    } catch (Exception e) {
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
+      throw new ServletException(e);
+    } finally {
+      writer.close();
+    }
+  }
+  
+  private boolean subscribe(String user) throws SQLException {
+    if (user != null) {
+      Connection connection = null;
+      PreparedStatement stmt = null;
+      try {
+        connection = dbSource.getConnection();
+        stmt = connection.prepareStatement("INSERT INTO `subscribed` VALUES(?)");
+        stmt.setString(1, user);
+        stmt.executeUpdate();
+      } finally {
+        close(stmt, connection);
+      }
+    }
+    return isSubscribed(user);
+  }
+  
+  private boolean unsubscribe(String user) throws SQLException {
+    if (user != null) {
+      Connection connection = null;
+      PreparedStatement stmt = null;
+      try {
+        connection = dbSource.getConnection();
+        stmt = connection.prepareStatement("DELETE FROM `subscribed` WHERE `user`=?");
+        stmt.setString(1, user);
+        stmt.executeUpdate();
+      } finally {
+        close(stmt, connection);
+      }
+    }
+    return isSubscribed(user);
   }
   
   private boolean isSubscribed(String user) throws SQLException {
@@ -54,12 +134,14 @@ public class SubscribeServlet extends BaseServlet {
           ret = result.getInt(1) > 0;
         }
       } finally {
-        if (result != null) result.close();
-        if (stmt != null) stmt.close();
-        if (connection != null) connection.close();
+        close(result, stmt, connection);
       }
     }
     return ret;
+  }
+  
+  private String getActionUser(HttpServletRequest req) throws UnsupportedEncodingException {
+    return URLDecoder.decode(req.getPathInfo(), "UTF-8");
   }
 }
 

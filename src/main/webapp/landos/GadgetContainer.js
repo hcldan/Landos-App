@@ -46,7 +46,7 @@ define('landos/GadgetContainer', [
               href: env.getAPIUri('data') 
             }, params)))
             .add('subscribe', osapi.http.get(lang.mixin({
-              href: env.getAPIUri('subscribe') 
+              href: env.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
             }, params)));
     
         env.processOSAPIBatchResponse(batch, onData);

@@ -1,23 +1,11 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package com.ibm.opensocial.landos;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,9 +14,11 @@ import javax.naming.InitialContext;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
 public class BaseServlet extends HttpServlet {
+  private static final long serialVersionUID = -7232225273021470838L;
   private static final String CLAZZ = BaseServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
   protected static DataSource dbSource = null;
@@ -44,6 +34,28 @@ public class BaseServlet extends HttpServlet {
         dbSource = (DataSource)envCtx.lookup("jdbc/landos");
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
+      }
+    }
+  }
+  
+  protected String getUser(HttpServletRequest req) {
+    return req.getHeader("OPENSOCIAL-ID");
+  }
+  
+  protected void close(Object... objects) {
+    if (objects != null) {
+      for (Object object : objects) {
+        if (object != null) {
+          if (object instanceof Closeable) {
+            try { ((Closeable)object).close(); } catch (IOException ignore) { }
+          } else if (object instanceof Statement) {
+            try { ((Statement)object).close(); } catch (SQLException ignore) { }
+          } else if (object instanceof Connection) {
+            try { ((Connection)object).close(); } catch (SQLException ignore) { }
+          } else if (object instanceof ResultSet) {
+            try { ((ResultSet)object).close(); } catch (SQLException ignore) { }
+          }
+        }
       }
     }
   }
