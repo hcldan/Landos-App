@@ -21,6 +21,9 @@
   margin: -5px;
   padding: 20px;
   background: #eee;
+  -moz-box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);
+	-webkit-box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);
+	box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);
 }
 
 .container .subscribe {
