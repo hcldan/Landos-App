@@ -141,7 +141,10 @@ public class SubscribeServlet extends BaseServlet {
   }
   
   private String getActionUser(HttpServletRequest req) throws UnsupportedEncodingException {
-    return URLDecoder.decode(req.getPathInfo(), "UTF-8");
+    String user = URLDecoder.decode(req.getPathInfo(), "UTF-8");
+    if (user.startsWith("/"))
+      user = user.substring(1);
+    return user;
   }
 }
 
