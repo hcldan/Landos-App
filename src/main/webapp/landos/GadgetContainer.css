@@ -1,7 +1,10 @@
+.claro * {
+  outline: none;
+}
+
 .container {
+	font-size: 10pt;
 	position: relative;
-	top: 0;
-	left: 0;
 	height: 100%;
 	width: 100%;
 	max-width: 800px;
@@ -10,8 +13,10 @@
 	-moz-box-shadow:5px 0px 5px 0px rgba(119, 119, 119, 0.79);
 	-webkit-box-shadow:5px 0px 5px 0px rgba(119, 119, 119, 0.79);
 	box-shadow:5px 0px 5px 0px rgba(119, 119, 119, 0.79);
+	padding: 5px;
+  box-sizing: border-box;
 }
 
-.claro * {
-  outline: none;
+.container h1 button {
+  float: right;	
 }
