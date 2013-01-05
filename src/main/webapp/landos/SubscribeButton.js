@@ -8,8 +8,11 @@ define('landos/SubscribeButton', [
 ], function(lang, declare, ToggleButton, _Contained,  Deferred, env) {
   var undef;
   return declare(ToggleButton, {
-    wire: undef,
     disabled: true,
+    iconClass: 'dijitCheckBoxIcon',
+    checked: false,
+    
+    wire: undef,
     
     startup: function() {
       this.inherited(arguments);
@@ -32,13 +35,11 @@ define('landos/SubscribeButton', [
         
         parent.viewer.then(lang.hitch(this, function(viewer) {
           var params = lang.mixin({ href: env.getAPIUri('subscribe') }, env.getRequestParams(viewer));
-          osapi.http[this.checked ? 'delete' : 'put']().execute(lang.hitch(this, function(result) {
+          osapi.http[this.checked ? 'delete' : 'put'](params).execute(lang.hitch(this, function(result) {
             debugger;
+            this.wire.reject(); // for now
           }));
-        })).otherwise(function(reason) {
-          this.set('wire', undef);
-          gadgets.error(reason);
-        })
+        }));
       }
     }
   });
