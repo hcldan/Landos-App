@@ -1,5 +1,4 @@
 define('landos/GadgetContainer', [
-  'require',
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/_WidgetBase',
@@ -9,12 +8,14 @@ define('landos/GadgetContainer', [
   'landos/env',
   'dojo/Deferred',
   'dijit/form/ToggleButton'
-], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
+], function(lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
     /** {landos/LoadingPanel} loading panel widget */
     loading: undef,
+    /** {Deferred<string>} deferred containing the gadget viewer */
+    viewer: new Deferred(),
     
     // Other variables
     /** {boolean} Subscription status */
@@ -22,7 +23,7 @@ define('landos/GadgetContainer', [
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
-    +   '<button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="iconClass:\'dijitCheckBoxIcon\', checked: false">Let me know!</button>'
+    +   '<button data-dojo-type="landos/SubscribeButton" data-dojo-props="iconClass:\'dijitCheckBoxIcon\', checked: false">Let me know!</button>'
     +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
@@ -38,50 +39,30 @@ define('landos/GadgetContainer', [
         gadgets.error(reason);
       }));
       
-      gadgets.util.registerOnLoadHandler(function() {
-        osapi.people.getViewer().execute(function(viewer) {
+      this.viewer.then(lang.hitch(this, function(viewer) {
+        var params = env.getRequestParams(viewer),
+          batch = osapi.newBatch()
+            .add('data', osapi.http.get(lang.mixin({ 
+              href: env.getAPIUri('data') 
+            }, params)))
+            .add('subscribe', osapi.http.get(lang.mixin({
+              href: env.getAPIUri('subscribe') 
+            }, params)));
+    
+        env.processOSAPIBatchResponse(batch, onData);
+      })).otherwise(function(error) {
+        onData.reject(error);
+      }); 
+      
+      gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
+        osapi.people.getViewer().execute(lang.hitch(this, function(viewer) {
           if (viewer && viewer.id) {
-            var batch = osapi.newBatch();
-            batch.add('data', osapi.http.get({
-              href: env.getAPIUri('data'),
-              format: 'json',
-              headers: {
-                'OPENSOCIAL-ID': [viewer.id]
-              }
-            }));
-            batch.add('subscribe', osapi.http.get({
-              href: env.getAPIUri('subscribe'),
-              format: 'json',
-              headers: {
-                'OPENSOCIAL-ID': [viewer.id]
-              }
-            }));
-            batch.execute(function(results) {
-              // Deal with occasional wonkey batch response format...  
-              if (results.length) {
-                // TODO: Report this to shindig if it can be easily reproduced.
-                var arr = results;
-                results = {};
-                for (var i = 0; i < arr.length; i++) {
-                  var result = arr[i]; 
-                  results[result.id] = result;
-                }
-              }
-              for (var key in results) {
-                if (results.hasOwnProperty(key)) {
-                  var result = results[key];
-                  if (result.error || result.status != 200) {
-                    return onData.reject(results);
-                  }
-                }
-              }
-              onData.resolve(results);
-            }); 
+            this.viewer.resolve(viewer.id);
           } else {
-            onData.reject(viewer);
+            this.viewer.reject(viewer);
           }
-        });
-      });
+        }));
+      }));
     }
   });
 });
