@@ -8,8 +8,18 @@ define('landos/SubscribeButton', [
   var undef;
   return declare(ToggleButton, {
     wire: undef,
+    primed: false,
+    
+    startup: function() {
+      this.inherited(arguments);
+      this.getParent().watch('subscribed', lang.hitch(this, function(name, oldValue, value) {
+        this.set({ checked: value, primed: true });
+      }));
+    },
+    
     _setCheckedAttr: function(/*Boolean*/ value, /*Boolean?*/ priorityChange) {
-      if (!this.wire || this.wire.isFulfilled()) {
+      var parent = this.getParent();
+      if (this.primed && (!this.wire || this.wire.isFulfilled())) {
         var inherited = this.getInherited(arguments);
         
         this.wire = new Deferred();
@@ -19,7 +29,7 @@ define('landos/SubscribeButton', [
           gadgets.error(reason);
         }));
         
-        this.getParent().viewer.then(lang.hitch(this, function(viewer) {
+        parent.viewer.then(lang.hitch(this, function(viewer) {
           var params = lang.mixin({ href: env.getAPIUri('subscribe') }, env.getRequestParams(viewer));
           osapi.http[value ? 'put' : 'delete']().execute(lang.hitch(this, function(result) {
             debugger;
