@@ -7,7 +7,8 @@ define('landos/GadgetContainer', [
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
   'landos/env',
-  'dojo/Deferred'
+  'dojo/Deferred',
+  'dojox/mobile/Switch'
 ], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
@@ -21,6 +22,7 @@ define('landos/GadgetContainer', [
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
+    +  '<div data-dojo-type="dojox/mobile/Switch" value="on" leftLabel="Subscribed" rightLabel="Unsubscribed"></div>'
     +  '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
