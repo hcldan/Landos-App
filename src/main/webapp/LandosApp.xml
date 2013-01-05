@@ -14,6 +14,18 @@
 	    <link type="text/css" rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/claro.css"></link>
 	    <style type="text/css">
 	      body {
+		      background: rgb(220,220,220); /* Old browsers */
+					background: -moz-linear-gradient(-45deg,  rgba(220,220,220,1) 0%, rgba(240,240,240,1) 100%); /* FF3.6+ */
+					background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(220,220,220,1)), color-stop(100%,rgba(240,240,240,1))); /* Chrome,Safari4+ */
+					background: -webkit-linear-gradient(-45deg,  rgba(220,220,220,1) 0%,rgba(240,240,240,1) 100%); /* Chrome10+,Safari5.1+ */
+					background: -o-linear-gradient(-45deg,  rgba(220,220,220,1) 0%,rgba(240,240,240,1) 100%); /* Opera 11.10+ */
+					background: -ms-linear-gradient(-45deg,  rgba(220,220,220,1) 0%,rgba(240,240,240,1) 100%); /* IE10+ */
+					background: linear-gradient(135deg,  rgba(220,220,220,1) 0%,rgba(240,240,240,1) 100%); /* W3C */
+					filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dcdcdc', endColorstr='#f0f0f0',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+	      }
+	      body > div {
+					height: 100%;
+					width: 100%;
 	        background:url("//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/images/loadingAnimation.gif") no-repeat center center;
 	      }
 	    </style>
@@ -31,7 +43,7 @@
 	    <!-- Last -->
 	    <script src="init.js"></script>
 	  </head>
-	  <body class="claro"><div data-dojo-type="landos/GadgetContainer"></div></body>
+	  <body class="claro"><div><div data-dojo-type="landos/GadgetContainer"></div></div></body>
   ]]></Content>
 
    <Content type="html" view="old">

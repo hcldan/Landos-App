@@ -1,7 +1,13 @@
 .container {
-	position: absolute;
+	position: relative;
 	top: 0;
 	left: 0;
 	height: 100%;
 	width: 100%;
+	max-width: 800px;
+	margin: 0 auto;
+	background: #FAFAFA;
+	-moz-box-shadow:5px 0px 5px 0px rgba(119, 119, 119, 0.79);
+	-webkit-box-shadow:5px 0px 5px 0px rgba(119, 119, 119, 0.79);
+	box-shadow:5px 0px 5px 0px rgba(119, 119, 119, 0.79);
 }
