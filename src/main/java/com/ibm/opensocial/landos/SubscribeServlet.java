@@ -78,7 +78,7 @@ public class SubscribeServlet extends BaseServlet {
         .key("id").value(user)
         .key("subscribed").value(isSubscribed)
       .endObject();
-      resp.setStatus(isSubscribed ? 200 : 500);
+      resp.setStatus(isSubscribed ? 500 : 200);
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
       throw new ServletException(e);
