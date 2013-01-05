@@ -17,14 +17,14 @@ define('landos/SubscribeButton', [
       }));
     },
     
-    _setCheckedAttr: function(/*Boolean*/ value, /*Boolean?*/ priorityChange) {
+    _onClick: function(/*Event*/ evt) {
       var parent = this.getParent();
       if (!this.disabled && (!this.wire || this.wire.isFulfilled())) {
         var inherited = this.getInherited(arguments);
         
         this.wire = new Deferred();
         this.wire.then(lang.hitch(this, function(result) {
-          inherited.call(this, value, priorityChange);
+          inherited.call(this, evt);
         })).otherwise(lang.hitch(this, function(reason) {
           gadgets.error(reason);
         }));
