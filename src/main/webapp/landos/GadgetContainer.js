@@ -8,7 +8,7 @@ define('landos/GadgetContainer', [
   'dijit/_WidgetsInTemplateMixin',
   'landos/env',
   'dojo/Deferred',
-  'dojox/mobile/Switch'
+  'dijit/form/ToggleButton'
 ], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
@@ -22,8 +22,8 @@ define('landos/GadgetContainer', [
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
-    +  '<div data-dojo-type="dojox/mobile/Switch" value="on" leftLabel="Subscribed" rightLabel="Unsubscribed"></div>'
-    +  '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
+    +   '<button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="iconClass:\'dijitCheckBoxIcon\', checked: false">Let me know!</button>'
+    +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
     startup: function() {
