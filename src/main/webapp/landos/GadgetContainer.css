@@ -17,6 +17,12 @@
   box-sizing: border-box;
 }
 
+.container h1 {
+  margin: -5px;
+}
+
 .container h1 button {
-  float: right;	
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }

@@ -23,10 +23,8 @@ define('landos/GadgetContainer', [
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
-    +   '<h1>'
-    +     'The Lando\'s App'
-    +     '<button data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
-    +   '</h1>'
+    +   '<h1>The Lando\'s App</h1>'
+    +   '<button data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
     +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
