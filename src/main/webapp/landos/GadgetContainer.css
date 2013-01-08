@@ -25,6 +25,8 @@
   -moz-box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);
 	-webkit-box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);
 	box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);
+	border-top: 1px solid #bbb;
+  border-right: 1px solid #bbb;
 }
 
 .container .subscribe {
