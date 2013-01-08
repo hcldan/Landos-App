@@ -15,13 +15,16 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 public class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = -7232225273021470838L;
   private static final String CLAZZ = BaseServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
-  protected static DataSource dbSource = null;
+  private static final String DATA_SOURCE = "com.ibm.opensocial.landos.servlets.datasource";
+  
+  private static DataSource dbSource = null;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -36,6 +39,16 @@ public class BaseServlet extends HttpServlet {
         LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
       }
     }
+  }
+  
+  @Override
+  protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    req.setAttribute(DATA_SOURCE, dbSource);
+    super.service(req, resp);
+  }
+
+  protected DataSource getDataSource(HttpServletRequest req) {
+    return (DataSource)req.getAttribute(DATA_SOURCE);
   }
   
   protected String getUser(HttpServletRequest req) {
