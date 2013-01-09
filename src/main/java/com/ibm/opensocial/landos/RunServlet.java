@@ -61,12 +61,12 @@ public class RunServlet extends BaseServlet {
 
 		// Parse arguments
 		final Pattern p = Pattern
-				.compile("\\/(\\d+)\\/(\\d+)\\/?(?:(\\d)\\/?)?$");
+				.compile("\\/(\\d+)\\/(\\d+)\\/?(?:([01])\\/?)?$");
 		Matcher m = p.matcher(req.getRequestURI());
 		m.find();
 		long start = Long.parseLong(m.group(1));
 		long end = Long.parseLong(m.group(2));
-		boolean test = Boolean.parseBoolean(m.group(3));
+		boolean test = m.group(3) != null && m.group(3).equals("1");
 
 		// Create JSON Writer
 		JSONWriter writer = new JSONWriter(res.getWriter()).object();
