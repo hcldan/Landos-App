@@ -72,6 +72,8 @@ public class BaseServlet extends HttpServlet {
             try { ((ResultSet)object).close(); } catch (SQLException ignore) { }
           } else if (object instanceof JSONWriter) {
             try { ((JSONWriter)object).close(); } catch (Exception ignore) { }
+          } else {
+            throw new IllegalArgumentException("Cannot handle class:" + object.getClass().getName());
           }
         }
       }
