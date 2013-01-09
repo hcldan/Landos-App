@@ -97,9 +97,9 @@ public class RunServlet extends BaseServlet {
 			// Get connection
 			connection = dbSource.getConnection();
 			// Check for overlaps
-			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? >= start AND ? >= end");
+			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
 			pstat.setDate(1, start);
-			pstat.setDate(2, start);
+			pstat.setDate(2, end);
 			result = pstat.executeQuery();
 			if (result.first() && result.getInt(1) > 0) {
 				writer.key("error")
