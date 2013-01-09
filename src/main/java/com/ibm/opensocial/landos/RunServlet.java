@@ -1,6 +1,10 @@
 package com.ibm.opensocial.landos;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -64,15 +68,15 @@ public class RunServlet extends BaseServlet {
 				.compile("\\/(\\d+)\\/(\\d+)\\/?(?:([01])\\/?)?$");
 		Matcher m = p.matcher(req.getRequestURI());
 		m.find();
-		long start = Long.parseLong(m.group(1));
-		long end = Long.parseLong(m.group(2));
+		Date start = new Date(Long.parseLong(m.group(1)));
+		Date end = new Date(Long.parseLong(m.group(2)));
 		boolean test = m.group(3) != null && m.group(3).equals("1");
 
 		// Create JSON Writer
 		JSONWriter writer = new JSONWriter(res.getWriter()).object();
 		
 		// Check start and end times
-		if (end < start) {
+		if (end.before(start)) {
 			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			try {
 				writer.key("error").value("Start time must be before end time.").endObject();
@@ -82,6 +86,27 @@ public class RunServlet extends BaseServlet {
 				writer.close();
 			}
 			return;
+		}
+		
+		// Check for overlaps
+		Connection connection = null;
+		PreparedStatement pstat = null;
+		ResultSet result = null;
+		try {
+			connection = dbSource.getConnection();
+			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? >= start AND ? >= end");
+			pstat.setDate(1, start);
+			pstat.setDate(2, start);
+			result = pstat.executeQuery();
+			if (result.first() && result.getInt(1) > 0) {
+				writer.key("error")
+					.value("There is already a run within the specified time range.")
+					.endObject()
+					.close();
+				return;
+			}
+		} catch (Exception e) {
+			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		}
 
 		// Write
