@@ -88,12 +88,15 @@ public class RunServlet extends BaseServlet {
 			return;
 		}
 		
-		// Check for overlaps
+		// Prepare database variables
 		Connection connection = null;
 		PreparedStatement pstat = null;
-		ResultSet result = null;
+		ResultSet result = null;	
+		
 		try {
+			// Get connection
 			connection = dbSource.getConnection();
+			// Check for overlaps
 			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? >= start AND ? >= end");
 			pstat.setDate(1, start);
 			pstat.setDate(2, start);
@@ -105,10 +108,18 @@ public class RunServlet extends BaseServlet {
 					.close();
 				return;
 			}
+			// Insert into database
+			pstat = connection.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)");
+			pstat.setDate(1, start);
+			pstat.setDate(2, end);
+			pstat.setBoolean(3, test);
+			pstat.executeUpdate();
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
+		} finally {
+			close(connection);
 		}
-
+		
 		// Write
 		try {
 			writer.key("start").value(start).key("end").value(end).key("test")
@@ -116,7 +127,7 @@ public class RunServlet extends BaseServlet {
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
 		} finally {
-			writer.close();
+			close(writer);
 		}
 	}
 
