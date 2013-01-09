@@ -64,12 +64,25 @@ public class RunServlet extends BaseServlet {
 				.compile("\\/(\\d+)\\/(\\d+)\\/?(?:(\\d)\\/?)?$");
 		Matcher m = p.matcher(req.getRequestURI());
 		m.find();
-		String start = m.group(1);
-		String end = m.group(2);
+		long start = Long.parseLong(m.group(1));
+		long end = Long.parseLong(m.group(2));
 		boolean test = Boolean.parseBoolean(m.group(3));
 
 		// Create JSON Writer
 		JSONWriter writer = new JSONWriter(res.getWriter()).object();
+		
+		// Check start and end times
+		if (end < start) {
+			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			try {
+				writer.key("error").value("Start time must be before end time.").endObject();
+			} catch (Exception e) {
+				LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
+			} finally {
+				writer.close();
+			}
+			return;
+		}
 
 		// Write
 		try {
