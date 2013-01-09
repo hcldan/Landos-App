@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -68,8 +69,8 @@ public class RunServlet extends BaseServlet {
 				.compile("\\/(\\d+)\\/(\\d+)\\/?(?:([01])\\/?)?$");
 		Matcher m = p.matcher(req.getRequestURI());
 		m.find();
-		Date start = new Date(Long.parseLong(m.group(1)));
-		Date end = new Date(Long.parseLong(m.group(2)));
+		Timestamp start = new Timestamp(Long.parseLong(m.group(1)));
+		Timestamp end = new Timestamp(Long.parseLong(m.group(2)));
 		boolean test = m.group(3) != null && m.group(3).equals("1");
 
 		// Create JSON Writer
@@ -98,8 +99,8 @@ public class RunServlet extends BaseServlet {
 			connection = dbSource.getConnection();
 			// Check for overlaps
 			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
-			pstat.setDate(1, start);
-			pstat.setDate(2, end);
+			pstat.setTimestamp(1, start);
+			pstat.setTimestamp(2, end);
 			result = pstat.executeQuery();
 			if (result.first() && result.getInt(1) > 0) {
 				writer.key("error")
@@ -110,8 +111,8 @@ public class RunServlet extends BaseServlet {
 			}
 			// Insert into database
 			pstat = connection.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)");
-			pstat.setDate(1, start);
-			pstat.setDate(2, end);
+			pstat.setTimestamp(1, start);
+			pstat.setTimestamp(2, end);
 			pstat.setBoolean(3, test);
 			pstat.executeUpdate();
 		} catch (Exception e) {
