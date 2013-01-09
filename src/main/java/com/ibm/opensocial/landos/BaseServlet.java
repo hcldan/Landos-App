@@ -18,11 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import org.apache.wink.json4j.JSONWriter;
+
 public class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = -7232225273021470838L;
   private static final String CLAZZ = BaseServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
-  private static final String DATA_SOURCE = "com.ibm.opensocial.landos.servlets.datasource";
+  
+  public static final String DATA_SOURCE = "com.ibm.opensocial.landos.servlets.datasource";
   
   private static DataSource dbSource = null;
 
@@ -67,6 +70,8 @@ public class BaseServlet extends HttpServlet {
             try { ((Connection)object).close(); } catch (SQLException ignore) { }
           } else if (object instanceof ResultSet) {
             try { ((ResultSet)object).close(); } catch (SQLException ignore) { }
+          } else if (object instanceof JSONWriter) {
+            try { ((JSONWriter)object).close(); } catch (Exception ignore) { }
           }
         }
       }
