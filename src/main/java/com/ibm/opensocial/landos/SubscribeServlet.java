@@ -6,7 +6,6 @@ import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,24 +19,25 @@ public class SubscribeServlet extends BaseServlet {
   private static final long serialVersionUID = 8636321669435402465L;
   private static final String CLAZZ = SubscribeServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
+  
+  public static final String ACTION_USER = "com.ibm.opensocial.landos.servlets.actionuser";
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     resp.setHeader("CACHE-CONTROL", "no-cache");
     resp.setContentType("application/json");
     
-    String user = getActionUser(req);
     JSONWriter writer = new JSONWriter(resp.getWriter());
     try {
       writer.object()
-        .key("id").value(user)
-        .key("subscribed").value(isSubscribed(user))
+        .key("id").value(getActionUser(req))
+        .key("subscribed").value(isSubscribed(req))
       .endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
       throw new ServletException(e);
     } finally {
-      writer.close();
+      close(writer);
     }
   }
   
@@ -46,13 +46,12 @@ public class SubscribeServlet extends BaseServlet {
     resp.setHeader("CACHE-CONTROL", "no-cache");
     resp.setContentType("application/json");
 
-    String user = getActionUser(req);
     JSONWriter writer = new JSONWriter(resp.getWriter());
     try {
-      boolean isSubscribed = isSubscribed(user) || subscribe(user);
+      boolean isSubscribed = isSubscribed(req) || subscribe(req);
       
       writer.object()
-        .key("id").value(user)
+        .key("id").value(getActionUser(req))
         .key("subscribed").value(isSubscribed)
       .endObject();
       resp.setStatus(isSubscribed ? 200 : 500);
@@ -60,7 +59,7 @@ public class SubscribeServlet extends BaseServlet {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
       throw new ServletException(e);
     } finally {
-      writer.close();
+      close(writer);
     }
   }
   
@@ -69,13 +68,12 @@ public class SubscribeServlet extends BaseServlet {
     resp.setHeader("CACHE-CONTROL", "no-cache");
     resp.setContentType("application/json");
     
-    String user = getActionUser(req);
     JSONWriter writer = new JSONWriter(resp.getWriter());
     try {
-      boolean isSubscribed = isSubscribed(user) && unsubscribe(user);
+      boolean isSubscribed = isSubscribed(req) && unsubscribe(req);
       
       writer.object()
-        .key("id").value(user)
+        .key("id").value(getActionUser(req))
         .key("subscribed").value(isSubscribed)
       .endObject();
       resp.setStatus(isSubscribed ? 500 : 200);
@@ -83,16 +81,17 @@ public class SubscribeServlet extends BaseServlet {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
       throw new ServletException(e);
     } finally {
-      writer.close();
+      close(writer);
     }
   }
   
-  private boolean subscribe(String user) throws SQLException {
+  private boolean subscribe(HttpServletRequest req) throws Exception {
+    String user = getActionUser(req);
     if (user != null) {
       Connection connection = null;
       PreparedStatement stmt = null;
       try {
-        connection = dbSource.getConnection();
+        connection = getDataSource(req).getConnection();
         stmt = connection.prepareStatement("INSERT INTO `subscribed` VALUES(?)");
         stmt.setString(1, user);
         stmt.executeUpdate();
@@ -100,15 +99,16 @@ public class SubscribeServlet extends BaseServlet {
         close(stmt, connection);
       }
     }
-    return isSubscribed(user);
+    return isSubscribed(req);
   }
   
-  private boolean unsubscribe(String user) throws SQLException {
+  private boolean unsubscribe(HttpServletRequest req) throws Exception {
+    String user = getActionUser(req);
     if (user != null) {
       Connection connection = null;
       PreparedStatement stmt = null;
       try {
-        connection = dbSource.getConnection();
+        connection = getDataSource(req).getConnection();
         stmt = connection.prepareStatement("DELETE FROM `subscribed` WHERE `user`=?");
         stmt.setString(1, user);
         stmt.executeUpdate();
@@ -116,17 +116,18 @@ public class SubscribeServlet extends BaseServlet {
         close(stmt, connection);
       }
     }
-    return isSubscribed(user);
+    return isSubscribed(req);
   }
   
-  private boolean isSubscribed(String user) throws SQLException {
+  private boolean isSubscribed(HttpServletRequest req) throws Exception {
+    String user = getActionUser(req);
     boolean ret = false;
     if (user != null) {
       Connection connection = null;
       PreparedStatement stmt = null;
       ResultSet result = null;
       try {
-        connection = dbSource.getConnection();
+        connection = getDataSource(req).getConnection();
         stmt = connection.prepareStatement("SELECT COUNT(*) from `subscribed` WHERE `user`=?");
         stmt.setString(1, user);
         result = stmt.executeQuery();
@@ -141,9 +142,13 @@ public class SubscribeServlet extends BaseServlet {
   }
   
   private String getActionUser(HttpServletRequest req) throws UnsupportedEncodingException {
-    String user = URLDecoder.decode(req.getPathInfo(), "UTF-8");
-    if (user.startsWith("/"))
-      user = user.substring(1);
+    String user = (String)req.getAttribute(ACTION_USER);
+    if (user == null) {
+      user = URLDecoder.decode(req.getPathInfo(), "UTF-8");
+      if (user.startsWith("/"))
+        user = user.substring(1);
+      req.setAttribute(ACTION_USER, user);
+    }
     return user;
   }
 }
