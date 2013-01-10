@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,7 +64,7 @@ public class RunServlet extends BaseServlet {
 				writer.key("error").value("Could not get run " + id).endObject();
 			}
 		} catch (Exception e) {
-			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
+			LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
 		} finally {
 			close(connection);
 			writer.close();
@@ -129,16 +130,23 @@ public class RunServlet extends BaseServlet {
 				return;
 			}
 			// Insert into database
-			pstat = connection.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)");
+			pstat = connection.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			pstat.setTimestamp(1, start);
 			pstat.setTimestamp(2, end);
 			pstat.setBoolean(3, test);
 			pstat.executeUpdate();
+			int insertedId = 0;
+			ResultSet ids = pstat.getGeneratedKeys();
+			if (ids.first()) {
+				insertedId = ids.getInt(1);
+			}
 			// Write back to client
-			writer.key("start").value(start.getTime()).key("end").value(end.getTime()).key("test")
-				.value(test).endObject();
+			writer.key("id").value(insertedId)
+				.key("start").value(start.getTime())
+				.key("end").value(end.getTime())
+				.key("test").value(test).endObject();
 		} catch (Exception e) {
-			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
+			LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
 		} finally {
 			close(connection, writer);
 		}
@@ -182,7 +190,7 @@ public class RunServlet extends BaseServlet {
 				writer.key("error").value("Could not delete " + id);
 			}
 		} catch (Exception e) {
-			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
+			LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
 		} finally {
 			close(connection, writer);
 		}
