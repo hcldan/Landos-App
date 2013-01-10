@@ -19,4 +19,13 @@
     <servlet-name>SubscribeServlet</servlet-name>
     <url-pattern>/subscribe/*</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>RunServlet</servlet-name>
+  	<servlet-class>com.ibm.opensocial.landos.RunServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>RunServlet</servlet-name>
+  	<url-pattern>/run/*</url-pattern>
+  </servlet-mapping>
 </web-app>
