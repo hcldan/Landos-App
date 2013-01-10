@@ -28,18 +28,11 @@ public class RunServlet extends BaseServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
-		// Set headers
-		res.setHeader("CACHE-CONTROL", "no-cache");
-		res.setContentType("application/json");
-
-		// Parse arguments
-		final Pattern p = Pattern.compile("\\/(\\d+)\\/?$");
-		Matcher m = p.matcher(req.getRequestURI());
-		m.find();
-		int id = Integer.parseInt(m.group(1));
+		setCacheAndTypeHeaders(res);
+		int id = getId(req);
 
 		// Create JSON writer
-		JSONWriter writer = new JSONWriter(res.getWriter()).object();
+		JSONWriter writer = getJSONObject(res);
 		
 		// Prepare database variables
 		Connection connection = null;
@@ -66,8 +59,7 @@ public class RunServlet extends BaseServlet {
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
 		} finally {
-			close(connection);
-			writer.close();
+			close(connection, writer);
 		}
 	}
 
@@ -80,9 +72,7 @@ public class RunServlet extends BaseServlet {
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
-		// Set headers
-		res.setHeader("CACHE-CONTROL", "no-cache");
-		res.setContentType("application/json");
+		setCacheAndTypeHeaders(res);
 
 		// Parse arguments
 		final Pattern p = Pattern
@@ -94,7 +84,7 @@ public class RunServlet extends BaseServlet {
 		boolean test = m.group(3) != null && m.group(3).equals("1");
 
 		// Create JSON Writer
-		JSONWriter writer = new JSONWriter(res.getWriter()).object();
+		JSONWriter writer = getJSONObject(res);
 		
 		// Check start and end times
 		if (end.before(start)) {
@@ -102,7 +92,7 @@ public class RunServlet extends BaseServlet {
 			try {
 				writer.key("error").value("Start time must be before end time.").endObject();
 			} catch (Exception e) {
-				LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
+				LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
 			} finally {
 				writer.close();
 			}
@@ -125,8 +115,7 @@ public class RunServlet extends BaseServlet {
 			if (result.first() && result.getInt(1) > 0) {
 				writer.key("error")
 					.value("There is already a run within the specified time range.")
-					.endObject()
-					.close();
+					.endObject();
 				return;
 			}
 			// Insert into database
@@ -158,23 +147,14 @@ public class RunServlet extends BaseServlet {
 	 */
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		// Set headers
-		res.setHeader("CACHE-CONTROL", "no-cache");
-		res.setContentType("application/json");
-
-		// Parse arguments
-		final Pattern p = Pattern.compile("\\/(\\d+)\\/?$");
-		Matcher m = p.matcher(req.getRequestURI());
-		m.find();
-		int id = Integer.parseInt(m.group(1));
-
-		// Create JSON writer
-		JSONWriter writer = new JSONWriter(res.getWriter()).object();
+		setCacheAndTypeHeaders(res);
+		int id = getId(req);
+		JSONWriter writer = getJSONObject(res);
 		
 		// Prepare database variables
 		Connection connection = null;
 		PreparedStatement pstat = null;
-		int result = 0;	
+		int result = 0;
 		
 		try {
 			// Get connection
@@ -194,5 +174,37 @@ public class RunServlet extends BaseServlet {
 		} finally {
 			close(connection, writer);
 		}
+	}
+
+	/**
+	 * @param res
+	 * @return
+	 * @throws IOException
+	 */
+	private JSONWriter getJSONObject(HttpServletResponse res)
+			throws IOException {
+		return new JSONWriter(res.getWriter()).object();
+	}
+	
+	/**
+	 * Sets headers to have no cache and a type of application/json
+	 * @param res The response object to set the headers on
+	 */
+	private void setCacheAndTypeHeaders(HttpServletResponse res) {
+		res.setHeader("CACHE-CONTROL", "no-cache");
+		res.setContentType("application/json");
+	}
+	
+	/**
+	 * Gets the id from a request.
+	 * 
+	 * @param req The request to get the id from.
+	 * @return The id from the request
+	 */
+	private int getId(HttpServletRequest req) {
+		final Pattern p = Pattern.compile("\\/(\\d+)\\/?$");
+		Matcher m = p.matcher(req.getRequestURI());
+		m.find();
+		return Integer.parseInt(m.group(1));
 	}
 }
