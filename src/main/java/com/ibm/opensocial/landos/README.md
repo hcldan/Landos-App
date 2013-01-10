@@ -1,8 +1,27 @@
 # Subscribe servlet
 ## Subscribing a user
-PUT <context>/subscribe/com.ibm.opensocial.users:test
+### PUT &lt;context&gt;/subscribe/&lt;userid&gt;
+Returns `application/json`. Should include the subscription status after the operation as a boolean:
+```javascript
+{
+  subscribed: true // hopefully :)
+}
+```
 
-Return application/json should include the subscription status after the operation as a boolean:
+## Unsubscribing a user
+### DELETE &lt;context&gt;/subscribe/&lt;userid&gt;
+Returns `application/json`. Should include the subscription status after the operation as a boolean:
+```javascript
+{
+  subscribed: false // hopefully :)
+}
+```
+
+## Querying subscription for user
+### GET &lt;context&gt;/subscribe/&lt;userid&gt;
+Returns `application/json`. Should include the subscription status as a boolean:
+```javascript
 {
   subscribed: true|false
 }
+```
