@@ -47,7 +47,7 @@ public class RunServlet extends BaseServlet {
 		
 		try {
 			// Get connection
-			connection = dbSource.getConnection();
+			connection = getDataSource(req).getConnection();
 			// Check for overlaps
 			pstat = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
 			pstat.setInt(1, id);
@@ -115,7 +115,7 @@ public class RunServlet extends BaseServlet {
 		
 		try {
 			// Get connection
-			connection = dbSource.getConnection();
+			connection = getDataSource(req).getConnection();
 			// Check for overlaps
 			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
 			pstat.setTimestamp(1, start);
@@ -140,8 +140,7 @@ public class RunServlet extends BaseServlet {
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		} finally {
-			close(connection);
-			writer.close();
+			close(connection, writer);
 		}
 	}
 
@@ -171,7 +170,7 @@ public class RunServlet extends BaseServlet {
 		
 		try {
 			// Get connection
-			connection = dbSource.getConnection();
+			connection = getDataSource(req).getConnection();
 			// Check for overlaps
 			pstat = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
 			pstat.setInt(1, id);
@@ -185,7 +184,7 @@ public class RunServlet extends BaseServlet {
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		} finally {
-			writer.close();
+			close(connection, writer);
 		}
 	}
 }
