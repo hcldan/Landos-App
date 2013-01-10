@@ -87,7 +87,7 @@ public class SubscribeServlet extends BaseServlet {
   
   private boolean subscribe(HttpServletRequest req) throws Exception {
     String user = getActionUser(req);
-    if (user != null) {
+    if (!"".equals(user)) {
       Connection connection = null;
       PreparedStatement stmt = null;
       try {
@@ -104,7 +104,7 @@ public class SubscribeServlet extends BaseServlet {
   
   private boolean unsubscribe(HttpServletRequest req) throws Exception {
     String user = getActionUser(req);
-    if (user != null) {
+    if (!"".equals(user)) {
       Connection connection = null;
       PreparedStatement stmt = null;
       try {
@@ -122,7 +122,7 @@ public class SubscribeServlet extends BaseServlet {
   private boolean isSubscribed(HttpServletRequest req) throws Exception {
     String user = getActionUser(req);
     boolean ret = false;
-    if (user != null) {
+    if (!"".equals(user)) {
       Connection connection = null;
       PreparedStatement stmt = null;
       ResultSet result = null;
@@ -144,7 +144,7 @@ public class SubscribeServlet extends BaseServlet {
   private String getActionUser(HttpServletRequest req) throws UnsupportedEncodingException {
     String user = (String)req.getAttribute(ACTION_USER);
     if (user == null) {
-      user = URLDecoder.decode(req.getPathInfo(), "UTF-8");
+      user = URLDecoder.decode(req.getPathInfo(), "UTF-8").trim();
       if (user.startsWith("/"))
         user = user.substring(1);
       req.setAttribute(ACTION_USER, user);
