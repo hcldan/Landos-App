@@ -2,7 +2,6 @@ package com.ibm.opensocial.landos;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -40,13 +39,33 @@ public class RunServlet extends BaseServlet {
 
 		// Create JSON writer
 		JSONWriter writer = new JSONWriter(res.getWriter()).object();
-
-		// Write
+		
+		// Prepare database variables
+		Connection connection = null;
+		PreparedStatement pstat = null;
+		ResultSet result = null;	
+		
 		try {
-			writer.key("id").value(id).endObject();
+			// Get connection
+			connection = dbSource.getConnection();
+			// Check for overlaps
+			pstat = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
+			pstat.setInt(1, id);
+			result = pstat.executeQuery();
+			if (result.first()) {
+				writer.key("id").value(id)
+					.key("start").value(result.getTimestamp(2).getTime())
+					.key("end").value(result.getTimestamp(3).getTime())
+					.key("test").value(result.getBoolean(4))
+					.endObject();
+				return;
+			} else {
+				writer.key("error").value("Could not get run " + id).endObject();
+			}
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		} finally {
+			close(connection);
 			writer.close();
 		}
 	}
