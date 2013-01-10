@@ -142,7 +142,7 @@ public class RunServlet extends BaseServlet {
 		
 		// Write
 		try {
-			writer.key("start").value(start).key("end").value(end).key("test")
+			writer.key("start").value(start.getTime()).key("end").value(end.getTime()).key("test")
 					.value(test).endObject();
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
