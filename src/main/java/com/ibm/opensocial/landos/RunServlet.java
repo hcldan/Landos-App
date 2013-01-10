@@ -128,7 +128,7 @@ public class RunServlet extends BaseServlet {
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
 		} finally {
-			close(writer);
+			writer.close();
 		}
 	}
 
