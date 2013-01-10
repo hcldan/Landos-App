@@ -103,18 +103,16 @@ public class SubscribeServlet extends BaseServlet {
   }
   
   private boolean unsubscribe(HttpServletRequest req) throws Exception {
-    String user = getActionUser(req);
-    if (!"".equals(user)) {
-      Connection connection = null;
-      PreparedStatement stmt = null;
-      try {
-        connection = getDataSource(req).getConnection();
-        stmt = connection.prepareStatement("DELETE FROM `subscribed` WHERE `user`=?");
-        stmt.setString(1, user);
-        stmt.executeUpdate();
-      } finally {
-        close(stmt, connection);
-      }
+    String user = getActionUser(req); // user can not be empty here.
+    Connection connection = null;
+    PreparedStatement stmt = null;
+    try {
+      connection = getDataSource(req).getConnection();
+      stmt = connection.prepareStatement("DELETE FROM `subscribed` WHERE `user`=?");
+      stmt.setString(1, user);
+      stmt.executeUpdate();
+    } finally {
+      close(stmt, connection);
     }
     return isSubscribed(req);
   }
@@ -131,9 +129,8 @@ public class SubscribeServlet extends BaseServlet {
         stmt = connection.prepareStatement("SELECT COUNT(*) from `subscribed` WHERE `user`=?");
         stmt.setString(1, user);
         result = stmt.executeQuery();
-        if (result.first()) {
-          ret = result.getInt(1) > 0;
-        }
+        result.first(); // Should never return no rows.
+        ret = result.getInt(1) > 0;
       } finally {
         close(result, stmt, connection);
       }
