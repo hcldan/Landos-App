@@ -114,7 +114,7 @@ public class RunServlet extends BaseServlet {
 		ResultSet result = null;	
 		
 		try {
-/*			// Get connection
+			// Get connection
 			connection = dbSource.getConnection();
 			// Check for overlaps
 			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
@@ -133,20 +133,14 @@ public class RunServlet extends BaseServlet {
 			pstat.setTimestamp(1, start);
 			pstat.setTimestamp(2, end);
 			pstat.setBoolean(3, test);
-			pstat.executeUpdate();*/
+			pstat.executeUpdate();
+			// Write back to client
+			writer.key("start").value(start.getTime()).key("end").value(end.getTime()).key("test")
+				.value(test).endObject();
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		} finally {
 			close(connection);
-		}
-		
-		// Write
-		try {
-			writer.key("start").value(start.getTime()).key("end").value(end.getTime()).key("test")
-					.value(test).endObject();
-		} catch (Exception e) {
-			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage(), e);
-		} finally {
 			writer.close();
 		}
 	}
@@ -169,10 +163,25 @@ public class RunServlet extends BaseServlet {
 
 		// Create JSON writer
 		JSONWriter writer = new JSONWriter(res.getWriter()).object();
-
-		// Write
+		
+		// Prepare database variables
+		Connection connection = null;
+		PreparedStatement pstat = null;
+		int result = 0;	
+		
 		try {
-			writer.key("id").value(id).endObject();
+			// Get connection
+			connection = dbSource.getConnection();
+			// Check for overlaps
+			pstat = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
+			pstat.setInt(1, id);
+			result = pstat.executeUpdate();
+			// Write result
+			if (result > 0) {
+				writer.key("id").value(id).endObject();
+			} else {
+				writer.key("error").value("Could not delete " + id);
+			}
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		} finally {
