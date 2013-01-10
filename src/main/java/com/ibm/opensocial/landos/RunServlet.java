@@ -95,7 +95,7 @@ public class RunServlet extends BaseServlet {
 		ResultSet result = null;	
 		
 		try {
-			// Get connection
+/*			// Get connection
 			connection = dbSource.getConnection();
 			// Check for overlaps
 			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
@@ -114,7 +114,7 @@ public class RunServlet extends BaseServlet {
 			pstat.setTimestamp(1, start);
 			pstat.setTimestamp(2, end);
 			pstat.setBoolean(3, test);
-			pstat.executeUpdate();
+			pstat.executeUpdate();*/
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "init", e.getMessage());
 		} finally {
