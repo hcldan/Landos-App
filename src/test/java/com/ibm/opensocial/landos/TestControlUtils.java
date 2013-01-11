@@ -57,7 +57,9 @@ public class TestControlUtils {
 			throws Exception {
 		HttpServletResponse res = control.createMock(HttpServletResponse.class);
 		res.setHeader("CACHE-CONTROL", "no-cache");
+		expectLastCall().once();
 		res.setContentType("application/json");
+		expectLastCall().once();
 
 		PrintWriter pout = new PrintWriter(output);
 		expect(res.getWriter()).andReturn(pout).anyTimes();
