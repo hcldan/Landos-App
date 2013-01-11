@@ -21,9 +21,9 @@ import org.easymock.IMocksControl;
 
 public class TestControlUtils {
   public static HttpServletRequest mockRequest(IMocksControl control,
-          Map<String, Object> attributes, final DataSource source, String uri) {
+          Map<String, Object> attributes, final DataSource source, String pathInfo) {
     HttpServletRequest req = control.createMock(HttpServletRequest.class);
-    expect(req.getRequestURI()).andReturn(uri);
+    expect(req.getPathInfo()).andReturn(pathInfo).anyTimes();
 
     final Map<String, Object> attrs = Collections.synchronizedMap(attributes);
     final Capture<String> attName = new Capture<String>();
