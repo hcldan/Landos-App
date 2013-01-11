@@ -2,10 +2,13 @@ package com.ibm.opensocial.landos;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.apache.wink.json4j.JSONWriter;
+
+import com.google.common.base.Charsets;
 
 public class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = -7232225273021470838L;
@@ -76,6 +81,39 @@ public class BaseServlet extends HttpServlet {
             throw new IllegalArgumentException("Cannot handle class:" + object.getClass().getName());
           }
         }
+      }
+    }
+  }
+  
+  /**
+   * Return a certain path segment.
+   * 
+   * @param req The request.
+   * @param segment 0 based index of path segment to get.
+   * @return null if the path segment is not specified.
+   */
+  protected String getPathSegment(HttpServletRequest req, int segment) {
+    String path = req.getPathInfo();
+    if (path.startsWith("/"))
+      path = path.substring(1);
+    
+    StringTokenizer stok = new StringTokenizer(path, "/");
+    String candidate = null;
+    for (;segment >= 0 && stok.hasMoreElements(); segment--) {
+      // paths like /some//path -> /some/path
+      candidate = stok.nextToken();
+      while ("".equals(candidate) && stok.hasMoreElements()) {
+        candidate = stok.nextToken();
+      }
+    }
+    if (segment > -1)
+      return null;
+    else {
+      try {
+        return URLDecoder.decode(candidate, Charsets.UTF_8.name());
+      } catch (UnsupportedEncodingException e) {
+        LOGGER.logp(Level.SEVERE, CLAZZ, "getPathSegment", e.getMessage(), e);
+        return null;
       }
     }
   }

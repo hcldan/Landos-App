@@ -2,7 +2,6 @@ package com.ibm.opensocial.landos;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -103,18 +102,16 @@ public class SubscribeServlet extends BaseServlet {
   }
   
   private boolean unsubscribe(HttpServletRequest req) throws Exception {
-    String user = getActionUser(req);
-    if (!"".equals(user)) {
-      Connection connection = null;
-      PreparedStatement stmt = null;
-      try {
-        connection = getDataSource(req).getConnection();
-        stmt = connection.prepareStatement("DELETE FROM `subscribed` WHERE `user`=?");
-        stmt.setString(1, user);
-        stmt.executeUpdate();
-      } finally {
-        close(stmt, connection);
-      }
+    String user = getActionUser(req); // user can not be empty here.
+    Connection connection = null;
+    PreparedStatement stmt = null;
+    try {
+      connection = getDataSource(req).getConnection();
+      stmt = connection.prepareStatement("DELETE FROM `subscribed` WHERE `user`=?");
+      stmt.setString(1, user);
+      stmt.executeUpdate();
+    } finally {
+      close(stmt, connection);
     }
     return isSubscribed(req);
   }
@@ -131,9 +128,8 @@ public class SubscribeServlet extends BaseServlet {
         stmt = connection.prepareStatement("SELECT COUNT(*) from `subscribed` WHERE `user`=?");
         stmt.setString(1, user);
         result = stmt.executeQuery();
-        if (result.first()) {
-          ret = result.getInt(1) > 0;
-        }
+        result.first(); // Should never return no rows.
+        ret = result.getInt(1) > 0;
       } finally {
         close(result, stmt, connection);
       }
@@ -144,10 +140,12 @@ public class SubscribeServlet extends BaseServlet {
   private String getActionUser(HttpServletRequest req) throws UnsupportedEncodingException {
     String user = (String)req.getAttribute(ACTION_USER);
     if (user == null) {
-      user = URLDecoder.decode(req.getPathInfo(), "UTF-8").trim();
-      if (user.startsWith("/"))
+      user = getPathSegment(req, 0);
+      if (user == null)
+        user = "";
+      else if (user.startsWith("/"))
         user = user.substring(1);
-      req.setAttribute(ACTION_USER, user);
+      req.setAttribute(ACTION_USER, user.trim());
     }
     return user;
   }
