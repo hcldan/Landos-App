@@ -115,6 +115,24 @@ public class RunServletTest {
     control.verify();
     verifyRunServletOutput();
   }
+  
+  @Test
+  public void testDeleteRun() throws SQLException, IOException {
+    String uri = "/" + expectedId;
+    req = TestControlUtils.mockRequest(control, attributes, source, uri);
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
+    
+    expect(connection.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
+    stmt.setInt(1, expectedId);
+    expectLastCall().once();
+    expect(stmt.executeUpdate()).andReturn(1).once();
+    
+    control.replay();
+    servlet.doDelete(req, res);
+    control.verify();
+    
+    assertEquals("Verify servlet output", "{\"id\":" + expectedId + "}", output.toString());
+  }
 
   /**
    * Checks that the servlet output a complete run object.
