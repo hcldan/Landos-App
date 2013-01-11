@@ -53,8 +53,8 @@ public class RunServletTest {
 
   @Test
   public void testGetRun() throws SQLException, IOException {
-    String uri = "/" + expectedId;
-    req = TestControlUtils.mockRequest(control, attributes, source, uri);
+    String pathInfo = "/" + expectedId;
+    req = TestControlUtils.mockRequest(control, attributes, source, pathInfo);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     ResultSet result = control.createMock(ResultSet.class);
 
@@ -77,8 +77,8 @@ public class RunServletTest {
   @Test
   public void testPutNewRun() throws SQLException, IOException {
     // Mocks
-    String uri = "/" + startTime + "/" + endTime;
-    req = TestControlUtils.mockRequest(control, attributes, source, uri);
+    String pathInfo = "/" + startTime + "/" + endTime;
+    req = TestControlUtils.mockRequest(control, attributes, source, pathInfo);
     Timestamp start = new Timestamp(startTime);
     Timestamp end = new Timestamp(endTime);
     PreparedStatement stmt1 = control.createMock(PreparedStatement.class);
@@ -118,8 +118,8 @@ public class RunServletTest {
   
   @Test
   public void testDeleteRun() throws SQLException, IOException {
-    String uri = "/" + expectedId;
-    req = TestControlUtils.mockRequest(control, attributes, source, uri);
+    String pathInfo = "/" + expectedId;
+    req = TestControlUtils.mockRequest(control, attributes, source, pathInfo);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     
     expect(connection.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
