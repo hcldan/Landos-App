@@ -1,7 +1,6 @@
 package com.ibm.opensocial.landos;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -13,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wink.json4j.JSONWriter;
 
-import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 
 public class ItemSearchServlet extends BaseServlet {
   private static final long serialVersionUID = -7084594235567935205L;
@@ -26,13 +25,10 @@ public class ItemSearchServlet extends BaseServlet {
     resp.setContentType("application/json");
     
     JSONWriter writer = new JSONWriter(resp.getWriter());
-    String term = URLDecoder.decode(req.getPathInfo(), Charsets.UTF_8.name()).trim();
-    if (term.startsWith("/"))
-      term = term.substring(1);
-    
+    List<Map<String, String>> matches = findMatches(req, getPathSegment(req, 0));
     try {
       writer.object()
-        .key("matches").value(null)
+        .key("matches").value(matches)
       .endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
@@ -42,8 +38,8 @@ public class ItemSearchServlet extends BaseServlet {
     }
   }
   
-  public List<Map<String, String>> findMatches(String term) {
-    return null;
+  public List<Map<String, String>> findMatches(HttpServletRequest req, String term) {
+    return Lists.newArrayList();
   }
 }
 
