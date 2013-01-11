@@ -17,7 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.wink.json4j.JSONWriter;
 
 public class RunServlet extends BaseServlet {
-	private static final String CLAZZ = RunServlet.class.getName();
+  private static final long serialVersionUID = 2718572285038956077L;
+  private static final String CLAZZ = RunServlet.class.getName();
 	private static final Logger LOGGER = Logger.getLogger(CLAZZ);
 
 	/**

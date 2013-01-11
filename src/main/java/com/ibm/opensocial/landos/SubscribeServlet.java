@@ -2,7 +2,6 @@ package com.ibm.opensocial.landos;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -141,10 +140,12 @@ public class SubscribeServlet extends BaseServlet {
   private String getActionUser(HttpServletRequest req) throws UnsupportedEncodingException {
     String user = (String)req.getAttribute(ACTION_USER);
     if (user == null) {
-      user = URLDecoder.decode(req.getPathInfo(), "UTF-8").trim();
-      if (user.startsWith("/"))
+      user = getPathSegment(req, 0);
+      if (user == null)
+        user = "";
+      else if (user.startsWith("/"))
         user = user.substring(1);
-      req.setAttribute(ACTION_USER, user);
+      req.setAttribute(ACTION_USER, user.trim());
     }
     return user;
   }

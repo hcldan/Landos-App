@@ -18,11 +18,15 @@ import javax.sql.DataSource;
 import org.easymock.Capture;
 import org.easymock.IAnswer;
 
+import com.google.common.collect.Maps;
+
 public class TestUtils {
   public static HttpServletRequest mockRequest(Map<String, Object> attributes, final DataSource source, String url) {   
     HttpServletRequest req = createMock(HttpServletRequest.class);
     expect(req.getPathInfo()).andReturn(url).anyTimes();
     
+    if (attributes == null)
+      attributes = Maps.newHashMap();
     final Map<String, Object> attrs = Collections.synchronizedMap(attributes);
     final Capture<String> attName = new Capture<String>();
     final Capture<Object> attValue = new Capture<Object>();
