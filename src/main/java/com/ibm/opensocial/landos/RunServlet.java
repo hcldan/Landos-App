@@ -1,5 +1,7 @@
 package com.ibm.opensocial.landos;
 
+import org.apache.wink.json4j.JSONWriter;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,13 +10,9 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.wink.json4j.JSONWriter;
 
 public class RunServlet extends BaseServlet {
   private static final String CLAZZ = RunServlet.class.getName();
@@ -35,16 +33,16 @@ public class RunServlet extends BaseServlet {
 
     // Prepare database variables
     Connection connection = null;
-    PreparedStatement pstat = null;
+    PreparedStatement stmt = null;
     ResultSet result = null;
 
     try {
       // Get connection
       connection = getDataSource(req).getConnection();
       // Check for overlaps
-      pstat = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
-      pstat.setInt(1, id);
-      result = pstat.executeQuery();
+      stmt = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
+      stmt.setInt(1, id);
+      result = stmt.executeQuery();
       if (result.first()) {
         writeRun(writer, id, result.getTimestamp(2), result.getTimestamp(3), result.getBoolean(4));
         return;
@@ -68,12 +66,10 @@ public class RunServlet extends BaseServlet {
     setCacheAndTypeHeaders(res);
 
     // Parse arguments
-    final Pattern p = Pattern.compile("\\/(\\d+)\\/(\\d+)\\/?(?:([01])\\/?)?$");
-    Matcher m = p.matcher(req.getRequestURI());
-    m.find();
-    Timestamp start = new Timestamp(Long.parseLong(m.group(1)));
-    Timestamp end = new Timestamp(Long.parseLong(m.group(2)));
-    boolean test = m.group(3) != null && m.group(3).equals("1");
+    Timestamp start = new Timestamp(Long.parseLong(getPathSegment(req, 0)));
+    Timestamp end = new Timestamp(Long.parseLong(getPathSegment(req, 1)));
+    String testSegment = getPathSegment(req, 2);
+    boolean test = testSegment != null && testSegment.equals("1");
 
     // Create JSON Writer
     JSONWriter writer = getJSONObject(res);
@@ -195,10 +191,7 @@ public class RunServlet extends BaseServlet {
    * @return The id from the request
    */
   private int getId(HttpServletRequest req) {
-    final Pattern p = Pattern.compile("\\/(\\d+)\\/?$");
-    Matcher m = p.matcher(req.getRequestURI());
-    m.find();
-    return Integer.parseInt(m.group(1));
+    return Integer.parseInt(getPathSegment(req, 0));
   }
 
   /**
