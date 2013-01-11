@@ -33,28 +33,27 @@ public class RunServlet extends BaseServlet {
 
 		// Create JSON writer
 		JSONWriter writer = getJSONObject(res);
-		
+
 		// Prepare database variables
 		Connection connection = null;
 		PreparedStatement pstat = null;
-		ResultSet result = null;	
-		
+		ResultSet result = null;
+
 		try {
 			// Get connection
 			connection = getDataSource(req).getConnection();
 			// Check for overlaps
-			pstat = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
+			pstat = connection
+					.prepareStatement("SELECT * FROM runs WHERE id = ?");
 			pstat.setInt(1, id);
 			result = pstat.executeQuery();
 			if (result.first()) {
-				writer.key("id").value(id)
-					.key("start").value(result.getTimestamp(2).getTime())
-					.key("end").value(result.getTimestamp(3).getTime())
-					.key("test").value(result.getBoolean(4))
-					.endObject();
+				writeRun(writer, id, result.getTimestamp(2),
+						result.getTimestamp(3), result.getBoolean(4));
 				return;
 			} else {
-				writer.key("error").value("Could not get run " + id).endObject();
+				writer.key("error").value("Could not get run " + id)
+						.endObject();
 			}
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
@@ -85,12 +84,14 @@ public class RunServlet extends BaseServlet {
 
 		// Create JSON Writer
 		JSONWriter writer = getJSONObject(res);
-		
+
 		// Check start and end times
 		if (end.before(start)) {
 			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			try {
-				writer.key("error").value("Start time must be before end time.").endObject();
+				writer.key("error")
+						.value("Start time must be before end time.")
+						.endObject();
 			} catch (Exception e) {
 				LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
 			} finally {
@@ -98,28 +99,31 @@ public class RunServlet extends BaseServlet {
 			}
 			return;
 		}
-		
+
 		// Prepare database variables
 		Connection connection = null;
 		PreparedStatement pstat = null;
-		ResultSet result = null;	
-		
+		ResultSet result = null;
+
 		try {
 			// Get connection
 			connection = getDataSource(req).getConnection();
 			// Check for overlaps
-			pstat = connection.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
+			pstat = connection
+					.prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
 			pstat.setTimestamp(1, start);
 			pstat.setTimestamp(2, end);
 			result = pstat.executeQuery();
 			if (result.first() && result.getInt(1) > 0) {
 				writer.key("error")
-					.value("There is already a run within the specified time range.")
-					.endObject();
+						.value("There is already a run within the specified time range.")
+						.endObject();
 				return;
 			}
 			// Insert into database
-			pstat = connection.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			pstat = connection.prepareStatement(
+					"INSERT INTO runs VALUES (NULL, ?, ?, ?)",
+					Statement.RETURN_GENERATED_KEYS);
 			pstat.setTimestamp(1, start);
 			pstat.setTimestamp(2, end);
 			pstat.setBoolean(3, test);
@@ -130,10 +134,7 @@ public class RunServlet extends BaseServlet {
 				insertedId = ids.getInt(1);
 			}
 			// Write back to client
-			writer.key("id").value(insertedId)
-				.key("start").value(start.getTime())
-				.key("end").value(end.getTime())
-				.key("test").value(test).endObject();
+			writeRun(writer, insertedId, start, end, test);
 		} catch (Exception e) {
 			LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
 		} finally {
@@ -143,24 +144,27 @@ public class RunServlet extends BaseServlet {
 
 	/**
 	 * Deletes a particular run given an ID.
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
+	protected void doDelete(HttpServletRequest req, HttpServletResponse res)
+			throws IOException {
 		setCacheAndTypeHeaders(res);
 		int id = getId(req);
 		JSONWriter writer = getJSONObject(res);
-		
+
 		// Prepare database variables
 		Connection connection = null;
 		PreparedStatement pstat = null;
 		int result = 0;
-		
+
 		try {
 			// Get connection
 			connection = getDataSource(req).getConnection();
 			// Check for overlaps
-			pstat = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
+			pstat = connection
+					.prepareStatement("DELETE FROM runs WHERE id = ?");
 			pstat.setInt(1, id);
 			result = pstat.executeUpdate();
 			// Write result
@@ -185,20 +189,23 @@ public class RunServlet extends BaseServlet {
 			throws IOException {
 		return new JSONWriter(res.getWriter()).object();
 	}
-	
+
 	/**
 	 * Sets headers to have no cache and a type of application/json
-	 * @param res The response object to set the headers on
+	 * 
+	 * @param res
+	 *            The response object to set the headers on
 	 */
 	private void setCacheAndTypeHeaders(HttpServletResponse res) {
 		res.setHeader("CACHE-CONTROL", "no-cache");
 		res.setContentType("application/json");
 	}
-	
+
 	/**
 	 * Gets the id from a request.
 	 * 
-	 * @param req The request to get the id from.
+	 * @param req
+	 *            The request to get the id from.
 	 * @return The id from the request
 	 */
 	private int getId(HttpServletRequest req) {
@@ -206,5 +213,27 @@ public class RunServlet extends BaseServlet {
 		Matcher m = p.matcher(req.getRequestURI());
 		m.find();
 		return Integer.parseInt(m.group(1));
+	}
+
+	/**
+	 * Writes a run object.
+	 * 
+	 * @param writer
+	 *            The JSONWriter to use.
+	 * @param id
+	 *            The id of the run.
+	 * @param start
+	 *            The start time of the run.
+	 * @param end
+	 *            The end time of the run.
+	 * @param test
+	 *            Boolean indicating if this run is a test.
+	 * @throws IOException
+	 */
+	private void writeRun(JSONWriter writer, int id, Timestamp start,
+			Timestamp end, boolean test) throws IOException {
+		writer.key("id").value(id).key("start").value(start.getTime())
+				.key("end").value(end.getTime()).key("test").value(test)
+				.endObject();
 	}
 }
