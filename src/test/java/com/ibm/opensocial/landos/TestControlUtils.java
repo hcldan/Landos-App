@@ -19,12 +19,15 @@ import org.easymock.Capture;
 import org.easymock.IAnswer;
 import org.easymock.IMocksControl;
 
+import com.google.common.collect.Maps;
+
 public class TestControlUtils {
-  public static HttpServletRequest mockRequest(IMocksControl control,
-          Map<String, Object> attributes, final DataSource source, String pathInfo) {
+  public static HttpServletRequest mockRequest(IMocksControl control, Map<String, Object> attributes, final DataSource source, String pathInfo) {
     HttpServletRequest req = control.createMock(HttpServletRequest.class);
     expect(req.getPathInfo()).andReturn(pathInfo).anyTimes();
 
+    if (attributes == null)
+      attributes = Maps.newHashMap();
     final Map<String, Object> attrs = Collections.synchronizedMap(attributes);
     final Capture<String> attName = new Capture<String>();
     final Capture<Object> attValue = new Capture<Object>();
@@ -74,8 +77,6 @@ public class TestControlUtils {
 
   public static Connection mockConnection(IMocksControl control) throws SQLException {
     Connection connection = control.createMock(Connection.class);
-    connection.close();
-    expectLastCall().atLeastOnce();
     return connection;
   }
 
