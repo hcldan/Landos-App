@@ -54,10 +54,9 @@ public class TestControlUtils {
     return req;
   }
 
-  public static HttpServletResponse mockResponse(IMocksControl control, Writer output)
-          throws Exception {
+  public static HttpServletResponse mockResponse(IMocksControl control, Writer output, String cacheHeader) throws Exception {
     HttpServletResponse res = control.createMock(HttpServletResponse.class);
-    res.setHeader("CACHE-CONTROL", "no-cache");
+    res.setHeader("CACHE-CONTROL", cacheHeader);
     expectLastCall().once();
     res.setContentType("application/json");
     expectLastCall().once();
@@ -66,6 +65,10 @@ public class TestControlUtils {
     expect(res.getWriter()).andReturn(pout).anyTimes();
 
     return res;
+  }
+  
+  public static HttpServletResponse mockResponse(IMocksControl control, Writer output) throws Exception {
+    return mockResponse(control, output, "no-cache");
   }
 
   public static DataSource mockDataSource(IMocksControl control, Connection connection)
