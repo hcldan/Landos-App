@@ -24,17 +24,16 @@ public class ItemSearchServlet extends BaseServlet {
   private static final long serialVersionUID = -7084594235567935205L;
   private static final String CLAZZ = ItemSearchServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
-  private static final int YEAR = 31557600;
-  private static final int MONTH = 2678400;
   private static final int NOT_ENOUGH_CHARS = 2;
+  
+  public static final String CACHE_YEAR = "public, max-age=31557600";
+  public static final String CACHE_MONTH = "public, max-age=2678400";
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String term = getPathSegment(req, 0);
     term = term == null ? "" : term.trim();
-    resp.setHeader("CACHE-CONTROL", 
-        "public, max-age=" + Integer.toString(term.length() > NOT_ENOUGH_CHARS ? MONTH : YEAR, 10)
-    );
+    resp.setHeader("CACHE-CONTROL", term.length() > NOT_ENOUGH_CHARS ? CACHE_MONTH : CACHE_YEAR);
     resp.setContentType("application/json");
     
     JSONWriter writer = new JSONWriter(resp.getWriter());
