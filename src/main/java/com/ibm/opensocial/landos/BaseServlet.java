@@ -86,6 +86,28 @@ public class BaseServlet extends HttpServlet {
   }
   
   /**
+   * Return the number of path segments in a given request.
+   * 
+   * @param req The request.
+   * @return the number of path segments in the given request.
+   */
+  protected int numSegments(HttpServletRequest req) {
+    String path = req.getPathInfo();
+    if (path.startsWith("/"))
+      path = path.substring(1);
+    
+    StringTokenizer stok = new StringTokenizer(path, "/");
+    int segments = 0;
+    while (stok.hasMoreElements()) {
+      if (stok.nextToken().equals(""))
+        continue;
+      segments++;
+    }
+    
+    return segments;
+  }
+  
+  /**
    * Return a certain path segment.
    * 
    * @param req The request.

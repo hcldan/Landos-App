@@ -49,5 +49,29 @@ public class BaseServletTest extends EasyMock {
     assertEquals("First path", "foo", servlet.getPathSegment(req, 0));
     verify(req);
   }
+  
+  @Test
+  public void testNumSegments() {
+    // First
+    req = TestUtils.mockRequest(null, null, "/foo/bar");
+    replay(req);
+    assertEquals(2, servlet.numSegments(req));
+    verify(req);
+    // Second
+    req = TestUtils.mockRequest(null, null, "//foo//bar");
+    replay(req);
+    assertEquals(2, servlet.numSegments(req));
+    verify(req);
+    // Third
+    req = TestUtils.mockRequest(null, null, "");
+    replay(req);
+    assertEquals(0, servlet.numSegments(req));
+    verify(req);
+    // Fourth
+    req = TestUtils.mockRequest(null, null, "/foo//bar///baz/hello/world");
+    replay(req);
+    assertEquals(5, servlet.numSegments(req));
+    verify(req);
+  }
 }
 
