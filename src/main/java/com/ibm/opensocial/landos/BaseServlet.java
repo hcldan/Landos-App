@@ -150,5 +150,14 @@ public class BaseServlet extends HttpServlet {
     res.setHeader("CACHE-CONTROL", "no-cache");
     res.setContentType("application/json");
   }
+
+  /**
+   * @param res
+   * @return
+   * @throws IOException
+   */
+  protected JSONWriter getJSONObject(HttpServletResponse res) throws IOException {
+    return new JSONWriter(res.getWriter()).object();
+  }
 }
 

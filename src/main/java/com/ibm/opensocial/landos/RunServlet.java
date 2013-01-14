@@ -164,15 +164,6 @@ public class RunServlet extends BaseServlet {
   }
 
   /**
-   * @param res
-   * @return
-   * @throws IOException
-   */
-  private JSONWriter getJSONObject(HttpServletResponse res) throws IOException {
-    return new JSONWriter(res.getWriter()).object();
-  }
-
-  /**
    * Gets the id from a request.
    * 
    * @param req
