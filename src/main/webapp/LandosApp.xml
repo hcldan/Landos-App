@@ -39,6 +39,7 @@
 	    <script src="landos/GadgetContainer.js"></script>
 	    <script src="landos/LoadingPanel.js"></script>
 	    <script src="landos/SubscribeButton.js"></script>
+	    <script src="landos/FilteringSelect.js"></script>
 	    
 	    <!-- Last -->
 	    <script src="init.js"></script>

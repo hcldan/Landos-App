@@ -6,8 +6,7 @@ define('landos/GadgetContainer', [
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
   'landos/env',
-  'dojo/Deferred',
-  'dijit/form/ToggleButton'
+  'dojo/Deferred'
 ], function(lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
@@ -25,6 +24,7 @@ define('landos/GadgetContainer', [
       '<div class="container" data-dojo-attach-point="containerNode">'
     +   '<h1>The Lando\'s App</h1>'
     +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
+    +   '<div data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
     +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
