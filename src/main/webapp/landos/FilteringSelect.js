@@ -8,7 +8,7 @@ define('landos/FilteringSelect', [
 ], function(lang, declare, FilteringSelect, _Contained,  Deferred, env) {
   var undef;
   
-  return declare(FilteringSelect, {
+  return declare([FilteringSelect, _Contained], {
     store: {},
     
     /**
