@@ -29,7 +29,7 @@ public class RunServlet extends BaseServlet {
     int id = getId(req);
 
     // Create JSON writer
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Prepare database variables
     Connection connection = null;
@@ -72,7 +72,7 @@ public class RunServlet extends BaseServlet {
     boolean test = testSegment != null && testSegment.equals("1");
 
     // Create JSON Writer
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Check start and end times
     if (end.before(start)) {
@@ -136,7 +136,7 @@ public class RunServlet extends BaseServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
     int id = getId(req);
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Prepare database variables
     Connection connection = null;
@@ -161,15 +161,6 @@ public class RunServlet extends BaseServlet {
     } finally {
       close(connection, writer);
     }
-  }
-
-  /**
-   * @param res
-   * @return
-   * @throws IOException
-   */
-  private JSONWriter getJSONObject(HttpServletResponse res) throws IOException {
-    return new JSONWriter(res.getWriter()).object();
   }
 
   /**
