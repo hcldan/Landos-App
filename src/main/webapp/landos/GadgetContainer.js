@@ -6,7 +6,10 @@ define('landos/GadgetContainer', [
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
   'landos/env',
-  'dojo/Deferred'
+  'dojo/Deferred',
+  'landos/SubscribeButton',
+  'landos/FilteringSelect',
+  'landos/LoadingPanel'
 ], function(lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
