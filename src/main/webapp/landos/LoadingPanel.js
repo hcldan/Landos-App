@@ -1,4 +1,4 @@
-define('landos/LoadingPanel', [
+require({cache:{'landos/LoadingPanel': function() { define([
   'require',
   'dojo/_base/lang',
   'dojo/_base/declare',
@@ -21,4 +21,4 @@ define('landos/LoadingPanel', [
       domClass.add(this.domNode, 'dijitHidden');
     }
   });
-});
+})}}});

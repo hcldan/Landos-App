@@ -1,4 +1,4 @@
-define('landos/SubscribeButton', [
+require({cache:{'landos/SubscribeButton': function() { define([
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/form/ToggleButton',
@@ -42,4 +42,4 @@ define('landos/SubscribeButton', [
       }
     }
   });
-});
+})}}});

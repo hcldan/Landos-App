@@ -1,4 +1,4 @@
-define('landos/GadgetContainer', [
+require({cache:{'landos/GadgetContainer': function() { define([
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/_WidgetBase',
@@ -69,4 +69,4 @@ define('landos/GadgetContainer', [
       }));
     }
   });
-});
+})}}});

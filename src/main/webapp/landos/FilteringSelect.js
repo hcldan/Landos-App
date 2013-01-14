@@ -1,4 +1,4 @@
-define('landos/FilteringSelect', [
+require({cache:{'landos/FilteringSelect': function() { define([
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/form/FilteringSelect',
@@ -34,4 +34,4 @@ define('landos/FilteringSelect', [
     }
     
   });
-});
+})}}});
