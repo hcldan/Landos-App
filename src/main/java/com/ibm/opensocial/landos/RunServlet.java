@@ -173,17 +173,6 @@ public class RunServlet extends BaseServlet {
   }
 
   /**
-   * Sets headers to have no cache and a type of application/json
-   * 
-   * @param res
-   *          The response object to set the headers on
-   */
-  private void setCacheAndTypeHeaders(HttpServletResponse res) {
-    res.setHeader("CACHE-CONTROL", "no-cache");
-    res.setContentType("application/json");
-  }
-
-  /**
    * Gets the id from a request.
    * 
    * @param req

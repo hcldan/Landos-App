@@ -139,5 +139,16 @@ public class BaseServlet extends HttpServlet {
       }
     }
   }
+
+  /**
+   * Sets headers to have no cache and a type of application/json
+   * 
+   * @param res
+   *          The response object to set the headers on
+   */
+  protected void setCacheAndTypeHeaders(HttpServletResponse res) {
+    res.setHeader("CACHE-CONTROL", "no-cache");
+    res.setContentType("application/json");
+  }
 }
 
