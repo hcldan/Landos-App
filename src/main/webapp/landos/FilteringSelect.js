@@ -5,7 +5,7 @@ define('landos/FilteringSelect', [
   'dijit/_Contained',
   'dojo/Deferred',
   'landos/env'
-], function(lang, declare, FilteringSelect, _Contained,  Deferred, env, template) {
+], function(lang, declare, FilteringSelect, _Contained,  Deferred, env) {
   var undef;
   
   return declare(FilteringSelect, {
