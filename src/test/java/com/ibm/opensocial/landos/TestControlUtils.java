@@ -19,12 +19,15 @@ import org.easymock.Capture;
 import org.easymock.IAnswer;
 import org.easymock.IMocksControl;
 
+import com.google.common.collect.Maps;
+
 public class TestControlUtils {
-  public static HttpServletRequest mockRequest(IMocksControl control,
-          Map<String, Object> attributes, final DataSource source, String pathInfo) {
+  public static HttpServletRequest mockRequest(IMocksControl control, Map<String, Object> attributes, final DataSource source, String pathInfo) {
     HttpServletRequest req = control.createMock(HttpServletRequest.class);
     expect(req.getPathInfo()).andReturn(pathInfo).anyTimes();
 
+    if (attributes == null)
+      attributes = Maps.newHashMap();
     final Map<String, Object> attrs = Collections.synchronizedMap(attributes);
     final Capture<String> attName = new Capture<String>();
     final Capture<Object> attValue = new Capture<Object>();
@@ -51,10 +54,9 @@ public class TestControlUtils {
     return req;
   }
 
-  public static HttpServletResponse mockResponse(IMocksControl control, Writer output)
-          throws Exception {
+  public static HttpServletResponse mockResponse(IMocksControl control, Writer output, String cacheHeader) throws Exception {
     HttpServletResponse res = control.createMock(HttpServletResponse.class);
-    res.setHeader("CACHE-CONTROL", "no-cache");
+    res.setHeader("CACHE-CONTROL", cacheHeader);
     expectLastCall().once();
     res.setContentType("application/json");
     expectLastCall().once();
@@ -63,6 +65,10 @@ public class TestControlUtils {
     expect(res.getWriter()).andReturn(pout).anyTimes();
 
     return res;
+  }
+  
+  public static HttpServletResponse mockResponse(IMocksControl control, Writer output) throws Exception {
+    return mockResponse(control, output, "no-cache");
   }
 
   public static DataSource mockDataSource(IMocksControl control, Connection connection)
@@ -74,8 +80,6 @@ public class TestControlUtils {
 
   public static Connection mockConnection(IMocksControl control) throws SQLException {
     Connection connection = control.createMock(Connection.class);
-    connection.close();
-    expectLastCall().atLeastOnce();
     return connection;
   }
 

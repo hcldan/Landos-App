@@ -30,6 +30,15 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>ItemSearchServlet</servlet-name>
+    <servlet-class>com.ibm.opensocial.landos.ItemSearchServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ItemSearchServlet</servlet-name>
+    <url-pattern>/items/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>OrdersServlet</servlet-name>
     <servlet-class>com.ibm.opensocial.landos.OrdersServlet</servlet-class>
   </servlet>

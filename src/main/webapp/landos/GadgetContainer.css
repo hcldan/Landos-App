@@ -1,7 +1,6 @@
 .claro * {
   outline: none;
 }
-
 .container {
 	font-size: 10pt;
 	position: relative;
@@ -19,7 +18,7 @@
 }
 
 .container h1 {
-  margin: -5px;
+  margin: -5px -5px 15px -5px;
   padding: 20px;
   background: #eee;
   -moz-box-shadow:0px 3px 3px 0px rgba(119, 119, 119, 1);

@@ -1,14 +1,16 @@
-define('landos/GadgetContainer', [
+define([
+  'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/_WidgetBase',
   'dijit/_Container',
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
-  'landos/env',
   'dojo/Deferred',
-  'dijit/form/ToggleButton'
-], function(lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
+  'landos/SubscribeButton',
+  'landos/FilteringSelect',
+  'landos/LoadingPanel'
+], function(landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
@@ -25,6 +27,8 @@ define('landos/GadgetContainer', [
       '<div class="container" data-dojo-attach-point="containerNode">'
     +   '<h1>The Lando\'s App</h1>'
     +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
+    +   '<label for="item">Item:</label>'
+    +   '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
     +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
@@ -41,16 +45,16 @@ define('landos/GadgetContainer', [
       }));
       
       this.viewer.then(lang.hitch(this, function(viewer) {
-        var params = env.getRequestParams(viewer),
+        var params = landos.getRequestParams(viewer),
           batch = osapi.newBatch()
             .add('data', osapi.http.get(lang.mixin({ 
-              href: env.getAPIUri('data') 
+              href: landos.getAPIUri('data') 
             }, params)))
             .add('subscribe', osapi.http.get(lang.mixin({
-              href: env.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
+              href: landos.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
             }, params)));
     
-        env.processOSAPIBatchResponse(batch, onData);
+        landos.processOSAPIBatchResponse(batch, onData);
       })).otherwise(function(error) {
         onData.reject(error);
       }); 

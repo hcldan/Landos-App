@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ public class SubscribeServletTest extends EasyMock {
   private static final String TEST_USER = "com.ibm.opensocial.users:test";
   
   private SubscribeServlet servlet;
+  private IMocksControl control;
   private Connection connection;
   private DataSource source;
   private Map<String, Object> attributes;
@@ -34,14 +36,14 @@ public class SubscribeServletTest extends EasyMock {
   @Before
   public void before() throws Exception {
     servlet = new SubscribeServlet();
+    control = createControl();
     attributes = Maps.newHashMap();
     output = new StringWriter();
     
-    connection = TestUtils.mockConnection();
-    source = TestUtils.mockDataSource(connection);
-    req = TestUtils.mockRequest(attributes, source, "/" + TEST_USER);
+    connection = TestControlUtils.mockConnection(control);
+    source = TestControlUtils.mockDataSource(control, connection);
     
-    resp = TestUtils.mockResponse(output);
+    resp = TestControlUtils.mockResponse(control, output);
   }
   
   @After
@@ -51,182 +53,182 @@ public class SubscribeServletTest extends EasyMock {
   
   @Test
   public void testDoGetUserSubscribedNoPath() throws Exception {
-    req = TestUtils.mockRequest(attributes, source, "");
+    req = TestControlUtils.mockRequest(control, attributes, source, "");
     
-    PreparedStatement stmt = createMock(PreparedStatement.class);
-    Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
-    
-    expectIsSubscribed(stmt, query, result, "", false);
-
-    replay(req, resp, source, connection, stmt, result);
+    control.replay();
     servlet.doGet(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false}", output.toString());
   }
   
   @Test
   public void testDoGetUserSubscribedRootPath() throws Exception {
-    req = TestUtils.mockRequest(attributes, source, "/");
+    req = TestControlUtils.mockRequest(control, attributes, source, "/");
     
-    PreparedStatement stmt = createMock(PreparedStatement.class);
-    Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
-    
-    expectIsSubscribed(stmt, query, result, "", false);
-
-    replay(req, resp, source, connection, stmt, result);
+    control.replay();
     servlet.doGet(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false}", output.toString());
   }
   
   @Test
   public void testDoGetUserSubscribed() throws Exception {
-    PreparedStatement stmt = createMock(PreparedStatement.class);
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
+    ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(stmt, query, result, TEST_USER, true);
+    connection.close(); expectLastCall().once();
 
-    replay(req, resp, source, connection, stmt, result);
+    control.replay();
     servlet.doGet(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":true}", output.toString());
   }
   
   @Test
   public void testDoGetUserUnsubscribed() throws Exception {
-    PreparedStatement stmt = createMock(PreparedStatement.class);
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
+    ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(stmt, query, result, TEST_USER, false);
+    connection.close(); expectLastCall().once();
 
-    replay(req, resp, source, connection, stmt, result);
+    control.replay();
     servlet.doGet(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":false}", output.toString());
   }
   
   @Test
   public void testDoNoPathSubscribe() throws Exception {
-    req = TestUtils.mockRequest(attributes, source, "");
-    
-    PreparedStatement check = createMock(PreparedStatement.class);
-    Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
-    
-    expectIsSubscribed(check, query, result, "", false); // checks if subscribed first.
+    req = TestControlUtils.mockRequest(control, attributes, source, "");
 
     // Could not subscribe user.
     resp.setStatus(500); expectLastCall().once();
-    replay(req, resp, source, connection, check, result);
+    control.replay();
     servlet.doPut(req, resp);
-    
+    control.verify();
+   
     assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false}", output.toString());
   }
   
   @Test
   public void testDoSubscribedUserSubscribe() throws Exception {
-    PreparedStatement check = createMock(PreparedStatement.class);
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    PreparedStatement check = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
+    ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(check, query, result, TEST_USER, true); // checks if subscribed first.
+    connection.close(); expectLastCall().once();
 
     // All set, the user was already subscribed.
     resp.setStatus(200); expectLastCall().once();
-    replay(req, resp, source, connection, check, result);
+    control.replay();
     servlet.doPut(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":true}", output.toString());
   }
   
   @Test
   public void testDoUnsubscribedUserSubscribe() throws Exception {
-    PreparedStatement check = createMock(PreparedStatement.class);
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    PreparedStatement check = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
+    ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(check, query, result, TEST_USER, false); // checks if subscribed first.
     
     // Insert the user, because it wasn't subscribed.
-    PreparedStatement insert = createMock(PreparedStatement.class);
+    PreparedStatement insert = control.createMock(PreparedStatement.class);
     expect(connection.prepareStatement(capture(query))).andReturn(insert).once();
     insert.setString(1, TEST_USER); expectLastCall().once();
     insert.close(); expectLastCall().once();
     expect(insert.executeUpdate()).andReturn(1).once();
     
     // Verify user subscription
-    PreparedStatement checkAgain = createMock(PreparedStatement.class);
-    ResultSet resultAgain = createMock(ResultSet.class);
+    PreparedStatement checkAgain = control.createMock(PreparedStatement.class);
+    ResultSet resultAgain = control.createMock(ResultSet.class);
     expectIsSubscribed(checkAgain, query, resultAgain, TEST_USER, true);
+    
+    connection.close(); expectLastCall().times(3);
 
     resp.setStatus(200); expectLastCall().once();
-    replay(req, resp, source, connection, check, result, insert, checkAgain, resultAgain);
+    control.replay();
     servlet.doPut(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":true}", output.toString());
   }
   
   @Test
   public void testDoNoPathUnsubscribe() throws Exception {
-    req = TestUtils.mockRequest(attributes, source, "");
-    
-    PreparedStatement check = createMock(PreparedStatement.class);
-    Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
-    
-    expectIsSubscribed(check, query, result, "", false); // checks if subscribed first.
+    req = TestControlUtils.mockRequest(control, attributes, source, "");
 
     // Didn't have to unsubscribe user.
     resp.setStatus(200); expectLastCall().once();
-    replay(req, resp, source, connection, check, result);
+    control.replay();
     servlet.doDelete(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false}", output.toString());
   }
   
   @Test
   public void testDoUnsubscribedUserUnsubscribe() throws Exception {
-    PreparedStatement check = createMock(PreparedStatement.class);
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    PreparedStatement check = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
+    ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(check, query, result, TEST_USER, false); // checks if subscribed first.
-
+    connection.close(); expectLastCall().once();
+    
     // All set, the user wasn't subscribed.
     resp.setStatus(200); expectLastCall().once();
-    replay(req, resp, source, connection, check, result);
+    control.replay();
     servlet.doDelete(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":false}", output.toString());
   }
   
   @Test
   public void testDoSubscribedUserUnsubscribe() throws Exception {
-    PreparedStatement check = createMock(PreparedStatement.class);
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    PreparedStatement check = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
-    ResultSet result = createMock(ResultSet.class);
+    ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(check, query, result, TEST_USER, true); // checks if subscribed first.
     
     // Delete the user, because it was subscribed.
-    PreparedStatement insert = createMock(PreparedStatement.class);
+    PreparedStatement insert = control.createMock(PreparedStatement.class);
     expect(connection.prepareStatement(capture(query))).andReturn(insert).once();
     insert.setString(1, TEST_USER); expectLastCall().once();
     insert.close(); expectLastCall().once();
     expect(insert.executeUpdate()).andReturn(1).once();
     
     // Verify user subscription
-    PreparedStatement checkAgain = createMock(PreparedStatement.class);
-    ResultSet resultAgain = createMock(ResultSet.class);
+    PreparedStatement checkAgain = control.createMock(PreparedStatement.class);
+    ResultSet resultAgain = control.createMock(ResultSet.class);
     expectIsSubscribed(checkAgain, query, resultAgain, TEST_USER, false);
+    
+    connection.close(); expectLastCall().times(3);
 
     resp.setStatus(200); expectLastCall().once();
-    replay(req, resp, source, connection, check, result, insert, checkAgain, resultAgain);
+    control.replay();
     servlet.doDelete(req, resp);
+    control.verify();
     
     assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":false}", output.toString());
   }
@@ -234,13 +236,13 @@ public class SubscribeServletTest extends EasyMock {
   private void expectIsSubscribed(PreparedStatement stmt, Capture<String> query, ResultSet result, String user, boolean isUserSubscribed) throws Exception {
     expect(connection.prepareStatement(capture(query))).andReturn(stmt).once();
     stmt.setString(1, user); expectLastCall().once();
-    stmt.close(); expectLastCall().once();
+    stmt.close(); expectLastCall().times(0, 1);
     
     expect(stmt.executeQuery()).andReturn(result).once();
-    result.close(); expectLastCall().once();
+    result.close(); expectLastCall().times(0, 1);
     
     expect(result.first()).andReturn(true).once();
-    expect(result.getInt(1)).andReturn(isUserSubscribed ? 1 : 0).once();
+    expect(result.getInt(1)).andReturn(isUserSubscribed ? 1 : 0).times(0, 1);
   }
 }
 
