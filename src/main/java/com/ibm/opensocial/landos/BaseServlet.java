@@ -156,8 +156,8 @@ public class BaseServlet extends HttpServlet {
    * @return
    * @throws IOException
    */
-  protected JSONWriter getJSONObject(HttpServletResponse res) throws IOException {
-    return new JSONWriter(res.getWriter()).object();
+  protected JSONWriter getJSONWriter(HttpServletResponse res) throws IOException {
+    return new JSONWriter(res.getWriter());
   }
 }
 

@@ -26,10 +26,10 @@ public class RunServlet extends BaseServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
-    int id = getId(req);
+    int id = Integer.parseInt(getPathSegment(req, 0));
 
     // Create JSON writer
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Prepare database variables
     Connection connection = null;
@@ -72,7 +72,7 @@ public class RunServlet extends BaseServlet {
     boolean test = testSegment != null && testSegment.equals("1");
 
     // Create JSON Writer
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Check start and end times
     if (end.before(start)) {
@@ -135,8 +135,8 @@ public class RunServlet extends BaseServlet {
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
-    int id = getId(req);
-    JSONWriter writer = getJSONObject(res);
+    int id = Integer.parseInt(getPathSegment(req, 0));
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Prepare database variables
     Connection connection = null;
@@ -161,17 +161,6 @@ public class RunServlet extends BaseServlet {
     } finally {
       close(connection, writer);
     }
-  }
-
-  /**
-   * Gets the id from a request.
-   * 
-   * @param req
-   *          The request to get the id from.
-   * @return The id from the request
-   */
-  private int getId(HttpServletRequest req) {
-    return Integer.parseInt(getPathSegment(req, 0));
   }
 
   /**
