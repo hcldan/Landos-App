@@ -27,7 +27,8 @@ define([
       '<div class="container" data-dojo-attach-point="containerNode">'
     +   '<h1>The Lando\'s App</h1>'
     +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
-    +   '<div data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
+    +   '<label for="item">Item:</label>'
+    +   '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
     +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
