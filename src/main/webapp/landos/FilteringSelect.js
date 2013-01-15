@@ -14,6 +14,9 @@ define([
     labelAttr: 'food',
     searchAttr: 'food',
     required: true,
+    queryExpr: '*${0}*',
+    highlightMatch: 'all',
+    autoComplete: false,
     
     /**
      * @Override dijit/form/FilteringSelect.isValid()
