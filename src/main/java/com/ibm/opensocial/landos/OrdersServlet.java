@@ -118,7 +118,7 @@ public class OrdersServlet extends BaseServlet {
     PreparedStatement stmt = null;
     
     // Query
-    String query = "SELECT * FROM orders WHERE rid = ? AND user = ? AND item = ?";
+    String query = "DELETE FROM orders WHERE rid = ? AND user = ? AND item = ?";
     
     try {
       conn = getDataSource(req).getConnection();
@@ -126,9 +126,8 @@ public class OrdersServlet extends BaseServlet {
       stmt.setInt(1, rid);
       stmt.setString(2, user);
       stmt.setString(3, item);
-      int result = stmt.executeUpdate();
       writer.object();
-      writer.key("delete").value(result);
+      writer.key("delete").value(stmt.executeUpdate());
       writer.endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
