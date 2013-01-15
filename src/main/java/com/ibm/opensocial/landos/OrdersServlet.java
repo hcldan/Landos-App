@@ -7,13 +7,18 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class OrdersServlet extends BaseServlet {
+  private static final String CLAZZ = OrdersServlet.class.getName();
+  private static final Logger LOGGER = Logger.getLogger(CLAZZ);
+  
   /**
-   * GET /orders/runid[?user=<user>[&item=<bar>]]
+   * GET /orders/<runid>[?user=<user>[&item=<bar>]]
    * @throws IOException 
    */
   @Override
@@ -72,15 +77,14 @@ public class OrdersServlet extends BaseServlet {
       }
       writer.endArray();
     } catch (Exception e) {
-      //TODO Set up logging
-      e.printStackTrace();
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
     } finally {
       close(writer, conn);
     }
   }
   
   /**
-   * DELETE /orders/runid?user=<user>&item=<bar>
+   * DELETE /orders/<runid>?user=<user>&item=<bar>
    * @throws IOException 
    */
   @Override
@@ -100,8 +104,7 @@ public class OrdersServlet extends BaseServlet {
       try {
         writer.object().key("error").value("Deleting requires a run id, user id, and an item.");
       } catch (Exception e) {
-        // TODO Set up logging
-        e.printStackTrace();
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
       } finally {
         close(writer);
       }
@@ -121,17 +124,15 @@ public class OrdersServlet extends BaseServlet {
     try {
       conn = getDataSource(req).getConnection();
       stmt = conn.prepareStatement(query);
-      // Prepared statement is now ready for execution
-      int result = stmt.executeUpdate();
       stmt.setInt(1, rid);
       stmt.setInt(2, Integer.parseInt(user));
       stmt.setString(3, item);
+      int result = stmt.executeUpdate();
       writer.object();
       writer.key("delete").value(result);
       writer.endObject();
     } catch (Exception e) {
-      //TODO Set up logging
-      e.printStackTrace();
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
     } finally {
       close(writer, conn);
     }
