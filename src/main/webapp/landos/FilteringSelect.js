@@ -10,23 +10,45 @@ define([
   
   return declare([FilteringSelect, _Contained], {
     store: {},
-    
+    labelAttr: 'food',
     searchDelay: 300,
     
     /**
-     * @Override dijit/form/_SearchMixin._startSearch(text)
+     * @Override
+     *   dijit/form/_SearchMixin._startSearch(text)
+     *     dijit/form/_AutoCompleterMixin._startSearch(text) 
      */
-    _startSearch: function(text) {
+    _startSearch: function(key) {
+      //-- copy from _AutoCompleterMixin
+      // summary:
+      //    Starts a search for elements matching key (key=="" means to return all items),
+      //    and calls _openResultList() when the search completes, to display the results.
+      if(!this.dropDown){
+        var popupId = this.id + "_popup",
+          dropDownConstructor = lang.isString(this.dropDownClass) ?
+            lang.getObject(this.dropDownClass, false) : this.dropDownClass;
+        this.dropDown = new dropDownConstructor({
+          onChange: lang.hitch(this, this._selectOption),
+          id: popupId,
+          dir: this.dir,
+          textDir: this.textDir
+        });
+        this.focusNode.removeAttribute("aria-activedescendant");
+        this.textbox.setAttribute("aria-owns",popupId); // associate popup with textbox
+      }
+      this._lastInput = key; // Store exactly what was entered by the user.
+      //-- end copy from _AutoCompleterMixin
+      
       this._abortQuery();
       
-      this._lastQuery = text;
-      if (text.length > 2) {
-        this._queryDeferHandle = this.defer(lang.hitch(this, function(text) {
+      this._lastQuery = key;
+      if (key.length > 2) {
+        this._queryDeferHandle = this.defer(lang.hitch(this, function(key) {
           var fetch = this._fetchHandle = new Deferred(),
-              params = { format: 'json', href: landos.getAPIUri('items') + '/' + encodeURIComponent(text) },
+              params = { format: 'json', href: landos.getAPIUri('items') + '/' + encodeURIComponent(key) },
               query = {};
           
-          query[this.searchAttr] = text;
+          query[this.searchAttr] = key;
           osapi.http.get(params).execute(lang.hitch(this, function(result) {
             fetch[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
           }));
@@ -39,7 +61,7 @@ define([
             this._fetchHandle = null;
             
           }));
-        }, text), this.searchDelay);
+        }, key), this.searchDelay);
       }
     }
     
