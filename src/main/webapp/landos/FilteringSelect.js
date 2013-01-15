@@ -24,9 +24,9 @@ define([
         this._queryDeferHandle = this.defer(lang.hitch(this, function(text) {
           var fetch = this._fetchHandle = new Deferred();
           
-          var params = lang.mixin({ href: landos.getAPIUri('items') + '/' + encodeURIComponent(viewer) }, landos.getRequestParams(viewer));
+          var params = { format: 'json', href: landos.getAPIUri('items') + '/' + encodeURIComponent(text) };
           osapi.http.get(params).execute(lang.hitch(this, function(result) {
-            this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
+            fetch[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
           }));
           
           fetch.then(lang.hitch(this, function(results) {
