@@ -209,7 +209,7 @@ public class ItemSearchServletTest extends EasyMock {
     servlet.doGet(req, resp);
     control.verify();
     
-    assertEquals("Empty output", "{\"matches\":[{\"category\":\"caaat\",\"food\":\"fud\"},{\"category\":\"cut\",\"food\":\"faaad\"}]}", output.toString());
+    assertEquals("Failed two matches output.", "{\"matches\":[{\"category\":\"caaat\",\"food\":\"fud\"},{\"category\":\"cut\",\"food\":\"faaad\"}]}", output.toString());
   }
   
   @Test

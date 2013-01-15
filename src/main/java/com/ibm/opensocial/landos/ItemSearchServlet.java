@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.wink.json4j.JSONWriter;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 public class ItemSearchServlet extends BaseServlet {
@@ -38,12 +35,10 @@ public class ItemSearchServlet extends BaseServlet {
     resp.setContentType("application/json");
     
     JSONWriter writer = new JSONWriter(resp.getWriter());
-    
     try {
-      List<Map<String, String>> matches = findMatches(req, term);
-      writer.object()
-        .key("matches").value(matches)
-      .endObject();
+      writer.object().key("matches").array();
+      findMatches(req, term, writer);
+      writer.endArray().endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);
       throw new ServletException(e);
@@ -52,12 +47,11 @@ public class ItemSearchServlet extends BaseServlet {
     }
   }
   
-  private List<Map<String, String>> findMatches(HttpServletRequest req, String term) throws SQLException {
-    List<Map<String, String>> ret = Lists.newLinkedList();
+  private void findMatches(HttpServletRequest req, String term, JSONWriter writer) throws Exception {
     List<String> tokens = Lists.newLinkedList();
     if (Strings.isNullOrEmpty(term)) {
       StringBuilder query = new StringBuilder("SELECT `category`, `food` FROM `foods` WHERE 1 ORDER BY `category` ASC"); 
-      ret = searchForFood(req, query.toString(), tokens);
+      searchForFood(req, query.toString(), tokens, writer);
     } else if (term.length() > NOT_ENOUGH_CHARS) {
       StringBuilder query = new StringBuilder("SELECT `category`, `food` FROM `foods` WHERE (");
       StringTokenizer stok = new StringTokenizer(term, " ");
@@ -68,16 +62,11 @@ public class ItemSearchServlet extends BaseServlet {
           query.append(" AND ");
       }
       query.append(") ORDER BY `category` ASC");
-      
-      ret = searchForFood(req, query.toString(), tokens);
+      searchForFood(req, query.toString(), tokens, writer);
     }
-    
-    return ret;
   }
   
-  private List<Map<String, String>> searchForFood(HttpServletRequest req, String query, List<String> tokens) throws SQLException {
-    List<Map<String, String>> ret = Lists.newLinkedList();
-    
+  private void searchForFood(HttpServletRequest req, String query, List<String> tokens, JSONWriter writer) throws Exception {
     Connection connection = null;
     PreparedStatement stmt = null;
     ResultSet result = null;
@@ -94,19 +83,15 @@ public class ItemSearchServlet extends BaseServlet {
       result = stmt.executeQuery();
       if (result.first()) {
         do {
-          ret.add(
-            ImmutableMap.<String, String>builder()
-              .put("category", result.getString(1))
-              .put("food", result.getString(2))
-            .build()
-          );
+          writer.object()
+            .key("category").value(result.getString(1))
+            .key("food").value(result.getString(2))
+          .endObject();
         } while (result.next());
       }
     } finally {
       close(result, stmt, connection);
     }
-    
-    return ret;
   }
 }
 
