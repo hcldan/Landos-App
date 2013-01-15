@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wink.json4j.JSONWriter;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -53,9 +54,11 @@ public class ItemSearchServlet extends BaseServlet {
   
   private List<Map<String, String>> findMatches(HttpServletRequest req, String term) throws SQLException {
     List<Map<String, String>> ret = Lists.newLinkedList();
-    
-    if (term.length() > NOT_ENOUGH_CHARS) {
-      List<String> tokens = Lists.newLinkedList();
+    List<String> tokens = Lists.newLinkedList();
+    if (Strings.isNullOrEmpty(term)) {
+      StringBuilder query = new StringBuilder("SELECT `category`, `food` FROM `foods` WHERE 1 ORDER BY `category` ASC"); 
+      ret = searchForFood(req, query.toString(), tokens);
+    } else if (term.length() > NOT_ENOUGH_CHARS) {
       StringBuilder query = new StringBuilder("SELECT `category`, `food` FROM `foods` WHERE (");
       StringTokenizer stok = new StringTokenizer(term, " ");
       while (stok.hasMoreElements()) {

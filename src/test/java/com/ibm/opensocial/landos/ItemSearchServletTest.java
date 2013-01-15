@@ -70,15 +70,52 @@ public class ItemSearchServletTest extends EasyMock {
   }
   
   @Test
-  public void testTooShortStringEmpty() throws Exception {
-    req = TestControlUtils.mockRequest(control, null, null, "/");
+  public void testStringEmptyNoResults() throws Exception {
+    req = TestControlUtils.mockRequest(control, null, source, "/");
     resp = TestControlUtils.mockResponse(control, output, ItemSearchServlet.CACHE_YEAR);
+    
+    expect(connection.prepareStatement(
+      "SELECT `category`, `food` FROM `foods` WHERE 1 ORDER BY `category` ASC"
+    )).andReturn(stmt);
+    expect(stmt.executeQuery()).andReturn(result).once();
+    
+    expect(result.first()).andReturn(false).once();
+    result.close(); expectLastCall().once();
+    
+    stmt.close(); expectLastCall().once();
+    connection.close(); expectLastCall().once();
     
     control.replay();
     servlet.doGet(req, resp);
     control.verify();
     
     assertEquals("Empty output", "{\"matches\":[]}", output.toString());
+  }
+  
+  @Test
+  public void testStringEmptyOneResult() throws Exception {
+    req = TestControlUtils.mockRequest(control, null, source, "/");
+    resp = TestControlUtils.mockResponse(control, output, ItemSearchServlet.CACHE_YEAR);
+    
+    expect(connection.prepareStatement(
+      "SELECT `category`, `food` FROM `foods` WHERE 1 ORDER BY `category` ASC"
+    )).andReturn(stmt);
+    expect(stmt.executeQuery()).andReturn(result).once();
+    
+    expect(result.first()).andReturn(true).once();
+    expect(result.getString(1)).andReturn("foo").once();
+    expect(result.getString(2)).andReturn("bar").once();
+    expect(result.next()).andReturn(false).once();
+    result.close(); expectLastCall().once();
+    
+    stmt.close(); expectLastCall().once();
+    connection.close(); expectLastCall().once();
+    
+    control.replay();
+    servlet.doGet(req, resp);
+    control.verify();
+    
+    assertEquals("Empty output", "{\"matches\":[{\"category\":\"foo\",\"food\":\"bar\"}]}", output.toString());
   }
   
   @Test
