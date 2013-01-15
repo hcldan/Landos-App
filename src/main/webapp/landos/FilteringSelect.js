@@ -4,14 +4,15 @@ define([
   'dojo/_base/declare',
   'dijit/form/FilteringSelect',
   'dijit/_Contained',
-  'dojo/Deferred'
-], function(landos, lang, declare, FilteringSelect, _Contained,  Deferred) {
+  'dojo/Deferred',
+  'dojo/store/Memory'
+], function(landos, lang, declare, FilteringSelect, _Contained,  Deferred, MemoryStore) {
   var undef;
   
   return declare([FilteringSelect, _Contained], {
-    store: {},
+    store: new MemoryStore({data: []}),
     labelAttr: 'food',
-    searchDelay: 300,
+    searchAttr: 'food',
     
     /**
      * @Override
@@ -56,6 +57,9 @@ define([
           fetch.then(lang.hitch(this, function(results) {
             this._fetchHandle = null;
             var matches = results && results.content && results.content.matches || [];
+            this.pageSize = matches.total = matches.length;
+            matches.nextPage = function() {};
+            this.store = new MemoryStore({data: matches});
             this.onSearch(matches, query, {});            
           })).otherwise(lang.hitch(this, function(error) {
             this._fetchHandle = null;
