@@ -84,4 +84,24 @@ public class OrdersServletTest {
     control.verify();
     assertEquals("[{\"uid\":101,\"item\":\"Pizza\",\"size\":\"\",\"qty\":1,\"price\":500,\"comments\":\"Foo\"},{\"uid\":101,\"item\":\"Soda\",\"size\":\"Small\",\"qty\":2,\"price\":150,\"comments\":\"Bar\"}]", output.toString());
   }
+  
+  @Test
+  public void testDeleteOrder() throws Exception {
+    // Set up mocks and expectations
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
+    expect(req.getParameter("user")).andReturn("" + uid).once();
+    expect(req.getParameter("item")).andReturn(items[0]).once();
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
+    expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
+    stmt.setInt(1, rid); expectLastCall().once();
+    stmt.setInt(2, uid); expectLastCall().once();
+    stmt.setString(3, items[0]); expectLastCall().once();
+    expect(stmt.executeUpdate()).andReturn(1);
+    
+    // Run test
+    control.replay();
+    servlet.doDelete(req, res);
+    control.verify();
+    assertEquals("{\"delete\":1}", output.toString());
+  }
 }

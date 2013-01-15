@@ -66,12 +66,69 @@ public class OrdersServlet extends BaseServlet {
       }
       // Prepared statement is now ready for execution
       results = stmt.executeQuery();
-      writer = getJSONWriter(res);
       writer.array();
       while (results.next()) {
         writeJSONObjectOrder(writer, results.getInt(1), results.getString(2), results.getString(3), results.getInt(4), results.getInt(5), results.getString(6));
       }
       writer.endArray();
+    } catch (Exception e) {
+      //TODO Set up logging
+      e.printStackTrace();
+    } finally {
+      close(writer, conn);
+    }
+  }
+  
+  /**
+   * DELETE /orders/runid?user=<user>&item=<bar>
+   * @throws IOException 
+   */
+  @Override
+  public void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    // Set headers
+    setCacheAndTypeHeaders(res);
+    
+    // Get the user and item parameters
+    String user = req.getParameter("user");
+    String item = req.getParameter("item");
+    
+    // Writer
+    JSONWriter writer = getJSONWriter(res);
+    
+    // Check for required parameters
+    if (numSegments(req) < 1 || user == null || item == null) {
+      try {
+        writer.object().key("error").value("Deleting requires a run id, user id, and an item.");
+      } catch (Exception e) {
+        // TODO Set up logging
+        e.printStackTrace();
+      } finally {
+        close(writer);
+      }
+      return;
+    }
+    
+    // Get the run id
+    int rid = Integer.parseInt(getPathSegment(req, 0));
+    
+    // Prepare database variables
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    
+    // Query
+    String query = "SELECT * FROM orders WHERE rid = ? AND uid = ? AND item = ?";
+    
+    try {
+      conn = getDataSource(req).getConnection();
+      stmt = conn.prepareStatement(query);
+      // Prepared statement is now ready for execution
+      int result = stmt.executeUpdate();
+      stmt.setInt(1, rid);
+      stmt.setInt(2, Integer.parseInt(user));
+      stmt.setString(3, item);
+      writer.object();
+      writer.key("delete").value(result);
+      writer.endObject();
     } catch (Exception e) {
       //TODO Set up logging
       e.printStackTrace();
