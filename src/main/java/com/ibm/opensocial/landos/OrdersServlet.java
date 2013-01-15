@@ -53,7 +53,7 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(1, rid);
       } else {
         // User is set
-        query += " AND uid = ?";
+        query += " AND user = ?";
         if (item == null) {
           // Item is set
           query += " AND item = ?";
@@ -118,7 +118,7 @@ public class OrdersServlet extends BaseServlet {
     PreparedStatement stmt = null;
     
     // Query
-    String query = "SELECT * FROM orders WHERE rid = ? AND uid = ? AND item = ?";
+    String query = "SELECT * FROM orders WHERE rid = ? AND user = ? AND item = ?";
     
     try {
       conn = getDataSource(req).getConnection();
