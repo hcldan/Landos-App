@@ -1,32 +1,26 @@
 package com.ibm.opensocial.landos;
 
 import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
+import com.google.common.collect.Maps;
+
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-
-import org.easymock.EasyMock;
-import org.easymock.IAnswer;
-import org.easymock.IMocksControl;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.Maps;
 
 public class OrdersServletTest {
   private OrdersServlet servlet;
@@ -39,11 +33,11 @@ public class OrdersServletTest {
   private HttpServletResponse res;
   private final int rid = 9001;
   private final int uid = 101;
-  private final String[] items = {"Pizza", "Soda"};
-  private final String[] sizes = {"", "Small"};
-  private final int[] qties = {1, 2};
-  private final int[] prices = {500, 150};
-  private final String[] comments = {"Foo", "Bar"};
+  private final String[] items = { "Pizza", "Soda" };
+  private final String[] sizes = { "", "Small" };
+  private final int[] qties = { 1, 2 };
+  private final int[] prices = { 500, 150 };
+  private final String[] comments = { "Foo", "Bar" };
 
   @Before
   public void before() throws Exception {
@@ -64,7 +58,8 @@ public class OrdersServletTest {
     expect(req.getParameter("item")).andReturn(null).once();
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt);
-    stmt.setInt(1, rid); expectLastCall().once();
+    stmt.setInt(1, rid);
+    expectLastCall().once();
     ResultSet results = control.createMock(ResultSet.class);
     expect(stmt.executeQuery()).andReturn(results).once();
     for (int i = 0; i < 2; i++) {
@@ -78,14 +73,19 @@ public class OrdersServletTest {
       expect(results.getString(7)).andReturn(comments[i]).once();
     }
     expect(results.next()).andReturn(false).once();
-    
+
     // Run test
     control.replay();
     servlet.doGet(req, res);
     control.verify();
-    assertEquals("[{\"rid\":9001,\"uid\":101,\"item\":\"Pizza\",\"size\":\"\",\"qty\":1,\"price\":500,\"comments\":\"Foo\"},{\"rid\":9001,\"uid\":101,\"item\":\"Soda\",\"size\":\"Small\",\"qty\":2,\"price\":150,\"comments\":\"Bar\"}]", output.toString());
+    assertEquals("[{\"rid\":" + rid + ",\"uid\":" + uid + ",\"item\":\"" + items[0]
+            + "\",\"size\":\"" + sizes[0] + "\",\"qty\":" + qties[0] + ",\"price\":" + prices[0]
+            + ",\"comments\":\"" + comments[0] + "\"},{\"rid\":" + rid + ",\"uid\":" + uid
+            + ",\"item\":\"" + items[1] + "\",\"size\":\"" + sizes[1] + "\",\"qty\":" + qties[1]
+            + ",\"price\":" + prices[1] + ",\"comments\":\"" + comments[1] + "\"}]",
+            output.toString());
   }
-  
+
   @Test
   public void testDeleteOrder() throws Exception {
     // Set up mocks and expectations
@@ -94,18 +94,21 @@ public class OrdersServletTest {
     expect(req.getParameter("item")).andReturn(items[0]).once();
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
-    stmt.setInt(1, rid); expectLastCall().once();
-    stmt.setInt(2, uid); expectLastCall().once();
-    stmt.setString(3, items[0]); expectLastCall().once();
+    stmt.setInt(1, rid);
+    expectLastCall().once();
+    stmt.setInt(2, uid);
+    expectLastCall().once();
+    stmt.setString(3, items[0]);
+    expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1);
-    
+
     // Run test
     control.replay();
     servlet.doDelete(req, res);
     control.verify();
     assertEquals("{\"delete\":1}", output.toString());
   }
-  
+
   @Test
   public void testPutOrder() throws Exception {
     // Set up mocks and expectations
@@ -118,19 +121,28 @@ public class OrdersServletTest {
     expect(req.getParameter("qty")).andReturn("" + qties[0]);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
-    stmt.setInt(1, rid); expectLastCall().once();
-    stmt.setInt(2, uid); expectLastCall().once();
-    stmt.setString(3, items[0]); expectLastCall().once();
-    stmt.setString(4, sizes[0]); expectLastCall().once();
-    stmt.setInt(5, qties[0]); expectLastCall().once();
-    stmt.setInt(6, prices[0]); expectLastCall().once();
-    stmt.setString(7, comments[0]); expectLastCall().once();
+    stmt.setInt(1, rid);
+    expectLastCall().once();
+    stmt.setInt(2, uid);
+    expectLastCall().once();
+    stmt.setString(3, items[0]);
+    expectLastCall().once();
+    stmt.setString(4, sizes[0]);
+    expectLastCall().once();
+    stmt.setInt(5, qties[0]);
+    expectLastCall().once();
+    stmt.setInt(6, prices[0]);
+    expectLastCall().once();
+    stmt.setString(7, comments[0]);
+    expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1).once();
-    
+
     // Run test
     control.replay();
     servlet.doPut(req, res);
     control.verify();
-    assertEquals("{\"rid\":9001,\"uid\":101,\"item\":\"Pizza\",\"size\":\"\",\"qty\":1,\"price\":500,\"comments\":\"Foo\"}", output.toString());
+    assertEquals("{\"rid\":" + rid + ",\"uid\":" + uid + ",\"item\":\"" + items[0]
+            + "\",\"size\":\"" + sizes[0] + "\",\"qty\":" + qties[0] + ",\"price\":" + prices[0]
+            + ",\"comments\":\"" + comments[0] + "\"}", output.toString());
   }
 }
