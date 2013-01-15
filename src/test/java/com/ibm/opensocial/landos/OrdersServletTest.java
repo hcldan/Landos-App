@@ -43,7 +43,7 @@ public class OrdersServletTest {
   public void before() throws Exception {
     servlet = new OrdersServlet();
     output = new StringWriter();
-    control = EasyMock.createNiceControl();
+    control = EasyMock.createControl();
     conn = TestControlUtils.mockConnection(control);
     source = TestControlUtils.mockDataSource(control, conn);
     attributes = Maps.newHashMap();
