@@ -65,10 +65,11 @@ define([
           fetch.then(lang.hitch(this, function(results) {
             this._fetchHandle = null;
             var matches = results && results.content && results.content.matches || [];
-            this.pageSize = matches.total = matches.length;
             matches.nextPage = function() {};
-            this.store = new MemoryStore({data: matches});
-            this.onSearch(matches, query, {});            
+            
+            this.set('pageSize', matches.total = matches.length);
+            this.set('store', new MemoryStore({data: matches}));
+            this.onSearch(matches, query, { start: 0, count: matches.length });            
           })).otherwise(lang.hitch(this, function(error) {
             this._fetchHandle = null;
             
