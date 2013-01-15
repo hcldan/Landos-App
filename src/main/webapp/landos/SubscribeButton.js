@@ -1,11 +1,11 @@
-require({cache:{'landos/SubscribeButton': function() { define([
+define([
+  'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/form/ToggleButton',
   'dijit/_Contained',
-  'dojo/Deferred',
-  'landos/env',
-], function(lang, declare, ToggleButton, _Contained,  Deferred, env) {
+  'dojo/Deferred'
+], function(landos, lang, declare, ToggleButton, _Contained,  Deferred) {
   var undef;
   return declare(ToggleButton, {
     disabled: true,
@@ -34,7 +34,7 @@ require({cache:{'landos/SubscribeButton': function() { define([
         });
         
         parent.viewer.then(lang.hitch(this, function(viewer) {
-          var params = lang.mixin({ href: env.getAPIUri('subscribe') + '/' + encodeURIComponent(viewer) }, env.getRequestParams(viewer));
+          var params = lang.mixin({ href: landos.getAPIUri('subscribe') + '/' + encodeURIComponent(viewer) }, landos.getRequestParams(viewer));
           osapi.http[this.checked ? 'delete' : 'put'](params).execute(lang.hitch(this, function(result) {
             this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
           }));
@@ -42,4 +42,4 @@ require({cache:{'landos/SubscribeButton': function() { define([
       }
     }
   });
-})}}});
+});

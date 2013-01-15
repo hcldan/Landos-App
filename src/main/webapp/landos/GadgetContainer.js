@@ -1,16 +1,16 @@
-require({cache:{'landos/GadgetContainer': function() { define([
+define([
+  'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/_WidgetBase',
   'dijit/_Container',
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
-  'landos/env',
   'dojo/Deferred',
   'landos/SubscribeButton',
   'landos/FilteringSelect',
   'landos/LoadingPanel'
-], function(lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, env, Deferred) {
+], function(landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
@@ -44,16 +44,16 @@ require({cache:{'landos/GadgetContainer': function() { define([
       }));
       
       this.viewer.then(lang.hitch(this, function(viewer) {
-        var params = env.getRequestParams(viewer),
+        var params = landos.getRequestParams(viewer),
           batch = osapi.newBatch()
             .add('data', osapi.http.get(lang.mixin({ 
-              href: env.getAPIUri('data') 
+              href: landos.getAPIUri('data') 
             }, params)))
             .add('subscribe', osapi.http.get(lang.mixin({
-              href: env.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
+              href: landos.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
             }, params)));
     
-        env.processOSAPIBatchResponse(batch, onData);
+        landos.processOSAPIBatchResponse(batch, onData);
       })).otherwise(function(error) {
         onData.reject(error);
       }); 
@@ -69,4 +69,4 @@ require({cache:{'landos/GadgetContainer': function() { define([
       }));
     }
   });
-})}}});
+});

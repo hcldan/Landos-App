@@ -1,12 +1,13 @@
-require({cache:{'landos/LoadingPanel': function() { define([
+define([
   'require',
+  'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/_WidgetBase',
   'dijit/_Container',
   'dijit/_TemplatedMixin',
   'dojo/dom-class'
-], function(require, lang, declare, _WidgetBase, _Container, _TemplatedMixin, domClass) {
+], function(require, landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, domClass) {
   return declare([_WidgetBase, _Container, _TemplatedMixin], {   
     templateString:
       '<div class="loadinPanel dijitHidden" data-dojo-attach-point="containerNode">'
@@ -21,4 +22,4 @@ require({cache:{'landos/LoadingPanel': function() { define([
       domClass.add(this.domNode, 'dijitHidden');
     }
   });
-})}}});
+});

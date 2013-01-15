@@ -34,15 +34,24 @@
 	    <link type="text/css" rel="stylesheet" href="landos/GadgetContainer.css"></link>
 	    <link type="text/css" rel="stylesheet" href="landos/LoadingPanel.css"></link>
 	    
-	    <!-- Js to be combined for us by shindig. -->
-	    <script src="landos/env.js"></script>
-	    <script src="landos/GadgetContainer.js"></script>
-	    <script src="landos/LoadingPanel.js"></script>
-	    <script src="landos/SubscribeButton.js"></script>
-	    <script src="landos/FilteringSelect.js"></script>
-	    
-	    <!-- Last -->
-	    <script src="init.js"></script>
+	    <script type="text/javascript">
+	      (function() {
+	        // UNSUPPORTED: We need a way to do this in the gadget spec.  This is Apache Shindig specific.
+				  var url = decodeURIComponent(/url=([^&]+)/.exec(window.location.href)[1]);
+				  url = url.substring(0, url.indexOf('/LandosApp.xml'));
+				  
+				  require({
+				    packages: [{ name:'landos', location: url + '/landos' }],
+            paths: {
+              'api': url
+            }
+				  });
+				})();
+
+				require(['dojo/parser'], function(parser) {
+				  parser.parse();
+				});
+	    </script>
 	  </head>
 	  <body class="claro"><div><div data-dojo-type="landos/GadgetContainer"></div></div></body>
   ]]></Content>

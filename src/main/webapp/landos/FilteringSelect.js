@@ -1,15 +1,17 @@
-require({cache:{'landos/FilteringSelect': function() { define([
+define([
+  'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
   'dijit/form/FilteringSelect',
   'dijit/_Contained',
-  'dojo/Deferred',
-  'landos/env'
-], function(lang, declare, FilteringSelect, _Contained,  Deferred, env) {
+  'dojo/Deferred'
+], function(landos, lang, declare, FilteringSelect, _Contained,  Deferred) {
   var undef;
   
   return declare([FilteringSelect, _Contained], {
     store: {},
+    
+    searchDelay: 300,
     
     /**
      * @Override dijit/form/_SearchMixin._startSearch(text)
@@ -18,20 +20,25 @@ require({cache:{'landos/FilteringSelect': function() { define([
       this._abortQuery();
       
       this._lastQuery = text;
-      this._queryDeferHandle = this.defer(lang.hitch(this, function(text) {
-        var fetch = this._fetchHandle = new Deferred();
-        
-        
-        
-        fetch.then(lang.hitch(this, function(results) {
-          this._fetchHandle = null;
+      if (text.length > 2) {
+        this._queryDeferHandle = this.defer(lang.hitch(this, function(text) {
+          var fetch = this._fetchHandle = new Deferred();
           
-        })).otherwise(lang.hitch(this, function(error) {
-          this._fetchHandle = null;
+          var params = lang.mixin({ href: landos.getAPIUri('items') + '/' + encodeURIComponent(viewer) }, landos.getRequestParams(viewer));
+          osapi.http.get(params).execute(lang.hitch(this, function(result) {
+            this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
+          }));
           
-        }));
-      }, text), this.searchDelay);
+          fetch.then(lang.hitch(this, function(results) {
+            this._fetchHandle = null;
+            
+          })).otherwise(lang.hitch(this, function(error) {
+            this._fetchHandle = null;
+            
+          }));
+        }, text), this.searchDelay);
+      }
     }
     
   });
-})}}});
+});
