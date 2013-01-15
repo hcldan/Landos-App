@@ -55,17 +55,17 @@ public class OrdersServlet extends BaseServlet {
         // User is set
         query += " AND user = ?";
         if (item == null) {
+          // Only user is set
+          stmt = conn.prepareStatement(query);
+          stmt.setInt(1, rid);
+          stmt.setString(2, user);
+        } else {
           // Item is set
           query += " AND item = ?";
           stmt = conn.prepareStatement(query);
           stmt.setInt(1, rid);
           stmt.setString(2, user);
           stmt.setString(3, item);
-        } else {
-          // Only user is set
-          stmt = conn.prepareStatement(query);
-          stmt.setInt(1, rid);
-          stmt.setString(2, user);
         }
       }
       // Prepared statement is now ready for execution
@@ -182,7 +182,7 @@ public class OrdersServlet extends BaseServlet {
     PreparedStatement stmt = null;
     
     // Query
-    String query = "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?)";
+    String query = "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?)";
     
     try {
       // Prepare variables
