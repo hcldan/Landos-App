@@ -54,7 +54,7 @@ define([
       if (key.length > 2) {
         this._queryDeferHandle = this.defer(lang.hitch(this, function(key) {
           var fetch = this._fetchHandle = new Deferred(),
-              params = { format: 'json', href: landos.getAPIUri('items') + '/' + encodeURIComponent(key) },
+              params = { format: 'json', href: landos.getAPIUri('items') + encodeURIComponent(key) },
               query = {};
           
           query[this.searchAttr] = key;
