@@ -138,7 +138,7 @@ public class OrdersServlet extends BaseServlet {
   }
   
   /**
-   * PUT /orders/<runid>?user=<user>&item=<bar>
+   * PUT /orders/<runid>?user=<user>&item=<item>&price=<price>[&size=<size>][&qty=<qty>][&comments=<comments>]
    * @throws IOException 
    */
   @Override
