@@ -13,6 +13,7 @@ define([
     store: new MemoryStore({data: []}),
     labelAttr: 'food',
     searchAttr: 'food',
+    required: true,
     
     /**
      * @Override dijit/form/FilteringSelect.isValid()
