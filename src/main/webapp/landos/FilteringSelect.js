@@ -28,7 +28,7 @@ define([
   
       osapi.http.get(params).execute(lang.hitch(this, function(result) {
         if (result.status && result.status == 200) {
-          var items = results && results.content && results.content.matches || [];
+          var items = result && result.content && result.content.matches || [];
           for(var i = 0; i < items.length; i++) {
             var item = matches[i];
             this.store.add({
