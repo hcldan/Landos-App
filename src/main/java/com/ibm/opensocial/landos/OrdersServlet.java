@@ -73,7 +73,7 @@ public class OrdersServlet extends BaseServlet {
       results = stmt.executeQuery();
       writer.array();
       while (results.next()) {
-        writeJSONObjectOrder(writer, results.getInt(1), results.getString(2), results.getString(3), results.getInt(4), results.getInt(5), results.getString(6));
+        writeJSONObjectOrder(writer, results.getInt(1), results.getInt(2), results.getString(3), results.getString(4), results.getInt(5), results.getInt(6), results.getString(7));
       }
       writer.endArray();
     } catch (Exception e) {
@@ -139,8 +139,86 @@ public class OrdersServlet extends BaseServlet {
   }
   
   /**
+   * PUT /orders/<runid>?user=<user>&item=<bar>
+   * @throws IOException 
+   */
+  @Override
+  public void doPut(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    // Set headers
+    setCacheAndTypeHeaders(res);
+    
+    // Get required parameters
+    String run = getPathSegment(req, 0);
+    String user = req.getParameter("user");
+    String item = req.getParameter("item");
+    String price = req.getParameter("price");
+    
+    // Get optional parameters
+    String size = req.getParameter("size");
+    String comments = req.getParameter("comments");
+    int qty;
+    try {
+      qty = Integer.parseInt(req.getParameter("qty"));
+    } catch (NumberFormatException e) {
+      qty = 1;
+    }
+    
+    // Writer
+    JSONWriter writer = getJSONWriter(res);
+    
+    // Check for required parameters
+    if (req == null || user == null || item == null || price == null) {
+      try {
+        writer.object().key("error").value("Putting requires a run id, an user id, an item, and a price.");
+      } catch (Exception e) {
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
+      } finally {
+        close(writer);
+      }
+      return;
+    }
+    
+    // Prepare database variables
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    
+    // Query
+    String query = "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?)";
+    
+    try {
+      // Prepare variables
+      int rid = Integer.parseInt(run);
+      int uid = Integer.parseInt(user);
+      int cents = Integer.parseInt(price);
+      
+      // Insert into database
+      conn = getDataSource(req).getConnection();
+      stmt = conn.prepareStatement(query);
+      stmt.setInt(1, rid);
+      stmt.setInt(2, uid);
+      stmt.setString(3, item);
+      stmt.setString(4, size);
+      stmt.setInt(5, qty);
+      stmt.setInt(6, cents);
+      stmt.setString(7, comments);
+      
+      // Write back
+      if (stmt.executeUpdate() > 0) {
+        writeJSONObjectOrder(writer, rid, uid, item, size, qty, cents, comments);
+      } else {
+        writer.object().key("error").value("Did not insert order.").endObject();
+      }
+    } catch (Exception e) {
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+    } finally {
+      close(writer, conn);
+    }
+  }
+  
+  /**
    * Writes the values of an order to a JSON object
    * @param writer
+   * @param rid
    * @param uid
    * @param item
    * @param size
@@ -152,8 +230,9 @@ public class OrdersServlet extends BaseServlet {
    * @throws NullPointerException 
    * @throws IllegalStateException 
    */
-  private void writeJSONObjectOrder(JSONWriter writer, int uid, String item, String size, int qty, int price, String comments) throws IllegalStateException, NullPointerException, IOException, JSONException {
+  private void writeJSONObjectOrder(JSONWriter writer, int rid, int uid, String item, String size, int qty, int price, String comments) throws IllegalStateException, NullPointerException, IOException, JSONException {
     writer.object();
+    writer.key("rid").value(rid);
     writer.key("uid").value(uid);
     writer.key("item").value(item);
     writer.key("size").value(size);

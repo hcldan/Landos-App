@@ -69,12 +69,13 @@ public class OrdersServletTest {
     expect(stmt.executeQuery()).andReturn(results).once();
     for (int i = 0; i < 2; i++) {
       expect(results.next()).andReturn(true).once();
-      expect(results.getInt(1)).andReturn(uid);
-      expect(results.getString(2)).andReturn(items[i]);
-      expect(results.getString(3)).andReturn(sizes[i]);
-      expect(results.getInt(4)).andReturn(qties[i]);
-      expect(results.getInt(5)).andReturn(prices[i]);
-      expect(results.getString(6)).andReturn(comments[i]);
+      expect(results.getInt(1)).andReturn(rid).once();
+      expect(results.getInt(2)).andReturn(uid).once();
+      expect(results.getString(3)).andReturn(items[i]).once();
+      expect(results.getString(4)).andReturn(sizes[i]).once();
+      expect(results.getInt(5)).andReturn(qties[i]).once();
+      expect(results.getInt(6)).andReturn(prices[i]).once();
+      expect(results.getString(7)).andReturn(comments[i]).once();
     }
     expect(results.next()).andReturn(false).once();
     
@@ -82,7 +83,7 @@ public class OrdersServletTest {
     control.replay();
     servlet.doGet(req, res);
     control.verify();
-    assertEquals("[{\"uid\":101,\"item\":\"Pizza\",\"size\":\"\",\"qty\":1,\"price\":500,\"comments\":\"Foo\"},{\"uid\":101,\"item\":\"Soda\",\"size\":\"Small\",\"qty\":2,\"price\":150,\"comments\":\"Bar\"}]", output.toString());
+    assertEquals("[{\"rid\":9001,\"uid\":101,\"item\":\"Pizza\",\"size\":\"\",\"qty\":1,\"price\":500,\"comments\":\"Foo\"},{\"rid\":9001,\"uid\":101,\"item\":\"Soda\",\"size\":\"Small\",\"qty\":2,\"price\":150,\"comments\":\"Bar\"}]", output.toString());
   }
   
   @Test
@@ -103,5 +104,33 @@ public class OrdersServletTest {
     servlet.doDelete(req, res);
     control.verify();
     assertEquals("{\"delete\":1}", output.toString());
+  }
+  
+  @Test
+  public void testPutOrder() throws Exception {
+    // Set up mocks and expectations
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
+    expect(req.getParameter("user")).andReturn("" + uid).once();
+    expect(req.getParameter("item")).andReturn(items[0]).once();
+    expect(req.getParameter("price")).andReturn("" + prices[0]).once();
+    expect(req.getParameter("size")).andReturn(sizes[0]).once();
+    expect(req.getParameter("comments")).andReturn(comments[0]).once();
+    expect(req.getParameter("qty")).andReturn("" + qties[0]);
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
+    expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
+    stmt.setInt(1, rid); expectLastCall().once();
+    stmt.setInt(2, uid); expectLastCall().once();
+    stmt.setString(3, items[0]); expectLastCall().once();
+    stmt.setString(4, sizes[0]); expectLastCall().once();
+    stmt.setInt(5, qties[0]); expectLastCall().once();
+    stmt.setInt(6, prices[0]); expectLastCall().once();
+    stmt.setString(7, comments[0]); expectLastCall().once();
+    expect(stmt.executeUpdate()).andReturn(1).once();
+    
+    // Run test
+    control.replay();
+    servlet.doPut(req, res);
+    control.verify();
+    assertEquals("{\"rid\":9001,\"uid\":101,\"item\":\"Pizza\",\"size\":\"\",\"qty\":1,\"price\":500,\"comments\":\"Foo\"}", output.toString());
   }
 }
