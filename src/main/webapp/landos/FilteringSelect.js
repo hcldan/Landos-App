@@ -15,6 +15,13 @@ define([
     searchAttr: 'food',
     
     /**
+     * @Override dijit/form/FilteringSelect.isValid()
+     */
+    isValid: function(){
+      return this.get('displayedValue') != "";
+    },
+    
+    /**
      * @Override
      *   dijit/form/_SearchMixin._startSearch(text)
      *     dijit/form/_AutoCompleterMixin._startSearch(text) 
