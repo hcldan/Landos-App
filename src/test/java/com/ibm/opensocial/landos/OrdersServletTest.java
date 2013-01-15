@@ -45,6 +45,7 @@ public class OrdersServletTest {
     output = new StringWriter();
     control = EasyMock.createControl();
     conn = TestControlUtils.mockConnection(control);
+    conn.close(); expectLastCall().once();
     source = TestControlUtils.mockDataSource(control, conn);
     attributes = Maps.newHashMap();
     res = TestControlUtils.mockResponse(control, output);
