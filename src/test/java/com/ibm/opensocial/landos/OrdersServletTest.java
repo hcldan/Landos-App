@@ -65,7 +65,7 @@ public class OrdersServletTest {
     for (int i = 0; i < 2; i++) {
       expect(results.next()).andReturn(true).once();
       expect(results.getInt(1)).andReturn(rid).once();
-      expect(results.getInt(2)).andReturn(uid).once();
+      expect(results.getString(2)).andReturn("" + uid).once();
       expect(results.getString(3)).andReturn(items[i]).once();
       expect(results.getString(4)).andReturn(sizes[i]).once();
       expect(results.getInt(5)).andReturn(qties[i]).once();
@@ -78,10 +78,10 @@ public class OrdersServletTest {
     control.replay();
     servlet.doGet(req, res);
     control.verify();
-    assertEquals("[{\"rid\":" + rid + ",\"uid\":" + uid + ",\"item\":\"" + items[0]
+    assertEquals("[{\"rid\":" + rid + ",\"user\":\"" + uid + "\",\"item\":\"" + items[0]
             + "\",\"size\":\"" + sizes[0] + "\",\"qty\":" + qties[0] + ",\"price\":" + prices[0]
-            + ",\"comments\":\"" + comments[0] + "\"},{\"rid\":" + rid + ",\"uid\":" + uid
-            + ",\"item\":\"" + items[1] + "\",\"size\":\"" + sizes[1] + "\",\"qty\":" + qties[1]
+            + ",\"comments\":\"" + comments[0] + "\"},{\"rid\":" + rid + ",\"user\":\"" + uid
+            + "\",\"item\":\"" + items[1] + "\",\"size\":\"" + sizes[1] + "\",\"qty\":" + qties[1]
             + ",\"price\":" + prices[1] + ",\"comments\":\"" + comments[1] + "\"}]",
             output.toString());
   }
@@ -96,7 +96,7 @@ public class OrdersServletTest {
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
     stmt.setInt(1, rid);
     expectLastCall().once();
-    stmt.setInt(2, uid);
+    stmt.setString(2, "" + uid);
     expectLastCall().once();
     stmt.setString(3, items[0]);
     expectLastCall().once();
@@ -123,7 +123,7 @@ public class OrdersServletTest {
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
     stmt.setInt(1, rid);
     expectLastCall().once();
-    stmt.setInt(2, uid);
+    stmt.setString(2, "" + uid);
     expectLastCall().once();
     stmt.setString(3, items[0]);
     expectLastCall().once();
@@ -141,7 +141,7 @@ public class OrdersServletTest {
     control.replay();
     servlet.doPut(req, res);
     control.verify();
-    assertEquals("{\"rid\":" + rid + ",\"uid\":" + uid + ",\"item\":\"" + items[0]
+    assertEquals("{\"rid\":" + rid + ",\"user\":\"" + uid + "\",\"item\":\"" + items[0]
             + "\",\"size\":\"" + sizes[0] + "\",\"qty\":" + qties[0] + ",\"price\":" + prices[0]
             + ",\"comments\":\"" + comments[0] + "\"}", output.toString());
   }

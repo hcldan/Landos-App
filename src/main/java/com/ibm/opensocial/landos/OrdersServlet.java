@@ -54,26 +54,25 @@ public class OrdersServlet extends BaseServlet {
       } else {
         // User is set
         query += " AND uid = ?";
-        int uid = Integer.parseInt(user);
         if (item == null) {
           // Item is set
           query += " AND item = ?";
           stmt = conn.prepareStatement(query);
           stmt.setInt(1, rid);
-          stmt.setInt(2, uid);
+          stmt.setString(2, user);
           stmt.setString(3, item);
         } else {
           // Only user is set
           stmt = conn.prepareStatement(query);
           stmt.setInt(1, rid);
-          stmt.setInt(2, uid);
+          stmt.setString(2, user);
         }
       }
       // Prepared statement is now ready for execution
       results = stmt.executeQuery();
       writer.array();
       while (results.next()) {
-        writeJSONObjectOrder(writer, results.getInt(1), results.getInt(2), results.getString(3), results.getString(4), results.getInt(5), results.getInt(6), results.getString(7));
+        writeJSONObjectOrder(writer, results.getInt(1), results.getString(2), results.getString(3), results.getString(4), results.getInt(5), results.getInt(6), results.getString(7));
       }
       writer.endArray();
     } catch (Exception e) {
@@ -125,7 +124,7 @@ public class OrdersServlet extends BaseServlet {
       conn = getDataSource(req).getConnection();
       stmt = conn.prepareStatement(query);
       stmt.setInt(1, rid);
-      stmt.setInt(2, Integer.parseInt(user));
+      stmt.setString(2, user);
       stmt.setString(3, item);
       int result = stmt.executeUpdate();
       writer.object();
@@ -188,14 +187,13 @@ public class OrdersServlet extends BaseServlet {
     try {
       // Prepare variables
       int rid = Integer.parseInt(run);
-      int uid = Integer.parseInt(user);
       int cents = Integer.parseInt(price);
       
       // Insert into database
       conn = getDataSource(req).getConnection();
       stmt = conn.prepareStatement(query);
       stmt.setInt(1, rid);
-      stmt.setInt(2, uid);
+      stmt.setString(2, user);
       stmt.setString(3, item);
       stmt.setString(4, size);
       stmt.setInt(5, qty);
@@ -204,7 +202,7 @@ public class OrdersServlet extends BaseServlet {
       
       // Write back
       if (stmt.executeUpdate() > 0) {
-        writeJSONObjectOrder(writer, rid, uid, item, size, qty, cents, comments);
+        writeJSONObjectOrder(writer, rid, user, item, size, qty, cents, comments);
       } else {
         writer.object().key("error").value("Did not insert order.").endObject();
       }
@@ -219,7 +217,7 @@ public class OrdersServlet extends BaseServlet {
    * Writes the values of an order to a JSON object
    * @param writer
    * @param rid
-   * @param uid
+   * @param user
    * @param item
    * @param size
    * @param qty
@@ -230,10 +228,10 @@ public class OrdersServlet extends BaseServlet {
    * @throws NullPointerException 
    * @throws IllegalStateException 
    */
-  private void writeJSONObjectOrder(JSONWriter writer, int rid, int uid, String item, String size, int qty, int price, String comments) throws IllegalStateException, NullPointerException, IOException, JSONException {
+  private void writeJSONObjectOrder(JSONWriter writer, int rid, String user, String item, String size, int qty, int price, String comments) throws IllegalStateException, NullPointerException, IOException, JSONException {
     writer.object();
     writer.key("rid").value(rid);
-    writer.key("uid").value(uid);
+    writer.key("user").value(user);
     writer.key("item").value(item);
     writer.key("size").value(size);
     writer.key("qty").value(qty);
