@@ -13,14 +13,21 @@ define([
     store: new MemoryStore({data: []}),
     required: true,
     queryExpr: '*${0}*',
-    highlightMatch: 'all',
     autoComplete: false,
+    labelType: 'html',
     
     /**
      * @Override dijit/form/FilteringSelect.isValid()
      */
     isValid: function(){
       return this.get('displayedValue') != "";
+    },
+    
+    /**
+     * @Override dijit/form/_AutoCompleterMixin._setItemAttr()
+     */
+    _setItemAttr: function(item, priorityChange, displayedValue) {
+      this.inherited(arguments, [item, priorityChange, item.id]);
     },
     
     startup: function() {
