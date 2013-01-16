@@ -30,7 +30,7 @@ define([
         if (result.status && result.status == 200) {
           var items = result && result.content && result.content.matches || [];
           for(var i = 0; i < items.length; i++) {
-            var item = matches[i];
+            var item = items[i];
             this.store.add({
               id: item.food,
               name: item.food + ' <i>(' + item.category + ')</i>'
