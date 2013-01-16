@@ -4,7 +4,7 @@
     <Require feature="osapi"/>
     <Require feature="embedded-experiences"/>
     <Optional feature="content-rewrite">
-      <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js</Param>
+      <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js.uncompressed.js</Param>
       <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/claro.css</Param>
       <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/images/loadingAnimation.gif</Param>
     </Optional>
@@ -29,7 +29,7 @@
 	        background:url("//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/images/loadingAnimation.gif") no-repeat center center;
 	      }
 	    </style>
-	    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js" data-dojo-config="async: true"></script>
+	    <script src="//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js.uncompressed.js" data-dojo-config="async: true"></script>
 	    <!-- Css to be combined for us by shindig. -->
 	    <link type="text/css" rel="stylesheet" href="landos/GadgetContainer.css"></link>
 	    <link type="text/css" rel="stylesheet" href="landos/LoadingPanel.css"></link>
