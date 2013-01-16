@@ -9,7 +9,10 @@ define([
   'dojo/Deferred',
   'landos/SubscribeButton',
   'landos/FilteringSelect',
-  'landos/LoadingPanel'
+  'landos/CreateRunPane',
+  'landos/LoadingPanel',
+  'dijit/layout/TabContainer',
+  'dijit/layout/ContentPane'
 ], function(landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
@@ -25,10 +28,15 @@ define([
     
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
+    +   '<div id="tabs" data-dojo-type="dijit/layout/TabContainer" data-dojo-attach-point="tabs">'
+    +     '<div id="items-select" data-dojo-type="dijit/layout/ContentPane" title="Items Select" data-dojo-props="selected: true">'
+    +       '<label for="item">Item:</label>'
+    +       '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
+    +     '</div>'
+    +     '<div id="run-creation" data-dojo-type="landos/CreateRunPane" title="Create Run"></div>'
+    +   '</div>'
     +   '<h1>The Lando\'s App</h1>'
     +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
-    +   '<label for="item">Item:</label>'
-    +   '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
     +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
     + '</div>',
     
