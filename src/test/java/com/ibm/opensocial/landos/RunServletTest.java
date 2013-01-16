@@ -46,9 +46,7 @@ public class RunServletTest {
     output = new StringWriter();
     control = EasyMock.createControl();
     connection = TestControlUtils.mockConnection(control);
-    connection.close();
-    expectLastCall().atLeastOnce();
-    
+    connection.close(); expectLastCall().once();
     source = TestControlUtils.mockDataSource(control, connection);
     attributes = Maps.newHashMap();
     res = TestControlUtils.mockResponse(control, output);
