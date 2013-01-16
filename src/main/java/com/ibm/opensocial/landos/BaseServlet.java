@@ -87,6 +87,28 @@ public class BaseServlet extends HttpServlet {
   }
   
   /**
+   * Return the number of path segments in a given request.
+   * 
+   * @param req The request.
+   * @return the number of path segments in the given request.
+   */
+  protected int numSegments(HttpServletRequest req) {
+    String path = req.getPathInfo();
+    if (path.startsWith("/"))
+      path = path.substring(1);
+    
+    StringTokenizer stok = new StringTokenizer(path, "/");
+    int segments = 0;
+    while (stok.hasMoreElements()) {
+      if (stok.nextToken().equals(""))
+        continue;
+      segments++;
+    }
+    
+    return segments;
+  }
+  
+  /**
    * Return a certain path segment.
    * 
    * @param req The request.
@@ -119,6 +141,26 @@ public class BaseServlet extends HttpServlet {
         return null;
       }
     }
+  }
+
+  /**
+   * Sets headers to have no cache and a type of application/json
+   * 
+   * @param res
+   *          The response object to set the headers on
+   */
+  protected void setCacheAndTypeHeaders(HttpServletResponse res) {
+    res.setHeader("CACHE-CONTROL", "no-cache");
+    res.setContentType("application/json");
+  }
+
+  /**
+   * @param res
+   * @return
+   * @throws IOException
+   */
+  protected JSONWriter getJSONWriter(HttpServletResponse res) throws IOException {
+    return new JSONWriter(res.getWriter());
   }
 }
 

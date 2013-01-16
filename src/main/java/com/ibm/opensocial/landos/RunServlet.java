@@ -26,10 +26,10 @@ public class RunServlet extends BaseServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
-    int id = getId(req);
+    int id = Integer.parseInt(getPathSegment(req, 0));
 
     // Create JSON writer
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Prepare database variables
     Connection connection = null;
@@ -72,7 +72,7 @@ public class RunServlet extends BaseServlet {
     boolean test = testSegment != null && testSegment.equals("1");
 
     // Create JSON Writer
-    JSONWriter writer = getJSONObject(res);
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Check start and end times
     if (end.before(start)) {
@@ -135,8 +135,8 @@ public class RunServlet extends BaseServlet {
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
-    int id = getId(req);
-    JSONWriter writer = getJSONObject(res);
+    int id = Integer.parseInt(getPathSegment(req, 0));
+    JSONWriter writer = getJSONWriter(res).object();
 
     // Prepare database variables
     Connection connection = null;
@@ -161,37 +161,6 @@ public class RunServlet extends BaseServlet {
     } finally {
       close(connection, writer);
     }
-  }
-
-  /**
-   * @param res
-   * @return
-   * @throws IOException
-   */
-  private JSONWriter getJSONObject(HttpServletResponse res) throws IOException {
-    return new JSONWriter(res.getWriter()).object();
-  }
-
-  /**
-   * Sets headers to have no cache and a type of application/json
-   * 
-   * @param res
-   *          The response object to set the headers on
-   */
-  private void setCacheAndTypeHeaders(HttpServletResponse res) {
-    res.setHeader("CACHE-CONTROL", "no-cache");
-    res.setContentType("application/json");
-  }
-
-  /**
-   * Gets the id from a request.
-   * 
-   * @param req
-   *          The request to get the id from.
-   * @return The id from the request
-   */
-  private int getId(HttpServletRequest req) {
-    return Integer.parseInt(getPathSegment(req, 0));
   }
 
   /**

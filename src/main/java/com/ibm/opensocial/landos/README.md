@@ -58,3 +58,50 @@ Returns `application/json`. Should include all run parameters.
 	"test": false
 }
 ```
+
+# Orders Servlet
+## Creating an order
+### PUT /orders/&lt;runid&gt;?user=&lt;user&gt;&item=&lt;item&gt;&price=&lt;price&gt;[&size=&lt;size&gt;][&qty=&lt;qty&gt;][&comments=&lt;comments&gt;]
+Returns `application/json`. Should include all order parameters.
+```javascript
+{
+	"rid": 12,
+	"user": "Ken",
+	"item": "Soda",
+	"size": null,
+	"qty": 1,
+	"price": 150,
+	"comments": null
+}
+```
+## Getting orders for a run
+### GET /orders/&lt;runid&gt;[?user=&lt;user&gt;[&item=&lt;bar&gt;]]
+Returns `application/json` of an array containing all matching orders. `user` and `item` are optional. Specifying `item` requires specifying `user`.
+```javascript
+[{
+  "rid": 12,
+  "user": "Dan",
+  "item": "Sub",
+  "size": null,
+  "qty": 1,
+  "price": 550,
+  "comments": null
+}, {
+  "rid": 12,
+  "user": "Ken",
+  "item": "Pizza",
+  "size": null,
+  "qty": 1,
+  "price": 350,
+  "comments": null
+}]
+```
+
+## Deleting an order in a run
+### DELETE /orders/&lt;runid&gt;?user=&lt;user&gt;&item=&lt;bar&gt;
+Returns `application/json`. All parameters are required. Returned structure contains a key `deleted` indicating how many orders were deleted.
+```javascript
+{
+	"delete": 1
+}
+```
