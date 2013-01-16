@@ -24,6 +24,7 @@ define([
     },
     
     startup: function() {
+      this.inherited(arguments);
       var params = { format: 'json', href: landos.getAPIUri('items') };
   
       osapi.http.get(params).execute(lang.hitch(this, function(result) {
