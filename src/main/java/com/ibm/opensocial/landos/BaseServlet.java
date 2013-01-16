@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 import org.apache.wink.json4j.JSONWriter;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 
 public class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = -7232225273021470838L;
@@ -94,6 +95,8 @@ public class BaseServlet extends HttpServlet {
    */
   protected String getPathSegment(HttpServletRequest req, int segment) {
     String path = req.getPathInfo();
+    if (Strings.isNullOrEmpty(path))
+      path = "";
     if (path.startsWith("/"))
       path = path.substring(1);
     
