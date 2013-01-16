@@ -31,7 +31,7 @@ public class ItemSearchServlet extends BaseServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String term = getPathSegment(req, 0);
     term = term == null ? "" : term.trim();
-    resp.setHeader("CACHE-CONTROL", term.length() > NOT_ENOUGH_CHARS ? CACHE_MONTH : CACHE_YEAR);
+    resp.setHeader("Cache-Control", term.length() > NOT_ENOUGH_CHARS ? CACHE_MONTH : CACHE_YEAR);
     resp.setContentType("application/json");
     
     JSONWriter writer = new JSONWriter(resp.getWriter());

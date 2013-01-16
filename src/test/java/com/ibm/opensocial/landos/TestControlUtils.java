@@ -56,7 +56,7 @@ public class TestControlUtils {
 
   public static HttpServletResponse mockResponse(IMocksControl control, Writer output, String cacheHeader) throws Exception {
     HttpServletResponse res = control.createMock(HttpServletResponse.class);
-    res.setHeader("CACHE-CONTROL", cacheHeader);
+    res.setHeader("Cache-Control", cacheHeader);
     expectLastCall().once();
     res.setContentType("application/json");
     expectLastCall().once();

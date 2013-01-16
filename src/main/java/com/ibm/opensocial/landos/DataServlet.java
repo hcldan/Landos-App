@@ -16,7 +16,7 @@ public class DataServlet extends BaseServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setHeader("Cache-Control", "no-cache");
     resp.setContentType("application/json");
     
     String osid = req.getHeader("OPENSOCIAL-ID");

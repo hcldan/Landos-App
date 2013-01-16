@@ -150,7 +150,7 @@ public class BaseServlet extends HttpServlet {
    *          The response object to set the headers on
    */
   protected void setCacheAndTypeHeaders(HttpServletResponse res) {
-    res.setHeader("CACHE-CONTROL", "no-cache");
+    res.setHeader("Cache-Control", "no-cache");
     res.setContentType("application/json");
   }
 

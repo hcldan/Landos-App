@@ -23,7 +23,7 @@ public class SubscribeServlet extends BaseServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setHeader("Cache-Control", "no-cache");
     resp.setContentType("application/json");
     
     JSONWriter writer = new JSONWriter(resp.getWriter());
@@ -42,7 +42,7 @@ public class SubscribeServlet extends BaseServlet {
   
   @Override
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setHeader("Cache-Control", "no-cache");
     resp.setContentType("application/json");
 
     JSONWriter writer = new JSONWriter(resp.getWriter());
@@ -64,7 +64,7 @@ public class SubscribeServlet extends BaseServlet {
   
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    resp.setHeader("CACHE-CONTROL", "no-cache");
+    resp.setHeader("Cache-Control", "no-cache");
     resp.setContentType("application/json");
     
     JSONWriter writer = new JSONWriter(resp.getWriter());
