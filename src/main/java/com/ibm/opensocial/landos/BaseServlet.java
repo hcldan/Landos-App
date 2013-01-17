@@ -3,6 +3,7 @@ package com.ibm.opensocial.landos;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -161,6 +162,11 @@ public class BaseServlet extends HttpServlet {
    */
   protected JSONWriter getJSONWriter(HttpServletResponse res) throws IOException {
     return new JSONWriter(res.getWriter());
+  }
+  
+  protected String getEEUrl(HttpServletRequest req) {
+    //TODO Get this value programatically
+    return "http://kargath.notesdev.ibm.com/tomcat/landos-ken/LandosApp.xml";
   }
 }
 
