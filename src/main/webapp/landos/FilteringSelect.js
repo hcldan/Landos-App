@@ -28,7 +28,7 @@ define([
      */
     _autoCompleteText: function(text) {
       this.inherited(arguments, [this.item.id]);
-    }
+    },
     
     startup: function() {
       this.inherited(arguments);
