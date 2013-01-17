@@ -24,11 +24,11 @@ define([
     },
     
     /**
-     * @Override dijit/form/_AutoCompleterMixin._setItemAttr()
+     * @Override dijit/form/_AutoCompleterMixin._autoCompleteText()
      */
-    _setItemAttr: function(item, priorityChange, displayedValue) {
-      this.inherited(arguments, [item, priorityChange, item.id]);
-    },
+    _autoCompleteText: function(text) {
+      this.inherited(arguments, [this.item.id]);
+    }
     
     startup: function() {
       this.inherited(arguments);
