@@ -33,6 +33,7 @@ define([
       +       '<td><input name="endtime" type="text" data-dojo-type="dijit/form/TimeTextBox" data-dojo-attach-point="endtime" required /></td>'
       +     '</tr>'
       +     '<tr>'
+      +       '<td><input name="test" type="checkbox" data-dojo-type="dijit/form/Checkbox" data-dojo-attach-point="test" /> <label for="test">Test?</label></td>'
       +       '<td><input type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="submit" label="Create" /></td>'
       +     '</tr>'
       +   '</table>'
@@ -60,6 +61,8 @@ define([
               content: 'Start date/time must come before end date/time!'
             }).show();
           } else {
+            console.log('Checkbox: ');
+            console.log(this.test.value);
             var req = osapi.http.put({format: 'json', href: landos.getAPIUri('run') + '/' + start + '/' + end});
             req.execute(function (res) {
               var c = res.content;
