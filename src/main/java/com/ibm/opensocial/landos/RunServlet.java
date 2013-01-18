@@ -8,9 +8,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -88,42 +101,44 @@ public class RunServlet extends BaseServlet {
     }
 
     // Prepare database variables
-    Connection connection = null;
-    PreparedStatement pstat = null;
+    Connection conn = null;
+    PreparedStatement stmt = null;
     ResultSet result = null;
 
     try {
       // Get connection
-      connection = getDataSource(req).getConnection();
+      conn = getDataSource(req).getConnection();
       // Check for overlaps
-      pstat = connection
+      stmt = conn
               .prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
-      pstat.setTimestamp(1, start);
-      pstat.setTimestamp(2, end);
-      result = pstat.executeQuery();
+      stmt.setTimestamp(1, start);
+      stmt.setTimestamp(2, end);
+      result = stmt.executeQuery();
       if (result.first() && result.getInt(1) > 0) {
         writer.key("error").value("There is already a run within the specified time range.")
                 .endObject();
         return;
       }
       // Insert into database
-      pstat = connection.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)",
+      stmt = conn.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)",
               Statement.RETURN_GENERATED_KEYS);
-      pstat.setTimestamp(1, start);
-      pstat.setTimestamp(2, end);
-      pstat.setBoolean(3, test);
-      pstat.executeUpdate();
+      stmt.setTimestamp(1, start);
+      stmt.setTimestamp(2, end);
+      stmt.setBoolean(3, test);
+      stmt.executeUpdate();
       int insertedId = 0;
-      ResultSet ids = pstat.getGeneratedKeys();
+      ResultSet ids = stmt.getGeneratedKeys();
       if (ids.first()) {
         insertedId = ids.getInt(1);
       }
       // Write back to client
       writeRun(writer, insertedId, start, end, test);
+      // Send email
+      sendEmails(req, conn, insertedId, start, end, test);
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
     } finally {
-      close(connection, writer);
+      close(conn, writer);
     }
   }
 
@@ -140,16 +155,16 @@ public class RunServlet extends BaseServlet {
 
     // Prepare database variables
     Connection connection = null;
-    PreparedStatement pstat = null;
+    PreparedStatement stmt = null;
     int result = 0;
 
     try {
       // Get connection
       connection = getDataSource(req).getConnection();
       // Check for overlaps
-      pstat = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
-      pstat.setInt(1, id);
-      result = pstat.executeUpdate();
+      stmt = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
+      stmt.setInt(1, id);
+      result = stmt.executeUpdate();
       // Write result
       if (result > 0) {
         writer.key("id").value(id).endObject();
@@ -182,5 +197,82 @@ public class RunServlet extends BaseServlet {
           throws IOException {
     writer.key("id").value(id).key("start").value(start.getTime()).key("end").value(end.getTime())
             .key("test").value(test).endObject();
+  }
+  
+  /**
+   * Sends an email containing an embedded experience.
+   * @param req
+   * @param conn SQL Connection to use for getting subscribers. MUST BE CLOSED BY THE CALLER OF THIS METHOD.
+   * @param id
+   * @param start
+   * @param end
+   * @param test
+   * @throws MessagingException 
+   */
+  private void sendEmails(HttpServletRequest req, Connection conn, int id, Timestamp start, Timestamp end, boolean test) {
+    // Get email addresses to send to
+    List<InternetAddress> emails = new LinkedList<InternetAddress>();
+
+    try {
+      // Get users from database
+      PreparedStatement stmt = conn.prepareStatement("SELECT user FROM subscribed WHERE test = ?");
+      stmt.setBoolean(1, test);
+      ResultSet results = stmt.executeQuery();
+      // Place email into list
+      while (results.next()) {
+        // Users are in the form of `domain:user`
+        String[] parts = results.getString(1).split(":");
+        emails.add(new InternetAddress(parts[1] + "@" + parts[0]));
+      }
+    } catch (Exception e) {
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
+    }
+    
+    try {
+      // Get session
+      Context initCtx = new InitialContext();
+      Context envCtx = (Context) initCtx.lookup("java:comp/env");
+      Session session = (Session) envCtx.lookup("mail/Session");
+      
+      // MimeMessage
+      MimeMessage msg = new MimeMessage(session);
+      msg.setFrom(new InternetAddress("powerske@us.ibm.com"));
+      msg.setRecipients(Message.RecipientType.BCC, emails.toArray(new InternetAddress[emails.size()]));
+      msg.setSubject("New Lando's Run!");
+      msg.setSentDate(new Date());
+      
+      // Build multipart message
+      MimeMultipart mmp = new MimeMultipart("alternative");
+
+      // Create message
+      String startString = start.toString();
+      String endString = end.toString();
+      String message = "A new Lando's run has been created! The run id is " + id
+              + ". You may order food bewteen " + startString + " and " + endString
+              + " by opening up the Lando's app.";
+
+      // Create the text part
+      MimeBodyPart mbp1 = new MimeBodyPart();
+      mbp1.setContent(message, "text/plain");
+      mmp.addBodyPart(mbp1);
+
+      // Create the html part
+      MimeBodyPart mbp2 = new MimeBodyPart();
+      mbp2.setContent(message, "text/html");
+      mmp.addBodyPart(mbp2);
+      
+      // Create the application/embed+json part
+      MimeBodyPart mbp3 = new MimeBodyPart();
+      mbp3.setContent("{\"gadget\":\"" + getEEUrl(req) + "\",\"context\":{\"runid\":" + id + "}}", "application/embed+json");
+      mmp.addBodyPart(mbp3);
+      
+      // Set message content
+      msg.setContent(mmp);
+      
+      // Send the message
+      Transport.send(msg);
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Could not send mail message.", e);
+    }
   }
 }
