@@ -91,7 +91,7 @@ public class SubscribeServlet extends BaseServlet {
       PreparedStatement stmt = null;
       try {
         connection = getDataSource(req).getConnection();
-        stmt = connection.prepareStatement("INSERT INTO `subscribed` VALUES(?)");
+        stmt = connection.prepareStatement("INSERT INTO `subscribed` (`user`) VALUES(?)");
         stmt.setString(1, user);
         stmt.executeUpdate();
       } finally {
