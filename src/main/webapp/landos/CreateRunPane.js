@@ -62,7 +62,7 @@ define([
               content: 'Start date/time must come before end date/time!'
             }).show();
           } else {
-            var url = landos.getAPIUri('run') + '/' + start + '/' + end + '/' + this.test.checked ? '1' : '0';
+            var url = landos.getAPIUri('run') + '/' + start + '/' + end + '/' + (this.test.checked ? '1' : '0');
             var req = osapi.http.put({format: 'json', href: url});
             req.execute(function (res) {
               var c = res.content;
