@@ -76,6 +76,15 @@ define([
           }
         }));
       }));
+
+      gadgets.util.registerOnLoadHandler(function () {
+        console.log('0. In GadgetContainer.js');
+        console.log('1. OnLoadHandler');
+        opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', function (key) {
+          console.log('2. Embedded Experience!');
+          console.log(opensocial.data.getDataContext().getDataSet(key));
+        });
+      });
     }
   });
 });
