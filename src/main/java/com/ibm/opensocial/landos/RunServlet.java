@@ -243,15 +243,22 @@ public class RunServlet extends BaseServlet {
       
       // Build multipart message
       MimeMultipart mmp = new MimeMultipart("alternative");
-      
+
+      // Create message
+      String startString = start.toString();
+      String endString = end.toString();
+      String message = "A new Lando's run has been created! The run id is " + id
+              + ". You may order food bewteen " + startString + " and " + endString
+              + " by opening up the Lando's app.";
+
       // Create the text part
       MimeBodyPart mbp1 = new MimeBodyPart();
-      mbp1.setContent("Lorem ipsum...", "text/plain");
+      mbp1.setContent(message, "text/plain");
       mmp.addBodyPart(mbp1);
-      
+
       // Create the html part
       MimeBodyPart mbp2 = new MimeBodyPart();
-      mbp2.setContent("<b>Lorem ipsum...</b>", "text/html");
+      mbp2.setContent(message, "text/html");
       mmp.addBodyPart(mbp2);
       
       // Create the application/embed+json part
