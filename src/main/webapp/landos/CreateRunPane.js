@@ -13,7 +13,8 @@ define([
   'dijit/form/Form',
   'dijit/form/DateTextBox',
   'dijit/form/TimeTextBox',
-  'dijit/form/Button'
+  'dijit/form/Button',
+  'dijit/form/CheckBox'
 ], function(require, landos, lang, declare, _TemplatedMixin, _WidgetsInTemplateMixin, ContentPane, Dialog, domClass, on) {
   return declare([ContentPane, _TemplatedMixin, _WidgetsInTemplateMixin], {
     templateString:
@@ -33,6 +34,7 @@ define([
       +       '<td><input name="endtime" type="text" data-dojo-type="dijit/form/TimeTextBox" data-dojo-attach-point="endtime" required /></td>'
       +     '</tr>'
       +     '<tr>'
+      +       '<td><input name="test" type="checkbox" data-dojo-type="dijit/form/CheckBox" data-dojo-attach-point="test" /> <label for="test">Test?</label></td>'
       +       '<td><input type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="submit" label="Create" /></td>'
       +     '</tr>'
       +   '</table>'
@@ -60,7 +62,8 @@ define([
               content: 'Start date/time must come before end date/time!'
             }).show();
           } else {
-            var req = osapi.http.put({format: 'json', href: landos.getAPIUri('run') + '/' + start + '/' + end});
+            var url = landos.getAPIUri('run') + '/' + start + '/' + end + '/' + (this.test.checked ? '1' : '0');
+            var req = osapi.http.put({format: 'json', href: url});
             req.execute(function (res) {
               var c = res.content;
               if (res.status === 200 && !c.error) {
