@@ -1,4 +1,5 @@
 define([
+  // Used in callback:
   'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
@@ -7,13 +8,16 @@ define([
   'dijit/_TemplatedMixin',
   'dijit/_WidgetsInTemplateMixin',
   'dojo/Deferred',
+  'dojo/html',
+  'landos/CreateOrderPane',
+  // Required for template parsing
   'landos/SubscribeButton',
   'landos/FilteringSelect',
   'landos/CreateRunPane',
   'landos/LoadingPanel',
   'dijit/layout/TabContainer',
   'dijit/layout/ContentPane'
-], function(landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred) {
+], function(landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred, html, CreateOrderPane) {
   var undef;
   return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
     // Template bindings
@@ -29,9 +33,13 @@ define([
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
     +   '<div id="tabs" data-dojo-type="dijit/layout/TabContainer" data-dojo-attach-point="tabs">'
-    +     '<div id="items-select" data-dojo-type="dijit/layout/ContentPane" title="Items Select" data-dojo-props="selected: true">'
-    +       '<label for="item">Item:</label>'
-    +       '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
+    //+     '<div id="items-select" data-dojo-type="dijit/layout/ContentPane" title="Items Select" data-dojo-props="selected: true">'
+    //+       '<label for="item">Item:</label>'
+    //+       '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
+    //+     '</div>'
+    +     '<div id="tab-welcome" data-dojo-type="dijit/layout/ContentPane" title="Welcome">'
+    +       '<p>Welcome to the Lando\'s App!</p>'
+    +       '<p data-dojo-attach-point="runpara"></p>'
     +     '</div>'
     +     '<div id="run-creation" data-dojo-type="landos/CreateRunPane" title="Create Run"></div>'
     +   '</div>'
@@ -77,14 +85,13 @@ define([
         }));
       }));
 
-      gadgets.util.registerOnLoadHandler(function () {
-        console.log('0. In GadgetContainer.js');
-        console.log('1. OnLoadHandler');
-        opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', function (key) {
-          console.log('2. Embedded Experience!');
-          console.log(opensocial.data.getDataContext().getDataSet(key));
-        });
-      });
+      gadgets.util.registerOnLoadHandler(lang.hitch(this, function () {
+        opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
+          var id = opensocial.data.getDataContext().getDataSet(key).runid;
+          html.set(this.runpara, 'Managing run ' + id + '.');
+          this.tabs.addChild(new CreateOrderPane());
+        }));
+      }));
     }
   });
 });
