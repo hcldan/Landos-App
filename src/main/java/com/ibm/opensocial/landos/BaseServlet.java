@@ -165,8 +165,8 @@ public class BaseServlet extends HttpServlet {
   }
   
   protected String getEEUrl(HttpServletRequest req) {
-    //TODO Get this value programatically
-    return "http://kargath.notesdev.ibm.com/tomcat/landos-ken/LandosApp.xml";
+    //TODO Get hostname programmatically.
+    return "http://kargath.notesdev.ibm.com" + req.getContextPath() + "/LandosApp.xml";
   }
 }
 
