@@ -1,5 +1,7 @@
 # Table of Contents
-1. [Subscribe servlet](#subscribe-servlet) 
+1. [Subscribe servlet](#subscribe-servlet)
+    * [Unsubscribing a user](#unsubscribing-a-user)
+    * [Querying subscription for user](#querying-subscription-for-user)
 1. [Run servlet](#run-servlet) 
 1. [Orders servlet](#orders-servlet) 
 
