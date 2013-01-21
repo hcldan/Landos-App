@@ -1,3 +1,8 @@
+# Table of Contents
+1. [Subscribe servlet](#subscribe-servlet) 
+1. [Run servlet](#run-servlet) 
+1. [Orders servlet](#orders-servlet) 
+
 # Subscribe servlet
 ## Subscribing a user
 ### PUT &lt;context&gt;/subscribe/&lt;userid&gt;
