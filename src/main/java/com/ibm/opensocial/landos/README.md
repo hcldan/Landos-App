@@ -1,16 +1,15 @@
-# Table of Contents
-1. [Subscribe servlet](#subscribe-servlet)
+* [Subscribe servlet](#subscribe-servlet)
     * [Unsubscribing a user](#unsubscribing-a-user)
     * [Querying subscription for user](#querying-subscription-for-user)
-1. [Run servlet](#run-servlet) 
+* [Run servlet](#run-servlet) 
     * [Creating a run](#creating-a-run)
     * [Deleting a run](#deleting-a-run)
     * [Getting a run](#getting-a-run)
-1. [Orders servlet](#orders-servlet) 
+* [Orders servlet](#orders-servlet) 
     * [Creating an order](#creating-an-order)
     * [Getting orders for a run](#getting-orders-for-a-run)
     * [Deleting an order in a run](#deleting-an-order-in-a-run)
-1. [Item search servlet](#item-search-servlet)
+* [Item search servlet](#item-search-servlet)
     * [Get a list of all items](#get-a-list-of-all-items)
     
 # Subscribe servlet
