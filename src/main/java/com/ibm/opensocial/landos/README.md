@@ -3,8 +3,16 @@
     * [Unsubscribing a user](#unsubscribing-a-user)
     * [Querying subscription for user](#querying-subscription-for-user)
 1. [Run servlet](#run-servlet) 
+    * [Creating a run](#creating-a-run)
+    * [Deleting a run](#deleting-a-run)
+    * [Getting a run](#getting-a-run)
 1. [Orders servlet](#orders-servlet) 
-
+    * [Creating an order](#creating-an-order)
+    * [Getting orders for a run](#getting-orders-for-a-run)
+    * [Deleting an order in a run](#deleting-an-order-in-a-run)
+1. [Item search servlet](#item-search-servlet)
+    * [Get a list of all items](#get-a-list-of-all-items)
+    
 # Subscribe servlet
 ## Subscribing a user
 ### PUT &lt;context&gt;/subscribe/&lt;userid&gt;
@@ -111,4 +119,20 @@ Returns `application/json`. All parameters are required. Returned structure cont
 {
 	"delete": 1
 }
+```
+
+# Item search servlet
+## Get a list of all items
+### GET /items
+Returns `application/json` object with a matches key that contains an array of all food items in the database.
+```javascript
+{
+  "matches": [{
+    "food": "Fries",
+    "category": "Appetizers" 
+  },{
+    "food": "Ham & Cheese Sub",
+    "category": "Cold Subs"
+  }]
+}  
 ```
