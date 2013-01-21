@@ -12,7 +12,6 @@ define([
   'landos/CreateOrderPane',
   // Required for template parsing
   'landos/SubscribeButton',
-  'landos/FilteringSelect',
   'landos/CreateRunPane',
   'landos/LoadingPanel',
   'dijit/layout/TabContainer',
@@ -33,10 +32,6 @@ define([
     templateString:
       '<div class="container" data-dojo-attach-point="containerNode">'
     +   '<div id="tabs" data-dojo-type="dijit/layout/TabContainer" data-dojo-attach-point="tabs">'
-    //+     '<div id="items-select" data-dojo-type="dijit/layout/ContentPane" title="Items Select" data-dojo-props="selected: true">'
-    //+       '<label for="item">Item:</label>'
-    //+       '<div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div>'
-    //+     '</div>'
     +     '<div id="tab-welcome" data-dojo-type="dijit/layout/ContentPane" title="Welcome">'
     +       '<p>Welcome to the Lando\'s App!</p>'
     +       '<p data-dojo-attach-point="runpara"></p>'
@@ -89,7 +84,7 @@ define([
         opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
           var id = opensocial.data.getDataContext().getDataSet(key).runid;
           html.set(this.runpara, 'Managing run ' + id + '.');
-          this.tabs.addChild(new CreateOrderPane());
+          this.tabs.addChild(new CreateOrderPane(id));
         }));
       }));
     }
