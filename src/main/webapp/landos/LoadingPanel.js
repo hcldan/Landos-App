@@ -10,7 +10,7 @@ define([
 ], function(require, landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, domClass) {
   return declare([_WidgetBase, _Container, _TemplatedMixin], {   
     templateString:
-      '<div class="loadinPanel dijitHidden" data-dojo-attach-point="containerNode">'
+      '<div class="loadingPanel dijitHidden" data-dojo-attach-point="containerNode">'
     +   '<div class="animation"></div>'
     + '</div>',
     

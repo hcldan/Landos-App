@@ -1,12 +1,14 @@
 .loadingPanel {
+	position: absolute;
+	top: 0;
+	left: 0;
   height: 100%;
   width: 100%;
-  background: black;
-  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
-  filter: alpha(opacity=20);
-  -moz-opacity:0.2;
-  -khtml-opacity: 0.2;
-  opacity: 0.2;
+  background-color: rgba(171, 214, 255, 0.5);
+  background-image: -moz-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: -o-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: -ms-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 .loadingPanel .animation {
