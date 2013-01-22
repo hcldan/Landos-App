@@ -74,6 +74,28 @@ public class RunServletTest {
     control.verify();
 //    verifyRunServletOutput();
   }
+  
+  @Test
+  public void testGetRunNoId() throws SQLException, IOException {
+    String pathInfo = "/";
+    req = TestControlUtils.mockRequest(control, attributes, source, pathInfo);
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
+    ResultSet result = control.createMock(ResultSet.class);
+
+    expect(connection.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
+    expect(stmt.executeQuery()).andReturn(result);
+    expect(result.first()).andReturn(true).once();
+    expect(result.getInt(1)).andReturn(expectedId).once();
+    expect(result.getTimestamp(2)).andReturn(new Timestamp(startTime)).once();
+    expect(result.getTimestamp(3)).andReturn(new Timestamp(endTime)).once();
+    expect(result.getBoolean(4)).andReturn(false).once();
+
+    // Run test
+    control.replay();
+    servlet.doGet(req, res);
+    control.verify();
+//    verifyRunServletOutput();
+  }
 
   @Test
   public void testPutNewRun() throws SQLException, IOException {

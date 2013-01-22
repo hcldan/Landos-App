@@ -66,10 +66,22 @@ Returns `application/json`. Should include the run id which was deleted.
 Returns `application/json`. Should include all run parameters.
 ```javascript
 {
-	"id": 12,
-	"start": 234234234,
-	"end": 234234243,
-	"test": false
+  "id": 12,
+  "start": 234234234,
+  "end": 234234243,
+  "test": false
+}
+```
+
+## Getting active run
+### GET &lt;context&gt;/run/
+Returns `application/json`. Should include all run parameters, or an error if there is no active run.
+```javascript
+{
+  "id": 12,
+  "start": 234234234,
+  "end": 234234243,
+  "test": false
 }
 ```
 

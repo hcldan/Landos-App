@@ -2,6 +2,8 @@ package com.ibm.opensocial.landos;
 
 import org.apache.wink.json4j.JSONWriter;
 
+import com.google.common.base.Strings;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class RunServlet extends BaseServlet {
+  private static final long serialVersionUID = 2718572285038956077L;
   private static final String CLAZZ = RunServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
 
@@ -39,7 +42,7 @@ public class RunServlet extends BaseServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
-    int id = Integer.parseInt(getPathSegment(req, 0));
+    String id = getPathSegment(req, 0);
 
     // Create JSON writer
     JSONWriter writer = getJSONWriter(res).object();
@@ -52,20 +55,31 @@ public class RunServlet extends BaseServlet {
     try {
       // Get connection
       connection = getDataSource(req).getConnection();
-      // Check for overlaps
-      stmt = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
-      stmt.setInt(1, id);
-      result = stmt.executeQuery();
-      if (result.first()) {
-        writeRun(writer, id, result.getTimestamp(2), result.getTimestamp(3), result.getBoolean(4));
-        return;
+      
+      if (Strings.isNullOrEmpty(id)) {
+        stmt = connection.prepareStatement("SELECT * FROM `runs` WHERE NOW() BETWEEN `start` AND `end`");
+        result = stmt.executeQuery();
+        if (result.first()) {
+          writeRun(writer, result.getInt(1), result.getTimestamp(2), result.getTimestamp(3), result.getBoolean(4));
+        } else {
+          writer.key("error").value("Could find active run.").endObject();
+        }
       } else {
-        writer.key("error").value("Could not get run " + id).endObject();
+        int intid = Integer.parseInt(id);
+        stmt = connection.prepareStatement("SELECT * FROM runs WHERE id = ?");
+        stmt.setInt(1, intid);
+        result = stmt.executeQuery();
+        if (result.first()) {
+          writeRun(writer, intid, result.getTimestamp(2), result.getTimestamp(3), result.getBoolean(4));
+          return;
+        } else {
+          writer.key("error").value("Could not get run " + id).endObject();
+        }
       }
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
     } finally {
-      close(connection, writer);
+      close(result, stmt, connection, writer);
     }
   }
 
