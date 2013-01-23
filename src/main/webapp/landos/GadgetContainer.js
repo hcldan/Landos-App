@@ -24,6 +24,7 @@ define([
     loading: undef,
     /** {Deferred<string>} deferred containing the gadget viewer */
     viewer: new Deferred(),
+    runid: new Deferred(),
     
     // Other variables
     /** {boolean} Subscription status */
@@ -78,15 +79,18 @@ define([
             this.viewer.reject(viewer);
           }
         }));
-      }));
-
-      gadgets.util.registerOnLoadHandler(lang.hitch(this, function () {
+        
         opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
-          var id = opensocial.data.getDataContext().getDataSet(key).runid;
-          html.set(this.runpara, 'Managing run ' + id + '.');
-          this.tabs.addChild(new CreateOrderPane(id));
+          this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
         }));
       }));
+      
+      this.runid.then(lang.hitch(this, 'showOrderForm'));
+    },
+    
+    showOrderForm: function(runid) {
+      html.set(this.runpara, 'Managing run ' + runid + '.');
+      this.tabs.addChild(new CreateOrderPane(runid));
     }
   });
 });
