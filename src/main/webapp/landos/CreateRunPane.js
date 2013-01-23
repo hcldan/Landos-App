@@ -23,6 +23,8 @@ define([
   }
   
   return declare(LazyContainer, {
+    title: 'Create Run',
+    
     getRealTemplateString: function() {
       var def = new Deferred();
       require([  

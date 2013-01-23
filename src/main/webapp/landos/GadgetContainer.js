@@ -3,25 +3,12 @@ define([
   'landos',
   'dojo/_base/lang',
   'dojo/_base/declare',
-  'dijit/_WidgetBase',
-  'dijit/_Container',
-  'dijit/_TemplatedMixin',
-  'dijit/_WidgetsInTemplateMixin',
+  'landos/base/LazyContainer',
   'dojo/Deferred',
-  'dojo/html',
-  'landos/CreateOrderPane',
-  // Required for template parsing
-  'landos/SubscribeButton',
-  'landos/CreateRunPane',
-  'landos/LoadingPanel',
-  'dijit/layout/TabContainer',
-  'dijit/layout/ContentPane'
-], function(landos, lang, declare, _WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred, html, CreateOrderPane) {
+  'dojo/html'
+], function(landos, lang, declare, LazyContainer, Deferred, html, CreateOrderPane) {
   var undef;
-  return declare([_WidgetBase, _Container, _TemplatedMixin, _WidgetsInTemplateMixin], {
-    // Template bindings
-    /** {landos/LoadingPanel} loading panel widget */
-    loading: undef,
+  return declare(LazyContainer, {
     /** {dojo/Deferred<string>} deferred containing the runid */
     runid: new Deferred(),
     
@@ -29,33 +16,44 @@ define([
     /** {boolean} Subscription status */
     subscribed: undef,
     
-    templateString:
-      '<div class="container" data-dojo-attach-point="containerNode">'
-    +   '<div id="tabs" data-dojo-type="dijit/layout/TabContainer" data-dojo-attach-point="tabs">'
-    +     '<div id="tab-welcome" data-dojo-type="dijit/layout/ContentPane" title="Welcome">'
-    +       '<p>Welcome to the Lando\'s App!</p>'
-    +       '<p data-dojo-attach-point="runpara"></p>'
-    +     '</div>'
-    +     '<div id="run-creation" data-dojo-type="landos/CreateRunPane" title="Create Run"></div>'
-    +   '</div>'
-    +   '<h1>The Lando\'s App</h1>'
-    +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
-    +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="loading"></div>'
-    + '</div>',
-    
+    getRealTemplateString: function() {
+      var def = new Deferred();
+      require([  
+        'landos/SubscribeButton',
+        'dijit/layout/TabContainer',
+        'dijit/layout/ContentPane'
+      ], function() { 
+        def.resolve(
+            '<div class="container" data-dojo-attach-point="containerNode">'
+          +   '<div id="tabs" data-dojo-type="dijit/layout/TabContainer" data-dojo-attach-point="tabs">'
+          +     '<div id="tab-welcome" data-dojo-type="dijit/layout/ContentPane" title="Welcome">'
+          +       '<p>Welcome to the Lando\'s App!</p>'
+          +       '<p data-dojo-attach-point="runpara"></p>'
+          +     '</div>'
+          +   '</div>'
+          +   '<h1>The Lando\'s App</h1>'
+          +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
+          + '</div>'     
+        );
+      });
+      return def.promise;
+    },
+
     startup: function() {
       this.inherited(arguments);
-      this.loading.show();
       
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
         this.set('subscribed', result.subscribe.content.subscribed);
-        this.loading.hide();
       })).otherwise(lang.hitch(this, function(reason) {
         gadgets.error(reason);
       }));
       
       landos.getViewer().then(lang.hitch(this, function(viewer) {
+        require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
+          this.tabs.addChild(new CreateRunPane());
+        }));
+                
         var params = landos.getRequestParams(viewer),
           batch = osapi.newBatch()
             .add('data', osapi.http.get(lang.mixin({ 
@@ -98,7 +96,9 @@ define([
     
     showOrderForm: function(runid) {
       html.set(this.runpara, 'Managing run ' + runid + '.');
-      this.tabs.addChild(new CreateOrderPane(runid));
+      require(['landos/CreateOrderPane'], lang.hitch(this, function(CreateOrderPane) {
+        this.tabs.addChild(new CreateOrderPane(runid));
+      }));
     }
   });
 });
