@@ -1,4 +1,6 @@
-define(['require'], function(require) {
+define(['require', 'dojo/Deferred'], function(require, Deferred) {
+  var viewer;
+  
   return {
     /**
      * Gets the api uri for the specified gadget-xml-relative path.
@@ -44,6 +46,27 @@ define(['require'], function(require) {
         }
         deferred.resolve(results);
       }); 
+    },
+    
+    /**
+     * @returns {dojo/promise/Promise} for the viewer
+     */
+    getViewer: function() {
+      if (!viewer) {
+        viewer = new Deferred();
+        
+        gadgets.util.registerOnLoadHandler(function() {
+          osapi.people.getViewer().execute(function(resp) {
+            if (resp && resp.id) {
+              viewer.resolve(resp.id);
+            } else {
+              viewer.reject(resp);
+            }
+          })
+        });
+      }
+      
+      return viewer.promise;
     }
   };
 });

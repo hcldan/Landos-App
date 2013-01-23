@@ -33,7 +33,7 @@ define([
           gadgets.error(reason);
         });
         
-        parent.viewer.then(lang.hitch(this, function(viewer) {
+        landos.getViewer().then(lang.hitch(this, function(viewer) {
           var params = lang.mixin({ href: landos.getAPIUri('subscribe') + '/' + encodeURIComponent(viewer) }, landos.getRequestParams(viewer));
           osapi.http[this.checked ? 'delete' : 'put'](params).execute(lang.hitch(this, function(result) {
             this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);

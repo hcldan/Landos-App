@@ -22,8 +22,7 @@ define([
     // Template bindings
     /** {landos/LoadingPanel} loading panel widget */
     loading: undef,
-    /** {Deferred<string>} deferred containing the gadget viewer */
-    viewer: new Deferred(),
+    /** {dojo/Deferred<string>} deferred containing the runid */
     runid: new Deferred(),
     
     // Other variables
@@ -56,7 +55,7 @@ define([
         gadgets.error(reason);
       }));
       
-      this.viewer.then(lang.hitch(this, function(viewer) {
+      landos.getViewer().then(lang.hitch(this, function(viewer) {
         var params = landos.getRequestParams(viewer),
           batch = osapi.newBatch()
             .add('data', osapi.http.get(lang.mixin({ 
@@ -72,20 +71,14 @@ define([
       }); 
       
       gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
-        osapi.people.getViewer().execute(lang.hitch(this, function(viewer) {
-          if (viewer && viewer.id) {
-            this.viewer.resolve(viewer.id);
-          } else {
-            this.viewer.reject(viewer);
-          }
-        }));
-        
+        // Listen for EE context (which should come pretty fast after rendering the gadget).
         opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
           if (!this.runid.isResolved()) {
             this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
           }
         }));
         
+        // If we've not gotten anything after a second, ask the server for the current run info.
         setTimeout(lang.hitch(this, function() {
           if (!this.runid.isResolved()) {
             osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {

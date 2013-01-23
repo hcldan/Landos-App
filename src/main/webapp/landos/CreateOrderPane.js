@@ -82,8 +82,8 @@ define([
         return false;
       }
 
-      // Defer request until username is known (use viewer deferred in GadgetContainer)
-      this.getParent().getParent().viewer.then(lang.hitch(this, function (id) {
+      // Defer request until username is known (use viewer promise)
+      landos.getViewer().then(lang.hitch(this, function (id) {
         // Encode username
         var user = encodeURIComponent(id);
         // Get and correct price
