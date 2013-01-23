@@ -81,8 +81,23 @@ define([
         }));
         
         opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
-          this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
+          if (!this.runid.isResolved()) {
+            this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
+          }
         }));
+        
+        setTimeout(lang.hitch(this, function() {
+          if (!this.runid.isResolved()) {
+            osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {
+              var content = res.content;
+              if (res.status === 200 && content.id) {
+                if (!this.runid.isResolved() && content.id) {
+                  this.runid.resolve(content.id);
+                }
+              }
+            }));
+          }
+        }), 1000);
       }));
       
       this.runid.then(lang.hitch(this, 'showOrderForm'));
