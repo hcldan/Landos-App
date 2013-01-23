@@ -7,13 +7,7 @@ define([
   'dojo/html',
   'dojo/Deferred',
   'dojo/on',
-  'dijit/Dialog',
-  // Template requirements
-  'dijit/form/Form',
-  'landos/FilteringSelect',
-  'dijit/form/CurrencyTextBox',
-  'dijit/form/TextBox',
-  'dijit/form/NumberSpinner'
+  'dijit/Dialog'
 ], function(require, landos, lang, declare, LazyContainer, html, Deferred, on, Dialog) {
   
   return declare(LazyContainer, {
@@ -28,38 +22,44 @@ define([
       osapi.http.get({format: 'json', href: landos.getAPIUri('run') + this.runid}).execute(lang.hitch(this, function (res) {
         if (res.status === 200 && !res.content.error) {
           // Run exists
-          def.resolve(
-              '<div data-dojo-attach-point="containerNode">'
-            +   '<p>Placing an order for run ${runid}.</p>'
-            +   '<form data-dojo-type="dijit/form/Form" data-dojo-attach-point="form">'
-            +     '<table>'
-            +       '<tr>'
-            +         '<td><label for="item">Item:</label></td>'
-            +         '<td><div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div></td>'
-            +       '</tr>'
-            +       '<tr>'
-            +         '<td><label for="size">Size:</label></td>'
-            +         '<td><input id="size" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="size" /></td>'
-            +       '</tr>'
-            +       '<tr>'
-            +         '<td><label for="qty">Quantity:</label></td>'
-            +         '<td><input id="qty" type="text" data-dojo-type="dijit/form/NumberSpinner" data-dojo-attach-point="qty" data-dojo-props="constraints: {min: 1}" value="1" /></td>'
-            +       '</tr>'
-            +       '<tr>'
-            +         '<td><label for="price">Price:</label></td>'
-            +         '<td><input id="price" type="text" data-dojo-type="dijit/form/CurrencyTextBox" data-dojo-attach-point="price" required /></td>'
-            +       '</tr>'
-            +       '<tr>'
-            +         '<td><label for="comments">Comments:</label></td>'
-            +         '<td><input id="comments" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="comments" /></td>'
-            +       '</tr>'
-            +       '<tr>'
-            +         '<td><input type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="submit" label="Create" /></td>'
-            +       '</tr>'
-            +   '</form>'
-            +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="_loading_cover"></div>'
-            + '</div>'  
-          );
+          require([  
+            'dijit/form/Form',
+            'landos/FilteringSelect',
+            'dijit/form/CurrencyTextBox',
+            'dijit/form/TextBox',
+            'dijit/form/NumberSpinner'
+          ], function() {
+            def.resolve(
+                '<div data-dojo-attach-point="containerNode">'
+              +   '<p>Placing an order for run ${runid}.</p>'
+              +   '<form data-dojo-type="dijit/form/Form" data-dojo-attach-point="form">'
+              +     '<table>'
+              +       '<tr>'
+              +         '<td><label for="item">Item:</label></td>'
+              +         '<td><div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div></td>'
+              +       '</tr>'
+              +       '<tr>'
+              +         '<td><label for="size">Size:</label></td>'
+              +         '<td><input id="size" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="size" /></td>'
+              +       '</tr>'
+              +       '<tr>'
+              +         '<td><label for="qty">Quantity:</label></td>'
+              +         '<td><input id="qty" type="text" data-dojo-type="dijit/form/NumberSpinner" data-dojo-attach-point="qty" data-dojo-props="constraints: {min: 1}" value="1" /></td>'
+              +       '</tr>'
+              +       '<tr>'
+              +         '<td><label for="price">Price:</label></td>'
+              +         '<td><input id="price" type="text" data-dojo-type="dijit/form/CurrencyTextBox" data-dojo-attach-point="price" required /></td>'
+              +       '</tr>'
+              +       '<tr>'
+              +         '<td><label for="comments">Comments:</label></td>'
+              +         '<td><input id="comments" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="comments" /></td>'
+              +       '</tr>'
+              +       '<tr><td><input type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="submit" label="Create" /></td></tr>'
+              +   '</form>'
+              +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="_loading_cover"></div>'
+              + '</div>'  
+            );
+          });
         } else {
           // Run doesn't exist or other error
           def.resolve('<div data-dojo-attach-point="containerNode">Error: run doesn\'t exist or there was an error retrieving run details.</div>');
