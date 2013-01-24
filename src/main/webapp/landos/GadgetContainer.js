@@ -42,62 +42,69 @@ define([
     startup: function() {
       this.inherited(arguments);
       
-      var onData = new Deferred();
-      onData.then(lang.hitch(this, function(result) {
-        this.set('subscribed', result.subscribe.content.subscribed);
-      })).otherwise(lang.hitch(this, function(reason) {
-        gadgets.error(reason);
-      }));
-      
-      landos.getViewer().then(lang.hitch(this, function(viewer) {
-        require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
-          this.tabs.addChild(new CreateRunPane());
-        }));
-                
-        var params = landos.getRequestParams(viewer),
-          batch = osapi.newBatch()
-            .add('data', osapi.http.get(lang.mixin({ 
-              href: landos.getAPIUri('data') 
-            }, params)))
-            .add('subscribe', osapi.http.get(lang.mixin({
-              href: landos.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
-            }, params)));
-    
-        landos.processOSAPIBatchResponse(batch, onData);
-      })).otherwise(function(error) {
-        onData.reject(error);
-      }); 
-      
-      gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
-        // Listen for EE context (which should come pretty fast after rendering the gadget).
-        opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
-          if (!this.runid.isResolved()) {
-            this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
-          }
+      // startup gets called twice because the widget loads before the real template is gotten (onshow)
+      if (!this._loaded) {
+        var onData = new Deferred();
+        onData.then(lang.hitch(this, function(result) {
+          this.set('subscribed', result.subscribe.content.subscribed);
+        })).otherwise(lang.hitch(this, function(reason) {
+          gadgets.error(reason);
         }));
         
-        // If we've not gotten anything after a second, ask the server for the current run info.
-        setTimeout(lang.hitch(this, function() {
-          if (!this.runid.isResolved()) {
-            osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {
-              var content = res.content;
-              if (res.status === 200 && content.id) {
-                if (!this.runid.isResolved() && content.id) {
-                  this.runid.resolve(content.id);
-                }
-              }
+        landos.getViewer().then(lang.hitch(this, function(viewer) {
+          require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
+            this._loadpromise.then(lang.hitch(this, function() {
+              this.tabs.addChild(new CreateRunPane());  
             }));
-          }
-        }), 1000);
-      }));
+          }));
+                  
+          var params = landos.getRequestParams(viewer),
+            batch = osapi.newBatch()
+              .add('data', osapi.http.get(lang.mixin({ 
+                href: landos.getAPIUri('data') 
+              }, params)))
+              .add('subscribe', osapi.http.get(lang.mixin({
+                href: landos.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
+              }, params)));
       
-      this.runid.then(lang.hitch(this, 'showOrderForm'));
+          landos.processOSAPIBatchResponse(batch, onData);
+        })).otherwise(function(error) {
+          onData.reject(error);
+        }); 
+        
+        gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
+          // Listen for EE context (which should come pretty fast after rendering the gadget).
+          opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
+            if (!this.runid.isResolved()) {
+              this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
+            }
+          }));
+          
+          // If we've not gotten anything after a second, ask the server for the current run info.
+          setTimeout(lang.hitch(this, function() {
+            if (!this.runid.isResolved()) {
+              osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {
+                var content = res.content;
+                if (res.status === 200 && content.id) {
+                  if (!this.runid.isResolved() && content.id) {
+                    this.runid.resolve(content.id);
+                  }
+                }
+              }));
+            }
+          }), 1000);
+        }));
+        
+        this.runid.then(lang.hitch(this, 'showOrderForm'));
+      }
     },
     
     showOrderForm: function(runid) {
       html.set(this.runpara, 'Managing run ' + runid + '.');
       require(['landos/CreateOrderPane'], lang.hitch(this, function(CreateOrderPane) {
-        this.tabs.addChild(new CreateOrderPane(runid));
+        this._loadpromise.then(lang.hitch(this, function() {
+          this.tabs.addChild(new CreateOrderPane(runid));
+        }));
       }));
     }
   });

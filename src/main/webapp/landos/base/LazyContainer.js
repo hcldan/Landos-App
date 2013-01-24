@@ -25,6 +25,7 @@ define([
      
     _busy: false,
     _loaded: false,
+    _loadpromise: new Deferred(),
     
     _onShow: function(){
       // summary:
@@ -52,10 +53,9 @@ define([
       if (!this._loaded) {
         var old = this.domNode,
             parent = old.parentNode,
-            sibling = old.previousSibling,
-            loading = new Deferred();
+            sibling = old.previousSibling;
 
-        this.busy(loading);
+        this.busy(this._loadpromise);
         this.getRealTemplateString().then(lang.hitch(this, function(template) {
           var clsstr = domAttr.get(this.domNode, 'class');
           this.destroyRendering();
@@ -73,9 +73,9 @@ define([
           else
             this.placeAt(parent);
           
-          loading.resolve();
+          this._loadpromise.resolve();
         })).otherwise(lang.hitch(this, function(error) {
-          loading.reject(error);
+          this._loadpromise.reject(error);
           console.error(error);
         }));
       }
