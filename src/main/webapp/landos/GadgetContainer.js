@@ -97,6 +97,8 @@ define([
         
         this.runid.then(lang.hitch(this, 'showOrderForm'));
       }
+      
+      this.onShow();
     },
     
     showOrderForm: function(runid) {
