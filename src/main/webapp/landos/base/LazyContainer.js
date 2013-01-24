@@ -66,7 +66,7 @@ define([
           
           this.templateString = template;
           this.create();
-          domAttr.set(this.domNode, 'class', clsstr);
+          domAttr.set(this.domNode, 'class', domAttr.get(this.domNode, 'class') + ' ' + clsstr);
           
           if (sibling)
             this.placeAt(sibling, 'after');
