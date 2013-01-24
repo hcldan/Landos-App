@@ -95,22 +95,25 @@ define([
             content: 'Start date/time must come before end date/time!'
           }).show();
         } else {
-          var url = landos.getAPIUri('run') + '/' + start + '/' + end + '/' + (this.test.checked ? '1' : '0');
-          var req = osapi.http.put({format: 'json', href: url});
-          req.execute(function (res) {
-            var c = res.content;
-            if (res.status === 200 && c && !c.error) {
-              new Dialog({
-                title: 'Success!',
-                content: 'Created new run with id ' + c.id + '.'
-              }).show();
-            } else {
-              new Dialog({
-                title: 'Error!',
-                content: c.error || 'HTTP ' + res.status
-              }).show();
-            }
-          });
+          landos.getViewer().then(lang.hitch(this, function(viewer) {
+            var params = landos.getRequestParams(viewer);
+            var url = landos.getAPIUri('run') + '/' + start + '/' + end + '/' + (this.test.checked ? '1' : '0');
+            var req = osapi.http.put(lang.mixin({href: url}, params));
+            req.execute(function (res) {
+              var c = res.content;
+              if (res.status === 200 && c && !c.error) {
+                new Dialog({
+                  title: 'Success!',
+                  content: 'Created new run with id ' + c.id + '.'
+                }).show();
+              } else {
+                new Dialog({
+                  title: 'Error!',
+                  content: c.error || 'HTTP ' + res.status
+                }).show();
+              }
+            });
+          }
         }
       }
       return false;
