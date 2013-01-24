@@ -3,7 +3,6 @@ package com.ibm.opensocial.landos;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -167,6 +166,16 @@ public class BaseServlet extends HttpServlet {
   protected String getEEUrl(HttpServletRequest req) {
     //TODO Get hostname programmatically.
     return "http://kargath.notesdev.ibm.com" + req.getContextPath() + "/LandosApp.xml";
+  }
+  
+  /**
+   * @param user Users are in the form of `domain:user` 
+   *             Gross hack until domino gets user apis working.
+   * @return email address for user.
+   */
+  protected String getEmailForUser(String user) {
+    String[] parts = user.split(":");
+    return parts[1] + "@" + parts[0];
   }
 }
 

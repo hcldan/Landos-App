@@ -234,12 +234,10 @@ public class RunServlet extends BaseServlet {
       ResultSet results = stmt.executeQuery();
       // Place email into list
       while (results.next()) {
-        // Users are in the form of `domain:user`
-        String[] parts = results.getString(1).split(":");
-        emails.add(new InternetAddress(parts[1] + "@" + parts[0]));
+        emails.add(new InternetAddress(getEmailForUser(results.getString(1))));
       }
     } catch (Exception e) {
-      LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
+      LOGGER.logp(Level.SEVERE, CLAZZ, "sendEmails", e.getMessage());
     }
     
     try {
@@ -250,8 +248,8 @@ public class RunServlet extends BaseServlet {
       
       // MimeMessage
       MimeMessage msg = new MimeMessage(session);
-      msg.setFrom(new InternetAddress("powerske@us.ibm.com"));
-      msg.setRecipients(Message.RecipientType.BCC, emails.toArray(new InternetAddress[emails.size()]));
+      msg.setFrom(new InternetAddress("\"" + getEmailForUser(getUser(req)) + "\" <ddumont@us.ibm.com>"));
+      msg.setRecipients(Message.RecipientType.BCC, emails.toArray(new InternetAddress[]{}));
       msg.setSubject("New Lando's Run!");
       msg.setSentDate(new Date());
       
