@@ -58,7 +58,7 @@ define([
 
         this.busy(this._loadpromise);
         this.getRealTemplateString().then(lang.hitch(this, function(template) {
-          var classes = (domAttr.get(this.domNode, 'class') || '').split('');
+          var classes = (domAttr.get(this.domNode, 'class') || '').split(' ');
           this.destroyRendering();
           this.destroy();
           delete this._destroyed;
