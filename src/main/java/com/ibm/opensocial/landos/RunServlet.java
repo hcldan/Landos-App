@@ -259,8 +259,7 @@ public class RunServlet extends BaseServlet {
 
     try {
       // Get users from database
-      PreparedStatement stmt = conn.prepareStatement("SELECT user FROM subscribed WHERE test = ?");
-      stmt.setBoolean(1, test);
+      PreparedStatement stmt = conn.prepareStatement(test ? "SELECT `user` FROM `subscribed` WHERE `test`=1" : "SELECT `user` FROM `subscribed` WHERE 1");
       ResultSet results = stmt.executeQuery();
       // Place email into list
       while (results.next()) {
