@@ -5,10 +5,9 @@ define([
   'dojo/_base/declare',
   'landos/base/LazyContainer',
   'dijit/Dialog',
-  'dojo/dom-class',
   'dojo/on',
   'dojo/Deferred'
-], function(require, landos, lang, declare, LazyContainer, Dialog, domClass, on, Deferred) {
+], function(require, landos, lang, declare, LazyContainer, Dialog, on, Deferred) {
   
   function mergeDatesToTimestamp(date, time) {
     var d = new Date();

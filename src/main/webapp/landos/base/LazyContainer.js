@@ -14,8 +14,9 @@ define([
   'dojo/Deferred',
   'dojo/DeferredList',
   'dojo/dom-attr',
+  'dojo/dom-class',
   'landos/LoadingPanel'
-], function(lang, declare, _WidgetBase, _Container, _Contained, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred, DeferredList, domAttr) {
+], function(lang, declare, _WidgetBase, _Container, _Contained, _TemplatedMixin, _WidgetsInTemplateMixin, Deferred, DeferredList, domAttr, domClass) {
   
   return declare([_WidgetBase, _Container, _Contained, _TemplatedMixin, _WidgetsInTemplateMixin], {
     templateString: 
@@ -57,7 +58,7 @@ define([
 
         this.busy(this._loadpromise);
         this.getRealTemplateString().then(lang.hitch(this, function(template) {
-          var clsstr = domAttr.get(this.domNode, 'class');
+          var classes = (domAttr.get(this.domNode, 'class') || '').split('');
           this.destroyRendering();
           this.destroy();
           delete this._destroyed;
@@ -66,7 +67,12 @@ define([
           
           this.templateString = template;
           this.create();
-          domAttr.set(this.domNode, 'class', domAttr.get(this.domNode, 'class') + ' ' + clsstr);
+          
+          for (var i = 0; i < classes.length; i++) {
+            if (classes[i]) {
+              domClass.add(this.domNode, classes[i]);
+            }
+          }
           
           if (sibling)
             this.placeAt(sibling, 'after');
