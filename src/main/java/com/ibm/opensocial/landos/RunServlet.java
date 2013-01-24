@@ -1,9 +1,5 @@
 package com.ibm.opensocial.landos;
 
-import org.apache.wink.json4j.JSONWriter;
-
-import com.google.common.base.Strings;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,6 +24,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.wink.json4j.JSONWriter;
+
+import com.google.common.base.Strings;
 
 public class RunServlet extends BaseServlet {
   private static final long serialVersionUID = 2718572285038956077L;
@@ -92,67 +92,80 @@ public class RunServlet extends BaseServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
 
-    // Parse arguments
-    Timestamp start = new Timestamp(Long.parseLong(getPathSegment(req, 0)));
-    Timestamp end = new Timestamp(Long.parseLong(getPathSegment(req, 1)));
-    String testSegment = getPathSegment(req, 2);
-    boolean test = testSegment != null && testSegment.equals("1");
-
     // Create JSON Writer
     JSONWriter writer = getJSONWriter(res).object();
-
-    // Check start and end times
-    if (end.before(start)) {
-      res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    try {
+      // Check admin status.
       try {
-        writer.key("error").value("Start time must be before end time.").endObject();
+        if (!isAdmin(req)) {
+          res.setStatus(403);
+          writer.key("error").value("Not authorized").endObject();
+          return;
+        }
+      } catch (Exception e) {
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+        throw new IOException(e);
+      }
+
+      // Parse arguments
+      Timestamp start = new Timestamp(Long.parseLong(getPathSegment(req, 0)));
+      Timestamp end = new Timestamp(Long.parseLong(getPathSegment(req, 1)));
+      String testSegment = getPathSegment(req, 2);
+      boolean test = testSegment != null && testSegment.equals("1");
+
+      // Check start and end times
+      if (end.before(start)) {
+        res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        try {
+          writer.key("error").value("Start time must be before end time.").endObject();
+        } catch (Exception e) {
+          LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+        }
+        return;
+      }
+
+      // Prepare database variables
+      Connection conn = null;
+      PreparedStatement stmt = null;
+      ResultSet result = null, ids = null;
+
+      try {
+        // Get connection
+        conn = getDataSource(req).getConnection();
+        // Check for overlaps
+        stmt = conn
+                .prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
+        stmt.setTimestamp(1, start);
+        stmt.setTimestamp(2, end);
+        result = stmt.executeQuery();
+        if (result.first() && result.getInt(1) > 0) {
+          writer.key("error").value("There is already a run within the specified time range.")
+                  .endObject();
+          return;
+        }
+        // Insert into database
+        stmt = conn.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS);
+        stmt.setTimestamp(1, start);
+        stmt.setTimestamp(2, end);
+        stmt.setBoolean(3, test);
+        stmt.executeUpdate();
+        int insertedId = 0;
+        ids = stmt.getGeneratedKeys();
+        if (ids.first()) {
+          insertedId = ids.getInt(1);
+        }
+        // Write back to client
+        writeRun(writer, insertedId, start, end, test);
+        // Send email
+        sendEmails(req, conn, insertedId, start, end, test);
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
       } finally {
-        writer.close();
-      }
-      return;
-    }
-
-    // Prepare database variables
-    Connection conn = null;
-    PreparedStatement stmt = null;
-    ResultSet result = null;
-
-    try {
-      // Get connection
-      conn = getDataSource(req).getConnection();
-      // Check for overlaps
-      stmt = conn
-              .prepareStatement("SELECT COUNT(*) FROM runs WHERE ? <= end AND ? >= start");
-      stmt.setTimestamp(1, start);
-      stmt.setTimestamp(2, end);
-      result = stmt.executeQuery();
-      if (result.first() && result.getInt(1) > 0) {
-        writer.key("error").value("There is already a run within the specified time range.")
-                .endObject();
-        return;
-      }
-      // Insert into database
-      stmt = conn.prepareStatement("INSERT INTO runs VALUES (NULL, ?, ?, ?)",
-              Statement.RETURN_GENERATED_KEYS);
-      stmt.setTimestamp(1, start);
-      stmt.setTimestamp(2, end);
-      stmt.setBoolean(3, test);
-      stmt.executeUpdate();
-      int insertedId = 0;
-      ResultSet ids = stmt.getGeneratedKeys();
-      if (ids.first()) {
-        insertedId = ids.getInt(1);
-      }
-      // Write back to client
-      writeRun(writer, insertedId, start, end, test);
-      // Send email
-      sendEmails(req, conn, insertedId, start, end, test);
-    } catch (Exception e) {
-      LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+        close(ids, result, stmt, conn);
+      } 
     } finally {
-      close(conn, writer);
+      close(writer);
     }
   }
 
@@ -164,31 +177,48 @@ public class RunServlet extends BaseServlet {
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
     setCacheAndTypeHeaders(res);
-    int id = Integer.parseInt(getPathSegment(req, 0));
+    
     JSONWriter writer = getJSONWriter(res).object();
-
-    // Prepare database variables
-    Connection connection = null;
-    PreparedStatement stmt = null;
-    int result = 0;
-
-    try {
-      // Get connection
-      connection = getDataSource(req).getConnection();
-      // Check for overlaps
-      stmt = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
-      stmt.setInt(1, id);
-      result = stmt.executeUpdate();
-      // Write result
-      if (result > 0) {
-        writer.key("id").value(id).endObject();
-      } else {
-        writer.key("error").value("Could not delete " + id);
+    try { 
+      // Check admin status.
+      try {
+        if (!isAdmin(req)) {
+          res.setStatus(403);
+          writer.key("error").value("Not authorized").endObject();
+          return;
+        }
+      } catch (Exception e) {
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+        throw new IOException(e);
       }
-    } catch (Exception e) {
-      LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
+  
+      int id = Integer.parseInt(getPathSegment(req, 0));
+      
+      // Prepare database variables
+      Connection connection = null;
+      PreparedStatement stmt = null;
+      int result = 0;
+  
+      try {
+        // Get connection
+        connection = getDataSource(req).getConnection();
+        // Check for overlaps
+        stmt = connection.prepareStatement("DELETE FROM runs WHERE id = ?");
+        stmt.setInt(1, id);
+        result = stmt.executeUpdate();
+        // Write result
+        if (result > 0) {
+          writer.key("id").value(id).endObject();
+        } else {
+          writer.key("error").value("Could not delete " + id);
+        }
+      } catch (Exception e) {
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
+      } finally {
+        close(stmt, connection);
+      }
     } finally {
-      close(connection, writer);
+      close(writer);
     }
   }
 

@@ -99,22 +99,32 @@ public class RunServletTest {
 
   @Test
   public void testPutNewRun() throws SQLException, IOException {
+    String testadmin = "user:test";
     // Mocks
     String pathInfo = "/" + startTime + "/" + endTime;
     req = TestControlUtils.mockRequest(control, attributes, source, pathInfo);
+    expect(req.getHeader("OPENSOCIAL-ID")).andReturn(testadmin).once();
     Timestamp start = new Timestamp(startTime);
     Timestamp end = new Timestamp(endTime);
+    PreparedStatement authstmt = control.createMock(PreparedStatement.class);
     PreparedStatement stmt1 = control.createMock(PreparedStatement.class);
     PreparedStatement stmt2 = control.createMock(PreparedStatement.class);
+    ResultSet authres = control.createMock(ResultSet.class);
     ResultSet result = control.createMock(ResultSet.class);
     ResultSet ids = control.createMock(ResultSet.class);
 
     // Set up expectations
+    expect(connection.prepareStatement(anyObject(String.class))).andReturn(authstmt).once();
     expect(connection.prepareStatement(anyObject(String.class))).andReturn(stmt1).once();
-
-    expect(
-            connection.prepareStatement(anyObject(String.class),
-                    eq(Statement.RETURN_GENERATED_KEYS))).andReturn(stmt2).once();
+    expect(connection.prepareStatement(anyObject(String.class),
+            eq(Statement.RETURN_GENERATED_KEYS))).andReturn(stmt2).once();
+    
+    authstmt.setString(1, testadmin); expectLastCall().once();
+    expect(authstmt.executeQuery()).andReturn(authres).once();
+    expect(authres.first()).andReturn(true).once();
+    authres.close(); expectLastCall().once();
+    authstmt.close(); expectLastCall().once();
+        
     stmt1.setTimestamp(1, start);
     expectLastCall().once();
     stmt1.setTimestamp(2, end);
@@ -141,10 +151,21 @@ public class RunServletTest {
   
   @Test
   public void testDeleteRun() throws SQLException, IOException {
+    String testadmin = "user:test";
     String pathInfo = "/" + expectedId;
     req = TestControlUtils.mockRequest(control, attributes, source, pathInfo);
-    PreparedStatement stmt = control.createMock(PreparedStatement.class);
+    expect(req.getHeader("OPENSOCIAL-ID")).andReturn(testadmin).once();
     
+    PreparedStatement authstmt = control.createMock(PreparedStatement.class);
+    ResultSet authres = control.createMock(ResultSet.class);
+    expect(connection.prepareStatement(anyObject(String.class))).andReturn(authstmt).once();
+    authstmt.setString(1, testadmin); expectLastCall().once();
+    expect(authstmt.executeQuery()).andReturn(authres).once();
+    expect(authres.first()).andReturn(true).once();
+    authres.close(); expectLastCall().once();
+    authstmt.close(); expectLastCall().once();
+    
+    PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(connection.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
     stmt.setInt(1, expectedId);
     expectLastCall().once();

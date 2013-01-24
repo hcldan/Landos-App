@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -176,6 +177,30 @@ public class BaseServlet extends HttpServlet {
   protected String getEmailForUser(String user) {
     String[] parts = user.split(":");
     return parts[1] + "@" + parts[0];
+  }
+  
+  /**
+   * @param user 
+   * @return true if the user is an admin.
+   */
+  protected boolean isAdmin(HttpServletRequest req) throws SQLException {
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    ResultSet results = null;
+    
+    boolean isAdmin = false;
+    try {
+      conn = getDataSource(req).getConnection();
+      stmt = conn.prepareStatement("SELECT * FROM `subscribed` WHERE `user`=? AND `admin`=1");
+      stmt.setString(1, getUser(req));
+      results = stmt.executeQuery();
+      if (results.first())
+        isAdmin = true;
+    } finally {
+      close(results, stmt, conn);
+    }
+    
+    return isAdmin;
   }
 }
 
