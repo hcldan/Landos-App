@@ -4,6 +4,7 @@
     <Require feature="osapi"/>
     <Require feature="embedded-experiences"/>
     <Require feature="views"/>
+    <Require feature="open-views"/>
     <Optional feature="content-rewrite">
       <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dojo/dojo.js.uncompressed.js</Param>
       <Param name="exclude-url">//ajax.googleapis.com/ajax/libs/dojo/1.8.2/dijit/themes/claro/claro.css</Param>
