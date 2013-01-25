@@ -311,6 +311,7 @@ public class RunServlet extends BaseServlet {
         .key("gadget").value(getEEUrl(req))
         .key("context").object()
           .key("runid").value(id)
+          .key("start").value(start.getTime())
           .key("end").value(end.getTime())
         .endObject()
       .endObject().flush().close();
