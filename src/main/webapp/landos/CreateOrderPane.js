@@ -13,10 +13,13 @@ define([
   return declare(LazyContainer, {
     title: 'Place Order',
     
-    constructor: function (runid) {
-      this.runid = runid;
+    constructor: function (args) {
+      declare.safeMixin(this, args);
+      if (this.disabled) {
+        this.title += ' (expired)';
+      }
     },
-    
+        
     getRealTemplateString: function() {
       var def = new Deferred();
       osapi.http.get({format: 'json', href: landos.getAPIUri('run') + this.runid}).execute(lang.hitch(this, function (res) {

@@ -23,9 +23,12 @@ define([
       +   '<h1>The Lando\'s App</h1>'
       +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
       + '</div>',
-      
+    
+    /** {boolean} If the runid resolved is expired or not.  Make sure to set before resolving the runid. */
+    runExpired: false,
     /** {dojo/Deferred<string>} deferred containing the runid */
     runid: new Deferred(),
+    
     
     /** {dojo/Deferred<boolean>} deferred containing the admin status of the user. */
     adminStatus: new Deferred(),
@@ -73,7 +76,9 @@ define([
         // Listen for EE context (which should come pretty fast after rendering the gadget).
         opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
           if (!this.runid.isResolved()) {
-            this.runid.resolve(opensocial.data.getDataContext().getDataSet(key).runid);
+            var data = opensocial.data.getDataContext().getDataSet(key);
+            this.runExpired = new Date().getTime() > data.end;
+            this.runid.resolve(data.runid);
           }
         }));
         
@@ -96,9 +101,12 @@ define([
     },
     
     showOrderForm: function(runid) {
-      html.set(this.runpara, 'Managing run ' + runid + '.');
+      html.set(this.runpara, 'Viewing run ' + runid + '.');
       require(['landos/CreateOrderPane'], lang.hitch(this, function(CreateOrderPane) {
-        this.tabs.addChild(new CreateOrderPane(runid));
+        this.tabs.addChild(new CreateOrderPane({
+          runid: runid,
+          disabled: this.runExpired
+        }));
       }));
     }
   });

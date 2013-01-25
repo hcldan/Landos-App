@@ -1,6 +1,7 @@
 package com.ibm.opensocial.landos;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -304,7 +305,16 @@ public class RunServlet extends BaseServlet {
       
       // Create the application/embed+json part
       MimeBodyPart mbp3 = new MimeBodyPart();
-      mbp3.setContent("{\"gadget\":\"" + getEEUrl(req) + "\",\"context\":{\"runid\":" + id + "}}", "application/embed+json");
+      
+      StringWriter payload = new StringWriter();
+      new JSONWriter(payload).object()
+        .key("gadget").value(getEEUrl(req))
+        .key("context").object()
+          .key("runid").value(id)
+          .key("end").value(end.getTime())
+        .endObject()
+      .endObject().flush().close();
+      mbp3.setContent(payload.toString(), "application/embed+json");
       mmp.addBodyPart(mbp3);
       
       // Set message content
