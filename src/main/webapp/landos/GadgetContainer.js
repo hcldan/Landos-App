@@ -27,6 +27,9 @@ define([
     /** {dojo/Deferred<string>} deferred containing the runid */
     runid: new Deferred(),
     
+    /** {dojo/Deferred<boolean>} deferred containing the admin status of the user. */
+    adminStatus: new Deferred(),
+    
     // Other variables
     /** {boolean} Subscription status */
     subscribed: undef,
@@ -36,14 +39,20 @@ define([
       
       var onData = new Deferred();
       onData.then(lang.hitch(this, function(result) {
-        this.set('subscribed', result.subscribe.content.subscribed);
+        var data = (((result || {}).subscribe || {}).content || {});  
+        this.set('subscribed', !!data.subscribed);
+        this.adminStatus.resolve(!!data.admin);
       })).otherwise(lang.hitch(this, function(reason) {
         gadgets.error(reason);
       }));
       
       landos.getViewer().then(lang.hitch(this, function(viewer) {
         require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
-          this.tabs.addChild(new CreateRunPane());  
+          this.adminStatus.then(lang.hitch(this, function(isAdmin) {
+            if (isAdmin) {
+              this.tabs.addChild(new CreateRunPane());
+            }
+          }));
         }));
                 
         var params = landos.getRequestParams(viewer),

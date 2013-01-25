@@ -1,8 +1,5 @@
 package com.ibm.opensocial.landos;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
@@ -17,7 +14,6 @@ import javax.sql.DataSource;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.easymock.IAnswer;
 import org.easymock.IMocksControl;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +27,6 @@ public class SubscribeServletTest extends EasyMock {
   private SubscribeServlet servlet;
   private IMocksControl control;
   private Connection connection;
-  private Connection authconnection;
   private DataSource source;
   private Map<String, Object> attributes;
   private HttpServletRequest req;
