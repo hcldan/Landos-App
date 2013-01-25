@@ -78,7 +78,7 @@ define([
           if (!this.runid.isResolved()) {
             var data = opensocial.data.getDataContext().getDataSet(key);
             this.runExpired = new Date().getTime() > data.end;
-            this.runid.resolve(data.runid);
+            this.runid.resolve(data.id);
           }
         }));
         

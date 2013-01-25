@@ -310,9 +310,10 @@ public class RunServlet extends BaseServlet {
       new JSONWriter(payload).object()
         .key("gadget").value(getEEUrl(req))
         .key("context").object()
-          .key("runid").value(id)
+          .key("id").value(id)
           .key("start").value(start.getTime())
           .key("end").value(end.getTime())
+          .key("test").value(test)
         .endObject()
       .endObject().flush().close();
       mbp3.setContent(payload.toString(), "application/embed+json");
