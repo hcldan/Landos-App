@@ -73,28 +73,24 @@ define([
       }); 
       
       gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
-        // Listen for EE context (which should come pretty fast after rendering the gadget).
-        opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
-          if (!this.runid.isResolved()) {
+        if (gadgets.views.getCurrentView().getName() == 'embedded') {
+          // Listen for EE context (which should come pretty fast after rendering the gadget).
+          opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
             var data = opensocial.data.getDataContext().getDataSet(key);
             this.runExpired = new Date().getTime() > data.end;
             this.runid.resolve(data.id);
-          }
-        }));
-        
-        // If we've not gotten anything after a second, ask the server for the current run info.
-        setTimeout(lang.hitch(this, function() {
-          if (!this.runid.isResolved()) {
-            osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {
-              var content = res.content;
-              if (res.status === 200 && content.id) {
-                if (!this.runid.isResolved() && content.id) {
-                  this.runid.resolve(content.id);
-                }
+          }));
+        } else {
+          // No EE context, so ask the server if there is a current run.
+          osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {
+            var content = res.content;
+            if (res.status === 200 && content.id) {
+              if (content.id) {
+                this.runid.resolve(content.id);
               }
-            }));
-          }
-        }), 1000);
+            }
+          }));
+        }
       }));
       
       this.runid.then(lang.hitch(this, 'showOrderForm'));
