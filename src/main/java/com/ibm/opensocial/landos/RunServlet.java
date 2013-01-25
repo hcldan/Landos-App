@@ -97,7 +97,7 @@ public class RunServlet extends BaseServlet {
     try {
       // Check admin status.
       try {
-        if (!isAdmin(req)) {
+        if (!isAdmin(req, getUser(req))) {
           res.setStatus(403);
           writer.key("error").value("Not authorized").endObject();
           return;
@@ -182,7 +182,7 @@ public class RunServlet extends BaseServlet {
     try { 
       // Check admin status.
       try {
-        if (!isAdmin(req)) {
+        if (!isAdmin(req, getUser(req))) {
           res.setStatus(403);
           writer.key("error").value("Not authorized").endObject();
           return;

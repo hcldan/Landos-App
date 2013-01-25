@@ -31,6 +31,7 @@ public class SubscribeServlet extends BaseServlet {
       writer.object()
         .key("id").value(getActionUser(req))
         .key("subscribed").value(isSubscribed(req))
+        .key("admin").value(isAdmin(req, getActionUser(req)))
       .endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage(), e);

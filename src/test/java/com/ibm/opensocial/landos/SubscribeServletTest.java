@@ -1,5 +1,8 @@
 package com.ibm.opensocial.landos;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
@@ -14,6 +17,7 @@ import javax.sql.DataSource;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.easymock.IMocksControl;
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +31,7 @@ public class SubscribeServletTest extends EasyMock {
   private SubscribeServlet servlet;
   private IMocksControl control;
   private Connection connection;
+  private Connection authconnection;
   private DataSource source;
   private Map<String, Object> attributes;
   private HttpServletRequest req;
@@ -54,57 +59,63 @@ public class SubscribeServletTest extends EasyMock {
   @Test
   public void testDoGetUserSubscribedNoPath() throws Exception {
     req = TestControlUtils.mockRequest(control, attributes, source, "");
+    expectIsAdmin(req, "", false);
+    connection.close(); expectLastCall().once();
     
     control.replay();
     servlet.doGet(req, resp);
     control.verify();
     
-    assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false}", output.toString());
+    assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false,\"admin\":false}", output.toString());
   }
   
   @Test
   public void testDoGetUserSubscribedRootPath() throws Exception {
     req = TestControlUtils.mockRequest(control, attributes, source, "/");
+    expectIsAdmin(req, "", false);
+    connection.close(); expectLastCall().once();
     
     control.replay();
     servlet.doGet(req, resp);
     control.verify();
     
-    assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false}", output.toString());
+    assertEquals("Verify servlet output", "{\"id\":\"\",\"subscribed\":false,\"admin\":false}", output.toString());
   }
   
   @Test
   public void testDoGetUserSubscribed() throws Exception {
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    expectIsAdmin(req, TEST_USER, true);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
     ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(stmt, query, result, TEST_USER, true);
-    connection.close(); expectLastCall().once();
+    connection.close(); expectLastCall().times(2);
 
     control.replay();
     servlet.doGet(req, resp);
     control.verify();
     
-    assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":true}", output.toString());
+    assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":true,\"admin\":true}", output.toString());
   }
   
   @Test
   public void testDoGetUserUnsubscribed() throws Exception {
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + TEST_USER);
+    expectIsAdmin(req, TEST_USER, false);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     Capture<String> query = new Capture<String>(); 
     ResultSet result = control.createMock(ResultSet.class);
     
     expectIsSubscribed(stmt, query, result, TEST_USER, false);
-    connection.close(); expectLastCall().once();
+    connection.close(); expectLastCall().times(2);
 
     control.replay();
     servlet.doGet(req, resp);
     control.verify();
     
-    assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":false}", output.toString());
+    assertEquals("Verify servlet output", "{\"id\":\"" + TEST_USER + "\",\"subscribed\":false,\"admin\":false}", output.toString());
   }
   
   @Test
@@ -243,6 +254,17 @@ public class SubscribeServletTest extends EasyMock {
     
     expect(result.first()).andReturn(true).once();
     expect(result.getInt(1)).andReturn(isUserSubscribed ? 1 : 0).times(0, 1);
+  }
+  
+  private void expectIsAdmin(HttpServletRequest req, String user, boolean isAdmin) throws Exception {
+    PreparedStatement authstmt = control.createMock(PreparedStatement.class);
+    ResultSet authres = control.createMock(ResultSet.class);
+    expect(connection.prepareStatement("SELECT * FROM `subscribed` WHERE `user`=? AND `admin`=1")).andReturn(authstmt).once();
+    authstmt.setString(1, user); expectLastCall().once();
+    expect(authstmt.executeQuery()).andReturn(authres).once();
+    expect(authres.first()).andReturn(isAdmin).once();
+    authres.close(); expectLastCall().once();
+    authstmt.close(); expectLastCall().once();
   }
 }
 

@@ -183,7 +183,7 @@ public class BaseServlet extends HttpServlet {
    * @param user 
    * @return true if the user is an admin.
    */
-  protected boolean isAdmin(HttpServletRequest req) throws SQLException {
+  protected boolean isAdmin(HttpServletRequest req, String user) throws SQLException {
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet results = null;
@@ -192,7 +192,7 @@ public class BaseServlet extends HttpServlet {
     try {
       conn = getDataSource(req).getConnection();
       stmt = conn.prepareStatement("SELECT * FROM `subscribed` WHERE `user`=? AND `admin`=1");
-      stmt.setString(1, getUser(req));
+      stmt.setString(1, user);
       results = stmt.executeQuery();
       if (results.first())
         isAdmin = true;
