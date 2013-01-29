@@ -9,6 +9,10 @@ define([
   return declare(LazyContainer, {
     title: 'Run Summary',
     
+    constructor: function(runid) {
+      
+    },
+    
     getRealTemplateString: function() {
       var def = new Deferred();
       require([  
@@ -21,5 +25,6 @@ define([
         );
       });
       return def.promise;
-    },
+    }
+  });
 })
