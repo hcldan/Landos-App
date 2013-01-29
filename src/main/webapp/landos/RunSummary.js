@@ -10,6 +10,7 @@ define([
   return declare(LazyContainer, {
     title: 'Run Summary',
     runid: undef,
+    store: undef,
     
     // private
     _timout: undef,
@@ -23,9 +24,22 @@ define([
     
     postCreate: function() {
       this.inherited(arguments);
-      
+
       if(this._loaded) {
-        require(['dojo/on', 'dojo/dom-geometry'], lang.hitch(this, function(on, domGeom) {
+        var busy = new Deferred();
+        this.busy(busy.promise);
+        require([
+          'dojo/on',
+          'dojo/dom-geometry',
+          'dojo/store/Memory',
+          'dojo/data/ObjectStore',
+          'dojo/store/Observable'
+        ], lang.hitch(this, function(on, domGeom, MemoryStore, ObjectStore, Observable) {
+          if (!this.store) {
+            this.store = Observable(new MemoryStore({data: []}));
+          }
+          this.grid.setStore(new ObjectStore({objectStore: this.store}), '*');
+          
           on(window, 'resize', lang.hitch(this, function(event) {
             if (!this._timeout) {
               this._timeout = setTimeout(lang.hitch(this, function() {
@@ -36,6 +50,7 @@ define([
               }), 50);
             }
           }));
+          busy.resolve();
         }));
       }
     },
@@ -43,7 +58,8 @@ define([
     getRealTemplateString: function() {
       var def = new Deferred();
       require([  
-        'dojox/grid/DataGrid'
+        'dojox/grid/DataGrid',
+        'landos/LoadingPanel'
       ], function() {
         def.resolve(
             '<div data-dojo-attach-point="containerNode" class="noscroll">'
@@ -58,6 +74,7 @@ define([
           +       '</thead>'
           +     '</table>'
           +   '</div>'
+          +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="_loading_cover"></div>'
           + '</div>'
         );
       });

@@ -90,9 +90,7 @@ define([
     busy: function(deferred) {
       if (deferred) {
         if (this._busy && !this._busy.isFulfilled()) {
-          var oldd = this._busy,
-              newd = this._busy = new Deferred();
-          oldd.then(function(v) { newd.resolve(v); }).otherwise(function(e) { newd.reject(e); });
+          this._busy = new DeferredList([this._busy, deferred]);
         } else {
           this._busy = deferred;
         }
@@ -103,8 +101,10 @@ define([
     }, 
     
     _isLoaded: function() {
-      if (this.busy().isResolved())
+      if (this._busy && this._busy.isResolved()) {
+        delete this._busy;
         this._loading_cover.hide();
+      }
     }
   });
   
