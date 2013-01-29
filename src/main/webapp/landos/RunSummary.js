@@ -67,7 +67,7 @@ define([
           +     '<table data-dojo-attach-point="_grid" data-dojo-type="dojox/grid/DataGrid">'
           +       '<thead>'
           +         '<tr>'
-          +           '<th field="displayItem">Item</th>'
+          +           '<th field="displayItem" width="auto">Item</th>'
           +           '<th field="who" width="200px">For</th>'
           +           '<th field="paid" cellType="dojox.grid.cells.Bool" width="75px">Paid</th>'
           +         '</tr>'
