@@ -38,7 +38,7 @@ define([
           if (!this.store) {
             this.store = Observable(new MemoryStore({data: []}));
           }
-          this.grid.setStore(new ObjectStore({objectStore: this.store}), '*');
+          this._grid.setStore(new ObjectStore({objectStore: this.store}), '*');
           
           on(window, 'resize', lang.hitch(this, function(event) {
             if (!this._timeout) {
