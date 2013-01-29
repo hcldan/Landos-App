@@ -55,6 +55,7 @@
 	overflow: auto;
 }
 
-.dijitTabContainerTop-container {
-	
+.grid-container {
+	height: 100%;
+	width: 100%;
 }
