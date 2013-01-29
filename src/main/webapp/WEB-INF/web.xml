@@ -74,6 +74,10 @@
       <param-value>access plus 0 seconds</param-value>
     </init-param>
     <init-param>
+      <param-name>ExpiresByType text/xml</param-name>
+      <param-value>access plus 0 seconds</param-value>
+    </init-param>
+    <init-param>
       <param-name>ExpiresByType application/javascript</param-name>
       <param-value>access plus 0 seconds</param-value>
     </init-param>
