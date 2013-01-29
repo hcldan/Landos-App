@@ -67,7 +67,7 @@ define([
               href: landos.getAPIUri('data') 
             }, params)))
             .add('subscribe', osapi.http.get(lang.mixin({
-              href: landos.getAPIUri('subscribe')  + '/' + encodeURIComponent(viewer)
+              href: landos.getAPIUri('subscribe')  + encodeURIComponent(viewer)
             }, params)));
     
         landos.processOSAPIBatchResponse(batch, onData);
