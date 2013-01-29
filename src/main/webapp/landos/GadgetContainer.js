@@ -53,7 +53,7 @@ define([
         require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
           this.adminStatus.then(lang.hitch(this, function(isAdmin) {
             if (isAdmin) {
-              this.tabs.addChild(new CreateRunPane());
+              this.tabs.addChild(new CreateRunPane(), this.tabs.getChildren().length);
             }
           }));
         }));
@@ -97,7 +97,7 @@ define([
         this.adminStatus.then(lang.hitch(this, function(isAdmin) {
           if (isAdmin) {
             require(['landos/RunSummary'], lang.hitch(this, function(RunSummary) {
-              this.tabs.addChild(new RunSummary(runid));
+              this.tabs.addChild(new RunSummary(runid), Math.min(2, this.tabs.getChildren().length));
             }));
           }
         }));
@@ -111,7 +111,7 @@ define([
         this.tabs.addChild(new CreateOrderPane({
           runid: runid,
           disabled: this.runExpired
-        }));
+        }), 1);
       }));
     }
   });
