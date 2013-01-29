@@ -38,7 +38,7 @@ define([
           if (!this.store) {
             this.store = Observable(new MemoryStore({data: []}));
           }
-          this._grid.setStore(new ObjectStore({objectStore: this.store}), '*');
+          this._grid.setStore(new ObjectStore({objectStore: this.store}));
           
           on(window, 'resize', lang.hitch(this, function(event) {
             if (!this._timeout) {
@@ -69,7 +69,7 @@ define([
           +         '<tr>'
           +           '<th field="displayItem" width="auto">Item</th>'
           +           '<th field="who" width="200px">For</th>'
-          +           '<th field="paid" cellType="dojox.grid.cells.Bool" width="75px">Paid</th>'
+          +           '<th field="paid" width="75px">Paid</th>'
           +         '</tr>'
           +       '</thead>'
           +     '</table>'
