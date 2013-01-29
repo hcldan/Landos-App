@@ -43,7 +43,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  padding: 85px 5px 5px 5px; 
+  padding: 85px 5px 5px 5px;
+  overflow: hidden;
 }
 
 .dijitTabContainerTop-child {
