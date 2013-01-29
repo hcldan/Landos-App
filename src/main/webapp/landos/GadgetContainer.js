@@ -53,6 +53,9 @@ define([
         require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
           this.adminStatus.then(lang.hitch(this, function(isAdmin) {
             if (isAdmin) {
+              this.runid.then(lang.hitch(this, function(runid) {
+                this.tabs.addChild(new CreateRunPane(runid));
+              }));
               this.tabs.addChild(new CreateRunPane());
             }
           }));
@@ -93,7 +96,14 @@ define([
         }
       }));
       
-      this.runid.then(lang.hitch(this, 'showOrderForm'));
+      this.runid.then(lang.hitch(this, function(runid) {
+        this.adminStatus.then(lang.hitch(this, function(isAdmin) {
+          if (isAdmin) {
+              this.tabs.addChild(new CreateRunPane(runid));
+          }
+        }));
+        this.showOrderForm(runid);
+      }));
     },
     
     showOrderForm: function(runid) {
