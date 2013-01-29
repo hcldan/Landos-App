@@ -4,13 +4,15 @@ define([
   'dojo/_base/lang',
   'dojo/_base/declare',
   'landos/base/LazyContainer',
-  'dojo/Deferred'
-], function(require, landos, lang, declare, LazyContainer, Deferred, on) {
+  'dojo/Deferred',
+  'dojo/store/Memory',
+  'dojo/store/Observable'
+], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable) {
   var undef;
   return declare(LazyContainer, {
     title: 'Run Summary',
     runid: undef,
-    store: undef,
+    store: Observable(new MemoryStore({data: []})),
     
     // private
     _timout: undef,
@@ -31,15 +33,9 @@ define([
         require([
           'dojo/on',
           'dojo/dom-geometry',
-          'dojo/store/Memory',
-          'dojo/data/ObjectStore',
-          'dojo/store/Observable'
-        ], lang.hitch(this, function(on, domGeom, MemoryStore, ObjectStore, Observable) {
-          if (!this.store) {
-            this.store = Observable(new MemoryStore({data: []}));
-          }
+          'dojo/data/ObjectStore'
+        ], lang.hitch(this, function(on, domGeom, ObjectStore) {
           this._grid.setStore(new ObjectStore({objectStore: this.store}));
-          
           on(window, 'resize', lang.hitch(this, function(event) {
             if (!this._timeout) {
               this._timeout = setTimeout(lang.hitch(this, function() {
@@ -57,7 +53,7 @@ define([
     
     getRealTemplateString: function() {
       var def = new Deferred();
-      require([  
+      require([
         'dojox/grid/DataGrid',
         'landos/LoadingPanel'
       ], function() {
@@ -79,6 +75,19 @@ define([
         );
       });
       return def.promise;
+    },
+    
+    onShow: function() {
+      this.inherited(arguments);
+      
+      var url = landos.getAPIUri('orders') + this.runid;
+      osapi.http.get({format: 'json', href: url}).execute(lang.hitch(this, function (res) {
+        if (res.status === 200 && !res.content.error) {
+          console.dir(res.content)
+        } else {
+          console.error(res);
+        }
+      }));
     }
   });
 })
