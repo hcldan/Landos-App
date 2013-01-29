@@ -90,12 +90,20 @@ define([
     busy: function(deferred) {
       if (deferred) {
         if (this._busy && !this._busy.isFulfilled()) {
-          this._busy = new DeferredList([this._busy, deferred]);
+          var newbusy = new Deferred();
+          new DeferredList([this._busy, deferred]).then(function(v) { newbusy.resolve(v); }).otherwise(function(e) { 
+            console.error(e);
+            newbusy.resolve(e);
+          });
+          this._busy = newbusy;
         } else {
           this._busy = deferred;
         }
         this._loading_cover.show();
-        this._busy.then(lang.hitch(this, this._isLoaded)).otherwise(lang.hitch(this, this._isLoaded));
+        this._busy.then(lang.hitch(this, this._isLoaded)).otherwise(lang.hitch(this, function(e) {
+          console.error(e);
+          this._isLoaded();
+        }));
       }
       return this._busy;
     }, 
