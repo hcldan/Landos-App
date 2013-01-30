@@ -21,7 +21,7 @@ public class OrdersServlet extends BaseServlet {
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
   
   /**
-   * GET /orders/<runid>[?user=<user>[&item=<bar>]]
+   * GET /orders/<runid>[/orderid][?user=<user>]
    * @throws IOException 
    */
   @Override
@@ -135,7 +135,7 @@ public class OrdersServlet extends BaseServlet {
   }
   
   /**
-   * PUT /orders/<runid>?user=<user>&item=<item>&price=<price>[&size=<size>][&qty=<qty>][&comments=<comments>]
+   * PUT /orders/<runid>?user=<user>&item=<item>&price=<price>[&size=<size>][&comments=<comments>]
    * @throws IOException 
    */
   @Override
