@@ -80,7 +80,7 @@ define([
     _fetchNewData: function() {
       if (this._dataTimeout)
         clearTimeout(this._dataTimeout);
-      if (new Date().getTime() < run.end)
+      if (new Date().getTime() < this.run.end)
         this._dataTimeout = setTimeout(lang.hitch(this, '_fetchNewData'), 10000);
       
       var url = landos.getAPIUri('orders') + this.run.id;
@@ -148,12 +148,12 @@ define([
         this._grid.set('structure', structure);
         this._grid.set('store', new ObjectStore({objectStore: this.store}));
         
-        if (new Date().getTime() > run.end) {
+        if (new Date().getTime() > this.run.end) {
           this._grid.set('disabled', true);
         } else {
           setTimeout(lang.hitch(this, function() {
             this._grid.set('disabled', true);
-          }), run.end - 10000 - new Date().getTime());
+          }), this.run.end - 10000 - new Date().getTime());
         }
         
         this._grid.update();
