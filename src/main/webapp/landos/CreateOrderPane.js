@@ -89,6 +89,11 @@ define([
         values.user = id;
         values.item = this.item.getDisplayedValue();
         values.price = (Number(values.price) * 100).toFixed(0);
+        if (!values.comments)
+          delete values.comments;
+        if (!values.size)
+          delete values.size;
+        
         // Construct url
         var url = landos.getAPIUri('orders') + this.runid + '?' + ioQuery.objectToQuery(values);
         
