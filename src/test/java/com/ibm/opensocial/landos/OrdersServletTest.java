@@ -1,12 +1,14 @@
 package com.ibm.opensocial.landos;
 
 import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Maps;
 
+import org.apache.wink.json4j.JSONWriter;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Before;
@@ -35,7 +37,6 @@ public class OrdersServletTest {
   private final int uid = 101;
   private final String[] items = { "Pizza", "Soda" };
   private final String[] sizes = { "", "Small" };
-  private final int[] qties = { 1, 2 };
   private final int[] prices = { 500, 150 };
   private final String[] comments = { "Foo", "Bar" };
 
@@ -56,7 +57,6 @@ public class OrdersServletTest {
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
     expect(req.getParameter("user")).andReturn(null).once();
-    expect(req.getParameter("item")).andReturn(null).once();
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt);
     stmt.setInt(1, rid);
@@ -65,11 +65,11 @@ public class OrdersServletTest {
     expect(stmt.executeQuery()).andReturn(results).once();
     for (int i = 0; i < 2; i++) {
       expect(results.next()).andReturn(true).once();
-      expect(results.getInt(1)).andReturn(rid).once();
-      expect(results.getString(2)).andReturn("" + uid).once();
-      expect(results.getString(3)).andReturn(items[i]).once();
-      expect(results.getString(4)).andReturn(sizes[i]).once();
-      expect(results.getInt(5)).andReturn(qties[i]).once();
+      expect(results.getInt(1)).andReturn(i).once();
+      expect(results.getInt(2)).andReturn(rid).once();
+      expect(results.getString(3)).andReturn("" + uid).once();
+      expect(results.getString(4)).andReturn(items[i]).once();
+      expect(results.getString(5)).andReturn(sizes[i]).once();
       expect(results.getInt(6)).andReturn(prices[i]).once();
       expect(results.getString(7)).andReturn(comments[i]).once();
     }
@@ -79,12 +79,22 @@ public class OrdersServletTest {
     control.replay();
     servlet.doGet(req, res);
     control.verify();
-    assertEquals("[{\"rid\":" + rid + ",\"user\":\"" + uid + "\",\"item\":\"" + items[0]
-            + "\",\"size\":\"" + sizes[0] + "\",\"qty\":" + qties[0] + ",\"price\":" + prices[0]
-            + ",\"comments\":\"" + comments[0] + "\"},{\"rid\":" + rid + ",\"user\":\"" + uid
-            + "\",\"item\":\"" + items[1] + "\",\"size\":\"" + sizes[1] + "\",\"qty\":" + qties[1]
-            + ",\"price\":" + prices[1] + ",\"comments\":\"" + comments[1] + "\"}]",
-            output.toString());
+    StringWriter sw = new StringWriter();
+    JSONWriter writer = new JSONWriter(sw);
+    writer.array();
+    for (int i = 0; i < 2; i++) {
+      writer.object()
+        .key("id").value(i)
+        .key("rid").value(rid)
+        .key("user").value(Integer.toString(uid, 10))
+        .key("item").value(items[i])
+        .key("size").value(sizes[i])
+        .key("price").value(prices[i])
+        .key("comments").value(comments[i])
+      .endObject();
+    }
+    writer.endArray().flush();
+    assertEquals("Unexpected servlet output.", sw.toString(), output.toString());
   }
 
   @Test
@@ -114,36 +124,45 @@ public class OrdersServletTest {
   public void testPutOrder() throws Exception {
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
-    expect(req.getParameter("user")).andReturn("" + uid).once();
+    expect(req.getParameter("user")).andReturn(Integer.toString(uid, 10)).once();
     expect(req.getParameter("item")).andReturn(items[0]).once();
     expect(req.getParameter("price")).andReturn("" + prices[0]).once();
     expect(req.getParameter("size")).andReturn(sizes[0]).once();
     expect(req.getParameter("comments")).andReturn(comments[0]).once();
-    expect(req.getParameter("qty")).andReturn("" + qties[0]);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
-    expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
-    stmt.setInt(1, rid);
-    expectLastCall().once();
-    stmt.setString(2, "" + uid);
-    expectLastCall().once();
-    stmt.setString(3, items[0]);
-    expectLastCall().once();
-    stmt.setString(4, sizes[0]);
-    expectLastCall().once();
-    stmt.setInt(5, qties[0]);
-    expectLastCall().once();
-    stmt.setInt(6, prices[0]);
-    expectLastCall().once();
-    stmt.setString(7, comments[0]);
-    expectLastCall().once();
+    expect(conn.prepareStatement(anyObject(String.class), eq(PreparedStatement.RETURN_GENERATED_KEYS))).andReturn(stmt).once();
+    stmt.setInt(1, rid); expectLastCall().once();
+    stmt.setString(2, Integer.toString(uid, 10)); expectLastCall().once();
+    stmt.setString(3, items[0]); expectLastCall().once();
+    stmt.setString(4, sizes[0]); expectLastCall().once();
+    stmt.setInt(5, prices[0]); expectLastCall().once();
+    stmt.setString(6, comments[0]); expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1).once();
 
+    ResultSet result = control.createMock(ResultSet.class);
+    expect(stmt.getGeneratedKeys()).andReturn(result).once();
+    expect(result.first()).andReturn(true).once();
+    expect(result.getInt(1)).andReturn(1).once();
+    result.close(); expectLastCall().once();
+    stmt.close(); expectLastCall().once();
+    
     // Run test
     control.replay();
     servlet.doPut(req, res);
     control.verify();
-    assertEquals("{\"rid\":" + rid + ",\"user\":\"" + uid + "\",\"item\":\"" + items[0]
-            + "\",\"size\":\"" + sizes[0] + "\",\"qty\":" + qties[0] + ",\"price\":" + prices[0]
-            + ",\"comments\":\"" + comments[0] + "\"}", output.toString());
+    
+    StringWriter sw = new StringWriter();
+    JSONWriter writer = new JSONWriter(sw);
+    writer.object()
+      .key("id").value(1)
+      .key("rid").value(rid)
+      .key("user").value(Integer.toString(uid, 10))
+      .key("item").value(items[0])
+      .key("size").value(sizes[0])
+      .key("price").value(prices[0])
+      .key("comments").value(comments[0])
+    .endObject().flush();
+      
+    assertEquals("Unexpected servlet output.", sw.toString(), output.toString());
   }
 }
