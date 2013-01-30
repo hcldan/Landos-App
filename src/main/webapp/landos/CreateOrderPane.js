@@ -7,8 +7,9 @@ define([
   'dojo/html',
   'dojo/Deferred',
   'dojo/on',
-  'dijit/Dialog'
-], function(require, landos, lang, declare, LazyContainer, html, Deferred, on, Dialog) {
+  'dijit/Dialog',
+  'dojo/io-query'
+], function(require, landos, lang, declare, LazyContainer, html, Deferred, on, Dialog, ioQuery) {
   
   return declare(LazyContainer, {
     title: 'Place Order',
@@ -39,23 +40,19 @@ define([
               +     '<table>'
               +       '<tr>'
               +         '<td><label for="item">Item:</label></td>'
-              +         '<td><div id="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div></td>'
+              +         '<td><div id="item" name="item" data-dojo-type="landos/FilteringSelect" data-dojo-attach-point="item"></div></td>'
               +       '</tr>'
               +       '<tr>'
               +         '<td><label for="size">Size:</label></td>'
-              +         '<td><input id="size" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="size" /></td>'
-              +       '</tr>'
-              +       '<tr>'
-              +         '<td><label for="qty">Quantity:</label></td>'
-              +         '<td><input id="qty" type="text" data-dojo-type="dijit/form/NumberSpinner" data-dojo-attach-point="qty" data-dojo-props="constraints: {min: 1}" value="1" /></td>'
+              +         '<td><input id="size" name="size" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="size" /></td>'
               +       '</tr>'
               +       '<tr>'
               +         '<td><label for="price">Price:</label></td>'
-              +         '<td><input id="price" type="text" data-dojo-type="dijit/form/CurrencyTextBox" data-dojo-attach-point="price" required /></td>'
+              +         '<td><input id="price" name="price" type="text" data-dojo-type="dijit/form/CurrencyTextBox" data-dojo-attach-point="price" required /></td>'
               +       '</tr>'
               +       '<tr>'
               +         '<td><label for="comments">Comments:</label></td>'
-              +         '<td><input id="comments" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="comments" /></td>'
+              +         '<td><input id="comments" name="comments" type="text" data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="comments" /></td>'
               +       '</tr>'
               +       '<tr><td><input type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="submit" label="Create" /></td></tr>'
               +   '</form>'
@@ -84,22 +81,16 @@ define([
         this.form.validate();
         return false;
       }
-
+      
+      var values = this.form.getValues();
+      
       // Defer request until username is known (use viewer promise)
       landos.getViewer().then(lang.hitch(this, function (id) {
-        // Encode username
-        var user = encodeURIComponent(id);
-        // Get and correct price
-        var price = +(this.price.get('value') * 100).toFixed(0);
+        values.user = id;
+        values.price = (Number(values.price) * 100).toFixed(0);
         // Construct url
-        var url = landos.getAPIUri('orders') + this.runid + '?user=' + user;
-        url += '&item=' + encodeURIComponent(this.item.get('value'));
-        url += '&price=' + price;
-        if (this.size.get('value')) url += '&size=' + encodeURIComponent(this.size.get('value'));
-        if (this.qty.get('value')) url += '&qty=' + encodeURIComponent(this.qty.get('value'));
-        if (this.comments.get('value')) url += '&comments=' + encodeURIComponent(this.comments.get('value'));
-        // Put to url
-        console.log(url);
+        var url = landos.getAPIUri('orders') + this.runid + '?' + ioQuery.objectToQuery(values);
+        
         osapi.http.put({format: 'json', href: url}).execute(lang.hitch(this, function (res) {
           if (res.status === 200 && !res.content.error) {
             new Dialog({
