@@ -87,6 +87,7 @@ define([
       // Defer request until username is known (use viewer promise)
       landos.getViewer().then(lang.hitch(this, function (id) {
         values.user = id;
+        values.item = this.item.getDisplayedValue();
         values.price = (Number(values.price) * 100).toFixed(0);
         // Construct url
         var url = landos.getAPIUri('orders') + this.runid + '?' + ioQuery.objectToQuery(values);
