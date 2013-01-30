@@ -23,7 +23,7 @@ define([
         
     getRealTemplateString: function() {
       var def = new Deferred();
-      osapi.http.get({format: 'json', href: landos.getAPIUri('run') + this.runid}).execute(lang.hitch(this, function (res) {
+      osapi.http.get({format: 'json', href: landos.getAPIUri('run') + this.run.id}).execute(lang.hitch(this, function (res) {
         if (res.status === 200 && !res.content.error) {
           // Run exists
           require([  
@@ -35,7 +35,7 @@ define([
           ], function() {
             def.resolve(
                 '<div data-dojo-attach-point="containerNode">'
-              +   '<p>Placing an order for run ${runid}.</p>'
+              +   '<p>Placing an order for run ${run.id}.</p>'
               +   '<form data-dojo-type="dijit/form/Form" data-dojo-attach-point="form">'
               +     '<table>'
               +       '<tr>'
@@ -95,7 +95,7 @@ define([
           delete values.size;
         
         // Construct url
-        var url = landos.getAPIUri('orders') + this.runid + '?' + ioQuery.objectToQuery(values);
+        var url = landos.getAPIUri('orders') + this.run.id + '?' + ioQuery.objectToQuery(values);
         
         osapi.http.put({format: 'json', href: url}).execute(lang.hitch(this, function (res) {
           if (res.status === 200 && !res.content.error) {

@@ -12,7 +12,7 @@ define([
   var undef;
   return declare(LazyContainer, {
     title: 'Run Summary',
-    runid: undef,
+    run: undef,
     store: Observable(new MemoryStore({data: []})),
     
     // private
@@ -21,8 +21,8 @@ define([
     // Attached via template
     _grid: undef,
     
-    constructor: function(runid) {
-      this.runid = runid;
+    constructor: function(run) {
+      this.run = run;
     },
     
     postCreate: function() {
@@ -80,9 +80,10 @@ define([
     _fetchNewData: function() {
       if (this._dataTimeout)
         clearTimeout(this._dataTimeout);
-      this._dataTimeout = setTimeout(lang.hitch(this, '_fetchNewData'), 10000);
+      if (new Date().getTime() < run.end)
+        this._dataTimeout = setTimeout(lang.hitch(this, '_fetchNewData'), 10000);
       
-      var url = landos.getAPIUri('orders') + this.runid;
+      var url = landos.getAPIUri('orders') + this.run.id;
       osapi.http.get({format: 'json', href: url}).execute(lang.hitch(this, function (res) {
         if (res.status === 200 && !res.content.error) {
           var data = res.content,
@@ -146,6 +147,15 @@ define([
         columns[5].formatter = lang.hitch(this, '_formatPaid');
         this._grid.set('structure', structure);
         this._grid.set('store', new ObjectStore({objectStore: this.store}));
+        
+        if (new Date().getTime() > run.end) {
+          this._grid.set('disabled', true);
+        } else {
+          setTimeout(lang.hitch(this, function() {
+            this._grid.set('disabled', true);
+          }), run.end - 10000 - new Date().getTime());
+        }
+        
         this._grid.update();
         this._grid.render();
       }));

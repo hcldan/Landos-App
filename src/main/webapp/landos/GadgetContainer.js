@@ -24,10 +24,8 @@ define([
       +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
       + '</div>',
     
-    /** {boolean} If the runid resolved is expired or not.  Make sure to set before resolving the runid. */
-    runExpired: false,
-    /** {dojo/Deferred<string>} deferred containing the runid */
-    runid: new Deferred(),
+    /** {dojo/Deferred<Object>} deferred containing the run info */
+    run: new Deferred(),
     
     
     /** {dojo/Deferred<boolean>} deferred containing the admin status of the user. */
@@ -77,27 +75,24 @@ define([
           // Listen for EE context (which should come pretty fast after rendering the gadget).
           opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
             var data = opensocial.data.getDataContext().getDataSet(key);
-            this.runExpired = new Date().getTime() > data.end;
-            this.runid.resolve(data.id);
+            this.run.resolve(data);
           }));
         } else {
           // No EE context, so ask the server if there is a current run.
           osapi.http.get({format: 'json', href: landos.getAPIUri('run')}).execute(lang.hitch(this, function (res) {
             var content = res.content;
             if (res.status === 200 && content.id) {
-              if (content.id) {
-                this.runid.resolve(content.id);
-              }
+              this.run.resolve(content);
             }
           }));
         }
       }));
       
-      this.runid.then(lang.hitch(this, function(runid) {
+      this.run.then(lang.hitch(this, function(run) {
         this.adminStatus.then(lang.hitch(this, function(isAdmin) {
           if (isAdmin) {
             require(['landos/RunSummary'], lang.hitch(this, function(RunSummary) {
-              this.tabs.addChild(new RunSummary(runid), Math.min(2, this.tabs.getChildren().length));
+              this.tabs.addChild(new RunSummary(run), Math.min(2, this.tabs.getChildren().length));
             }));
           }
         }));
@@ -105,12 +100,12 @@ define([
       }));
     },
     
-    showOrderForm: function(runid) {
-      html.set(this.runpara, 'Viewing run ' + runid + '.');
+    showOrderForm: function(run) {
+      html.set(this.runpara, 'Viewing run ' + run.id + '.');
       require(['landos/CreateOrderPane'], lang.hitch(this, function(CreateOrderPane) {
         this.tabs.addChild(new CreateOrderPane({
-          runid: runid,
-          disabled: this.runExpired
+          run: run,
+          disabled: new Date().getTime() > run.end
         }), 1);
       }));
     }
