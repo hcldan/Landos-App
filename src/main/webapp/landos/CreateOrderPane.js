@@ -72,8 +72,13 @@ define([
     postCreate: function () {
       this.inherited(arguments);
       
-      if (this._loaded && this.submit)
+      if (this._loaded && this.submit) {
+        setTimeout(lang.hitch(this, function() {
+          this.set('disabled', true);
+        }), this.run.end - 10000 - new Date().getTime());
+        
         on(this.submit, 'click', lang.hitch(this, '_onSubmit'));
+      }
     },
     
     _onSubmit: function () {
