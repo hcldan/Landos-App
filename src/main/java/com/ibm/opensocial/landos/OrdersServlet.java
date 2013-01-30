@@ -142,6 +142,8 @@ public class OrdersServlet extends BaseServlet {
   public void doPut(HttpServletRequest req, HttpServletResponse res) throws IOException {
     // Set headers
     setCacheAndTypeHeaders(res);
+    // Get the order id
+    String order = getPathSegment(req, 1);
     
     // Get required parameters
     String run = getPathSegment(req, 0);
@@ -173,8 +175,17 @@ public class OrdersServlet extends BaseServlet {
     PreparedStatement stmt = null;
     ResultSet result = null;
     
+    boolean hasOrderId = !Strings.isNullOrEmpty(order);
     // Query
-    String query = "INSERT INTO `orders` SET `rid`=?, `user`=?, `item`=?, `size`=?, `price`=?, `comments`=?";
+    StringBuilder query = new StringBuilder("INSERT INTO `orders` ");
+    query.append("(`rid`,`user`,`item`,`size`,`price`,`comments`").append(!hasOrderId ? ") " : ",`id`) ");
+    query.append("VALUES (?,?,?,?,?,?");
+    if (!hasOrderId) {
+      query.append(") "); 
+    } else {
+      query.append(",`id`) ON DUPLICATE KEY UPDATE ")
+      .append("`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`)");
+    }
     
     try {
       // Prepare variables
@@ -183,19 +194,24 @@ public class OrdersServlet extends BaseServlet {
       
       // Insert into database
       conn = getDataSource(req).getConnection();
-      stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+      stmt = conn.prepareStatement(query.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
       stmt.setInt(1, rid);
       stmt.setString(2, user);
       stmt.setString(3, item);
       stmt.setString(4, size);
       stmt.setInt(5, cents);
       stmt.setString(6, comments);
-      stmt.executeUpdate();
-      result = stmt.getGeneratedKeys();
+      
+      int affected = stmt.executeUpdate();
+      if (!hasOrderId) {
+        result = stmt.getGeneratedKeys();
+        result.first();
+        order = Integer.toString(result.getInt(1), 10);
+      }
       
       // Write back
-      if (result.first()) {
-        writeJSONObjectOrder(writer, result.getInt(1), rid, user, item, size, cents, comments);
+      if (affected > 0 && !Strings.isNullOrEmpty(order)) {
+        writeJSONObjectOrder(writer, Integer.valueOf(order, 10), rid, user, item, size, cents, comments);
       } else {
         writer.object()
           .key("error").value("Did not insert order.")
