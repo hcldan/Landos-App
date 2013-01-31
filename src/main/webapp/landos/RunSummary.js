@@ -103,7 +103,7 @@ define([
           // Delete local items that were not in the freshly fetched data (remotely deleted)
           for(var item in existing) {
             if (existing.hasOwnProperty(item))
-              this.store.remove(item.id);
+              this.store.remove(item);
           }
           
           // Refresh the grid
