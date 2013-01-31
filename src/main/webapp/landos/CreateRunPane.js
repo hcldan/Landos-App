@@ -61,6 +61,7 @@ define([
           +       '</tr>'
           +     '</table>'
           +   '</form>'
+          +   '<div data-dojo-type="landos/LoadingPanel" data-dojo-attach-point="_loading_cover"></div>'
           + '</div>'      
         );
       });
