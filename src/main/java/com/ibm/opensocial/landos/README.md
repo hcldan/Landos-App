@@ -87,7 +87,7 @@ Returns `application/json`. Should include all run parameters, or an error if th
 
 # Orders Servlet
 ## Creating an order
-### PUT /orders/&lt;runid&gt;?user=&lt;user&gt;&item=&lt;item&gt;&price=&lt;price&gt;[&size=&lt;size&gt;][&qty=&lt;qty&gt;][&comments=&lt;comments&gt;]
+### PUT /orders/&lt;runid&gt;?user=&lt;user&gt;&item=&lt;item&gt;&price=&lt;price&gt;[&size=&lt;size&gt;][&comments=&lt;comments&gt;]
 Returns `application/json`. Should include all order parameters.
 ```javascript
 {
@@ -95,21 +95,19 @@ Returns `application/json`. Should include all order parameters.
 	"user": "Ken",
 	"item": "Soda",
 	"size": null,
-	"qty": 1,
 	"price": 150,
 	"comments": null
 }
 ```
 ## Getting orders for a run
-### GET /orders/&lt;runid&gt;[?user=&lt;user&gt;[&item=&lt;bar&gt;]]
-Returns `application/json` of an array containing all matching orders. `user` and `item` are optional. Specifying `item` requires specifying `user`.
+### GET /orders/&lt;runid&gt;[/&lt;orderid&gt;][?user=&lt;user&gt;]
+Returns `application/json` of an array containing all matching orders. `user` is optional.
 ```javascript
 [{
   "rid": 12,
   "user": "Dan",
   "item": "Sub",
   "size": null,
-  "qty": 1,
   "price": 550,
   "comments": null
 }, {
@@ -117,14 +115,13 @@ Returns `application/json` of an array containing all matching orders. `user` an
   "user": "Ken",
   "item": "Pizza",
   "size": null,
-  "qty": 1,
   "price": 350,
   "comments": null
 }]
 ```
 
 ## Deleting an order in a run
-### DELETE /orders/&lt;runid&gt;?user=&lt;user&gt;&item=&lt;bar&gt;
+### DELETE /orders/&lt;runid&gt;/&lt;orderid&gt;
 Returns `application/json`. All parameters are required. Returned structure contains a key `deleted` indicating how many orders were deleted.
 ```javascript
 {
