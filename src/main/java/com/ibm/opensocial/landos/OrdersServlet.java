@@ -21,7 +21,7 @@ public class OrdersServlet extends BaseServlet {
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
   
   /**
-   * GET /orders/<runid>[/orderid][?user=<user>]
+   * GET /orders/<runid>[/<orderid>][?user=<user>]
    * @throws IOException 
    */
   @Override
@@ -29,8 +29,8 @@ public class OrdersServlet extends BaseServlet {
     // Set headers
     setCacheAndTypeHeaders(res);
     
-    // Get the run id
-    int rid = Integer.parseInt(getPathSegment(req, 0));
+    // Get the run id and order id
+    String rid = getPathSegment(req, 0);
     // Get the order id
     String order = getPathSegment(req, 1);
     
@@ -46,25 +46,23 @@ public class OrdersServlet extends BaseServlet {
     JSONWriter writer = getJSONWriter(res);
     
     // Query
-    String query = "SELECT * FROM orders WHERE rid = ?";
+    String query = "SELECT * FROM orders WHERE ";
     
     try {
       conn = getDataSource(req).getConnection();
       // Parameter control forks
       if (!Strings.isNullOrEmpty(order)) {
-        stmt = conn.prepareStatement("SELECT * FROM orders WHERE id = ?");
+        stmt = conn.prepareStatement(query + "id = ?");
         stmt.setInt(1, Integer.parseInt(order, 10));
       } else if (user == null) {
-        // Neither user nor item are set
-        stmt = conn.prepareStatement(query);
-        stmt.setInt(1, rid);
+        // User is not set
+        stmt = conn.prepareStatement(query + "rid = ?");
+        stmt.setInt(1, Integer.parseInt(rid, 10));
       } else {
         // User is set
-        query += " AND user = ?";
-        // Only user is set
-        stmt = conn.prepareStatement(query);
-        stmt.setInt(1, rid);
-        stmt.setString(2, user);
+        stmt = conn.prepareStatement(query + "rid = ? AND user = ?");
+        stmt.setInt(1, Integer.parseInt(rid, 10));
+        stmt.setInt(2, Integer.parseInt(user, 10));
       }
       // Prepared statement is now ready for execution
       results = stmt.executeQuery();
@@ -81,7 +79,7 @@ public class OrdersServlet extends BaseServlet {
   }
   
   /**
-   * DELETE /orders/<runid>?user=<user>&item=<bar>
+   * DELETE /orders/<runid>/<orderid>
    * @throws IOException 
    */
   @Override
@@ -89,17 +87,13 @@ public class OrdersServlet extends BaseServlet {
     // Set headers
     setCacheAndTypeHeaders(res);
     
-    // Get the user and item parameters
-    String user = req.getParameter("user");
-    String item = req.getParameter("item");
-    
     // Writer
     JSONWriter writer = getJSONWriter(res);
     
     // Check for required parameters
-    if (numSegments(req) < 1 || user == null || item == null) {
+    if (numSegments(req) < 2) {
       try {
-        writer.object().key("error").value("Deleting requires a run id, user id, and an item.");
+        writer.object().key("error").value("Deleting requires a run id and an order id.");
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
       } finally {
@@ -108,22 +102,21 @@ public class OrdersServlet extends BaseServlet {
       return;
     }
     
-    // Get the run id
-    int rid = Integer.parseInt(getPathSegment(req, 0));
+    // Get the run id and order id, the run id is just for verification -- the primary key is just the order id
+    String rid = getPathSegment(req, 0);
+    String order = getPathSegment(req, 1);
     
     // Prepare database variables
     Connection conn = null;
     PreparedStatement stmt = null;
     
     // Query
-    String query = "DELETE FROM orders WHERE rid = ? AND user = ? AND item = ?";
-    
+    String query = "DELETE FROM orders WHERE ";
     try {
       conn = getDataSource(req).getConnection();
-      stmt = conn.prepareStatement(query);
-      stmt.setInt(1, rid);
-      stmt.setString(2, user);
-      stmt.setString(3, item);
+      stmt = conn.prepareStatement(query + "id = ? AND rid = ?");
+      stmt.setInt(1, Integer.parseInt(order, 10));
+      stmt.setInt(2, Integer.parseInt(rid, 10));
       writer.object();
       writer.key("delete").value(stmt.executeUpdate());
       writer.endObject();
