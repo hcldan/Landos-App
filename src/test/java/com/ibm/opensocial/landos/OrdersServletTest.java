@@ -33,6 +33,7 @@ public class OrdersServletTest {
   private IMocksControl control;
   private HttpServletRequest req;
   private HttpServletResponse res;
+  private final int oid = 7357;
   private final int rid = 9001;
   private final int uid = 101;
   private final String[] items = { "Pizza", "Soda" };
@@ -100,16 +101,12 @@ public class OrdersServletTest {
   @Test
   public void testDeleteOrder() throws Exception {
     // Set up mocks and expectations
-    req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
-    expect(req.getParameter("user")).andReturn("" + uid).once();
-    expect(req.getParameter("item")).andReturn(items[0]).once();
+    req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid + "/" + oid);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt).once();
-    stmt.setInt(1, rid);
+    stmt.setInt(1, oid);
     expectLastCall().once();
-    stmt.setString(2, "" + uid);
-    expectLastCall().once();
-    stmt.setString(3, items[0]);
+    stmt.setInt(2, rid);
     expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1);
 
