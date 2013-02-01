@@ -21,7 +21,7 @@ public class OrdersServlet extends BaseServlet {
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
   
   /**
-   * GET /orders/<runid>[/<orderid>][?user=<user>]
+   * GET /orders/[<runid>[/<orderid>]][?user=<user>]
    * @throws IOException 
    */
   @Override
@@ -54,7 +54,7 @@ public class OrdersServlet extends BaseServlet {
       if (!Strings.isNullOrEmpty(order)) {
         stmt = conn.prepareStatement(query + "id = ?");
         stmt.setInt(1, Integer.parseInt(order, 10));
-      } else if (user == null) {
+      } else if (Strings.isNullOrEmpty(user)) {
         // User is not set
         stmt = conn.prepareStatement(query + "rid = ?");
         stmt.setInt(1, Integer.parseInt(rid, 10));
