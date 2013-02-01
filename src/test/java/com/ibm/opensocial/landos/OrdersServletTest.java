@@ -58,6 +58,7 @@ public class OrdersServletTest {
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
     expect(req.getParameter("user")).andReturn(null).once();
+    expect(req.getHeader("Range")).andReturn(null).once();
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt);
     stmt.setInt(1, rid);

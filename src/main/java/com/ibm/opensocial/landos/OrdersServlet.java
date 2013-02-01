@@ -29,13 +29,21 @@ public class OrdersServlet extends BaseServlet {
     // Set headers
     setCacheAndTypeHeaders(res);
     
-    // Get the run id and order id
+    // Get the run id, order id, and user
     String rid = getPathSegment(req, 0);
-    // Get the order id
-    String order = getPathSegment(req, 1);
-    
-    // Get the user and item parameters (if any)
+    boolean ridSet = !Strings.isNullOrEmpty(rid);
+    String oid = getPathSegment(req, 1);
+    boolean oidSet = !Strings.isNullOrEmpty(oid);
     String user = req.getParameter("user");
+    boolean userSet = !Strings.isNullOrEmpty(user);
+    
+    // Get range without items=
+    String range = req.getHeader("Range");
+    String[] rangeValue = null;
+    if (!Strings.isNullOrEmpty(range)) {
+      range = range.substring(5);
+      rangeValue = range.split("-");
+    }
     
     // Prepare database variables
     Connection conn = null;
@@ -45,26 +53,36 @@ public class OrdersServlet extends BaseServlet {
     // Writer
     JSONWriter writer = getJSONWriter(res);
     
-    // Query
-    String query = "SELECT * FROM orders WHERE ";
-    
+    // Construct and prepare query
+    String query = "SELECT * FROM orders";
     try {
       conn = getDataSource(req).getConnection();
-      // Parameter control forks
-      if (!Strings.isNullOrEmpty(order)) {
-        stmt = conn.prepareStatement(query + "id = ?");
-        stmt.setInt(1, Integer.parseInt(order, 10));
-      } else if (Strings.isNullOrEmpty(user)) {
-        // User is not set
-        stmt = conn.prepareStatement(query + "rid = ?");
-        stmt.setInt(1, Integer.parseInt(rid, 10));
-      } else {
-        // User is set
-        stmt = conn.prepareStatement(query + "rid = ? AND user = ?");
-        stmt.setInt(1, Integer.parseInt(rid, 10));
-        stmt.setInt(2, Integer.parseInt(user, 10));
+      if (ridSet && oidSet && userSet) {
+        query += " WHERE id = ? AND rid = ? AND user = ?";
+        stmt = conn.prepareStatement(query);
+        stmt.setInt(1, Integer.parseInt(oid));
+        stmt.setInt(2, Integer.parseInt(rid));
+        stmt.setString(3, user);
+      } else if (ridSet && oidSet) {
+        query += " WHERE id = ? AND rid = ?";
+        stmt = conn.prepareStatement(query);
+        stmt.setInt(1, Integer.parseInt(oid));
+        stmt.setInt(2, Integer.parseInt(rid));
+      } else if (ridSet && !userSet) {
+        query += " WHERE rid = ?";
+        stmt = conn.prepareStatement(query);
+        stmt.setInt(1, Integer.parseInt(rid));
+      } else if (ridSet && userSet) {
+        query += " WHERE rid = ? AND user = ?";
+        stmt = conn.prepareStatement(query);
+        stmt.setInt(1, Integer.parseInt(rid));
+        stmt.setString(2, user);
+      } else if (userSet) {
+        query += " WHERE user = ?";
+        stmt = conn.prepareStatement(query);
+        stmt.setString(1, user);
       }
-      // Prepared statement is now ready for execution
+      // Execute query
       results = stmt.executeQuery();
       writer.array();
       while (results.next()) {

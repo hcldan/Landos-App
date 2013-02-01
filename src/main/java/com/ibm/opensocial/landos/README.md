@@ -100,7 +100,7 @@ Returns `application/json`. Should include all order parameters.
 }
 ```
 ## Getting orders for a run
-### GET /orders/&lt;runid&gt;[/&lt;orderid&gt;][?user=&lt;user&gt;]
+### GET /orders/[&lt;runid&gt;[/&lt;orderid&gt;]][?user=&lt;user&gt;]
 Returns `application/json` of an array containing all matching orders. `user` is optional.
 ```javascript
 [{
