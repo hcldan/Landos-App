@@ -1,6 +1,8 @@
 package com.ibm.opensocial.landos;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,16 +21,18 @@ public class OrdersServlet extends BaseServlet {
   private static final long serialVersionUID = 4509166979070691855L;
   private static final String CLAZZ = OrdersServlet.class.getName();
   private static final Logger LOGGER = Logger.getLogger(CLAZZ);
-  
+  private final static int DEFAULT_ORDER_LIMIT = 25;
+
   /**
    * GET /orders/[<runid>[/<orderid>]][?user=<user>]
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
     // Set headers
     setCacheAndTypeHeaders(res);
-    
+
     // Get the run id, order id, and user
     String rid = getPathSegment(req, 0);
     boolean ridSet = !Strings.isNullOrEmpty(rid);
@@ -36,78 +40,127 @@ public class OrdersServlet extends BaseServlet {
     boolean oidSet = !Strings.isNullOrEmpty(oid);
     String user = req.getParameter("user");
     boolean userSet = !Strings.isNullOrEmpty(user);
-    
-    // Get range without items=
-    String range = req.getHeader("Range");
-    String[] rangeValue = null;
-    if (!Strings.isNullOrEmpty(range)) {
-      range = range.substring(5);
-      rangeValue = range.split("-");
+
+    // Parse range
+    String rangeHeader = req.getHeader("Range");
+    int[] range = { 0, DEFAULT_ORDER_LIMIT };
+    if (!Strings.isNullOrEmpty(rangeHeader)) {
+      String[] rangeStrings = rangeHeader.substring(6).split("-");
+      if (rangeStrings.length == 2) {
+        for (int i = 0; i < range.length; i++) {
+          range[i] = Integer.parseInt(rangeStrings[i]);
+        }
+      }
     }
-    
+
     // Prepare database variables
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet results = null;
-    
-    // Writer
-    JSONWriter writer = getJSONWriter(res);
-    
+
+    // Writers
+    //JSONWriter writer = getJSONWriter(res);
+    PrintWriter resWriter = res.getWriter();
+    StringWriter body = new StringWriter();
+    JSONWriter jsonWriter = new JSONWriter(body);
+
     // Construct and prepare query
-    String query = "SELECT * FROM orders";
+    String query = "SELECT *, (REPLACE) FROM orders";
     try {
       conn = getDataSource(req).getConnection();
       if (ridSet && oidSet && userSet) {
-        query += " WHERE id = ? AND rid = ? AND user = ?";
+        query = constructQuery(query + " WHERE id = ? AND rid = ? AND user = ?");
         stmt = conn.prepareStatement(query);
+        // Count Query
         stmt.setInt(1, Integer.parseInt(oid));
         stmt.setInt(2, Integer.parseInt(rid));
         stmt.setString(3, user);
+        // Regular Query
+        stmt.setInt(4, Integer.parseInt(oid));
+        stmt.setInt(5, Integer.parseInt(rid));
+        stmt.setString(6, user);
+        // Limit and Offset
+        stmt.setInt(7, range[1] - range[0]);
+        stmt.setInt(8, range[0]);
       } else if (ridSet && oidSet) {
-        query += " WHERE id = ? AND rid = ?";
+        query = constructQuery(query + " WHERE id = ? AND rid = ?");
         stmt = conn.prepareStatement(query);
+        // Count Query
         stmt.setInt(1, Integer.parseInt(oid));
         stmt.setInt(2, Integer.parseInt(rid));
+        // Regular Query
+        stmt.setInt(3, Integer.parseInt(oid));
+        stmt.setInt(4, Integer.parseInt(rid));
+        // Limit and Offset
+        stmt.setInt(5, range[1] - range[0]);
+        stmt.setInt(6, range[0]);
       } else if (ridSet && !userSet) {
-        query += " WHERE rid = ?";
+        query = constructQuery(query + " WHERE rid = ?");
         stmt = conn.prepareStatement(query);
+        // Count Query
         stmt.setInt(1, Integer.parseInt(rid));
+        // Regular Query
+        stmt.setInt(2, Integer.parseInt(rid));
+        // Limit and Offset
+        stmt.setInt(3, range[1] - range[0]);
+        stmt.setInt(4, range[0]);
       } else if (ridSet && userSet) {
-        query += " WHERE rid = ? AND user = ?";
+        query = constructQuery(query + " WHERE rid = ? AND user = ?");
         stmt = conn.prepareStatement(query);
+        // Count Query
         stmt.setInt(1, Integer.parseInt(rid));
         stmt.setString(2, user);
+        // Regular Query
+        stmt.setInt(3, Integer.parseInt(rid));
+        stmt.setString(4, user);
+        // Limit and Offset
+        stmt.setInt(5, range[1] - range[0]);
+        stmt.setInt(6, range[0]);
       } else if (userSet) {
-        query += " WHERE user = ?";
+        query = constructQuery(query + " WHERE user = ?");
         stmt = conn.prepareStatement(query);
+        // Count Query
         stmt.setString(1, user);
+        // Regular Query
+        stmt.setString(2, user);
+        // Limit and Offset
+        stmt.setInt(3, range[1] - range[0]);
+        stmt.setInt(4, range[0]);
       }
       // Execute query
       results = stmt.executeQuery();
-      writer.array();
+      int count = 0;
+      jsonWriter.array();
       while (results.next()) {
-        writeJSONObjectOrder(writer, results.getInt(1), results.getInt(2), results.getString(3), results.getString(4), results.getString(5), results.getInt(6), results.getString(7));
+        count++;
+        writeJSONObjectOrder(jsonWriter, results.getInt(1), results.getInt(2), results.getString(3),
+                results.getString(4), results.getString(5), results.getInt(6), results.getString(7));
       }
-      writer.endArray();
+      jsonWriter.endArray();
+      
+      // Write out range information
+      res.setHeader("Content-Range", "items " + range[0] + "-" + (range[0] + count) + "/" + results.getInt(8));
+      resWriter.write(body.toString());
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
     } finally {
-      close(writer, conn);
+      close(resWriter, jsonWriter, conn);
     }
   }
-  
+
   /**
    * DELETE /orders/<runid>/<orderid>
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
   @Override
   public void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
     // Set headers
     setCacheAndTypeHeaders(res);
-    
+
     // Writer
     JSONWriter writer = getJSONWriter(res);
-    
+
     // Check for required parameters
     if (numSegments(req) < 2) {
       try {
@@ -119,15 +172,16 @@ public class OrdersServlet extends BaseServlet {
       }
       return;
     }
-    
-    // Get the run id and order id, the run id is just for verification -- the primary key is just the order id
+
+    // Get the run id and order id, the run id is just for verification -- the primary key is just
+    // the order id
     String rid = getPathSegment(req, 0);
     String order = getPathSegment(req, 1);
-    
+
     // Prepare database variables
     Connection conn = null;
     PreparedStatement stmt = null;
-    
+
     // Query
     String query = "DELETE FROM orders WHERE ";
     try {
@@ -144,10 +198,11 @@ public class OrdersServlet extends BaseServlet {
       close(writer, conn);
     }
   }
-  
+
   /**
    * PUT /orders/<runid>?user=<user>&item=<item>&price=<price>[&size=<size>][&comments=<comments>]
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
   @Override
   public void doPut(HttpServletRequest req, HttpServletResponse res) throws IOException {
@@ -155,24 +210,25 @@ public class OrdersServlet extends BaseServlet {
     setCacheAndTypeHeaders(res);
     // Get the order id
     String order = getPathSegment(req, 1);
-    
+
     // Get required parameters
     String run = getPathSegment(req, 0);
     String user = req.getParameter("user");
     String item = req.getParameter("item");
     String price = req.getParameter("price");
-    
+
     // Get optional parameters
     String size = req.getParameter("size");
     String comments = req.getParameter("comments");
-    
+
     // Writer
     JSONWriter writer = getJSONWriter(res);
-    
+
     // Check for required parameters
     if (req == null || user == null || item == null || price == null) {
       try {
-        writer.object().key("error").value("Putting requires a run id, an user id, an item, and a price.");
+        writer.object().key("error")
+                .value("Putting requires a run id, an user id, an item, and a price.");
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
       } finally {
@@ -180,29 +236,30 @@ public class OrdersServlet extends BaseServlet {
       }
       return;
     }
-    
+
     // Prepare database variables
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet result = null;
-    
+
     boolean hasOrderId = !Strings.isNullOrEmpty(order);
     // Query
     StringBuilder query = new StringBuilder("INSERT INTO `orders` ");
-    query.append("(`rid`,`user`,`item`,`size`,`price`,`comments`").append(!hasOrderId ? ") " : ",`id`) ");
+    query.append("(`rid`,`user`,`item`,`size`,`price`,`comments`").append(
+            !hasOrderId ? ") " : ",`id`) ");
     query.append("VALUES (?,?,?,?,?,?");
     if (!hasOrderId) {
-      query.append(") "); 
+      query.append(") ");
     } else {
       query.append(",`id`) ON DUPLICATE KEY UPDATE ")
-      .append("`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`)");
+              .append("`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`)");
     }
-    
+
     try {
       // Prepare variables
       int rid = Integer.parseInt(run);
       int cents = Integer.parseInt(price);
-      
+
       // Insert into database
       conn = getDataSource(req).getConnection();
       stmt = conn.prepareStatement(query.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
@@ -212,21 +269,20 @@ public class OrdersServlet extends BaseServlet {
       stmt.setString(4, size);
       stmt.setInt(5, cents);
       stmt.setString(6, comments);
-      
+
       int affected = stmt.executeUpdate();
       if (!hasOrderId) {
         result = stmt.getGeneratedKeys();
         result.first();
         order = Integer.toString(result.getInt(1), 10);
       }
-      
+
       // Write back
       if (affected > 0 && !Strings.isNullOrEmpty(order)) {
-        writeJSONObjectOrder(writer, Integer.valueOf(order, 10), rid, user, item, size, cents, comments);
+        writeJSONObjectOrder(writer, Integer.valueOf(order, 10), rid, user, item, size, cents,
+                comments);
       } else {
-        writer.object()
-          .key("error").value("Did not insert order.")
-        .endObject();
+        writer.object().key("error").value("Did not insert order.").endObject();
       }
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
@@ -234,9 +290,21 @@ public class OrdersServlet extends BaseServlet {
       close(result, stmt, conn, writer);
     }
   }
+
+  /**
+   * Constructs a query for the purpose of selecting a limited number of rows while counting
+   * available rows.
+   * 
+   * @param query
+   * @return
+   */
+  private String constructQuery(String query) {
+    return query.replace("REPLACE", query).replace(", (REPLACE)", "").replace("* ", "COUNT(*) ") + " LIMIT ? OFFSET ?";
+  }
   
   /**
    * Writes the values of an order to a JSON object
+   * 
    * @param writer
    * @param rid
    * @param user
@@ -245,20 +313,16 @@ public class OrdersServlet extends BaseServlet {
    * @param qty
    * @param price
    * @param comments
-   * @throws JSONException 
-   * @throws IOException 
-   * @throws NullPointerException 
-   * @throws IllegalStateException 
+   * @throws JSONException
+   * @throws IOException
+   * @throws NullPointerException
+   * @throws IllegalStateException
    */
-  private void writeJSONObjectOrder(JSONWriter writer, int id, int rid, String user, String item, String size, int price, String comments) throws IllegalStateException, NullPointerException, IOException, JSONException {
-    writer.object()
-      .key("id").value(id)
-      .key("rid").value(rid)
-      .key("user").value(user)
-      .key("item").value(item)
-      .key("size").value(size)
-      .key("price").value(price)
-      .key("comments").value(comments)
-    .endObject();
+  private void writeJSONObjectOrder(JSONWriter writer, int id, int rid, String user, String item,
+          String size, int price, String comments) throws IllegalStateException,
+          NullPointerException, IOException, JSONException {
+    writer.object().key("id").value(id).key("rid").value(rid).key("user").value(user).key("item")
+            .value(item).key("size").value(size).key("price").value(price).key("comments")
+            .value(comments).endObject();
   }
 }
