@@ -59,15 +59,19 @@ public class OrdersServletTest {
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
     expect(req.getParameter("user")).andReturn(null).once();
     expect(req.getHeader("Range")).andReturn("items=0-20").once();
+    PreparedStatement countStmt = control.createMock(PreparedStatement.class);
+    expect(conn.prepareStatement(anyObject(String.class))).andReturn(countStmt);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt);
+    // Count Query
+    countStmt.setInt(1, rid);
+    expectLastCall().once();
+    // Regular Query
     stmt.setInt(1, rid);
     expectLastCall().once();
-    stmt.setInt(2, rid);
+    stmt.setInt(2, 20);
     expectLastCall().once();
-    stmt.setInt(3, 20);
-    expectLastCall().once();
-    stmt.setInt(4, 0);
+    stmt.setInt(3, 0);
     ResultSet results = control.createMock(ResultSet.class);
     expect(stmt.executeQuery()).andReturn(results).once();
     for (int i = 0; i < 2; i++) {

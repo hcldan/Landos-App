@@ -56,6 +56,7 @@ public class OrdersServlet extends BaseServlet {
     // Prepare database variables
     Connection conn = null;
     PreparedStatement stmt = null;
+    PreparedStatement countStmt = null;
     ResultSet results = null;
 
     // Writers
@@ -65,67 +66,79 @@ public class OrdersServlet extends BaseServlet {
     JSONWriter jsonWriter = new JSONWriter(body);
 
     // Construct and prepare query
-    String query = "SELECT *, (REPLACE) FROM orders";
+    String query = "SELECT * FROM orders";
+    String countQuery = "SELECT COUNT(*) FROM orders";
+    final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
     try {
       conn = getDataSource(req).getConnection();
       if (ridSet && oidSet && userSet) {
-        query = constructQuery(query + " WHERE id = ? AND rid = ? AND user = ?");
+        String addition = " WHERE id = ? AND rid = ? AND user = ?";
+        countQuery += addition;
+        query += addition + LIMIT_OFFSET;
+        countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
+        countStmt.setInt(1, Integer.parseInt(oid));
+        countStmt.setInt(2, Integer.parseInt(rid));
+        countStmt.setString(3, user);
+        // Regular Query
         stmt.setInt(1, Integer.parseInt(oid));
         stmt.setInt(2, Integer.parseInt(rid));
         stmt.setString(3, user);
-        // Regular Query
-        stmt.setInt(4, Integer.parseInt(oid));
-        stmt.setInt(5, Integer.parseInt(rid));
-        stmt.setString(6, user);
-        // Limit and Offset
-        stmt.setInt(7, range[1] - range[0]);
-        stmt.setInt(8, range[0]);
+        stmt.setInt(4, range[1] - range[0]);
+        stmt.setInt(5, range[0]);
       } else if (ridSet && oidSet) {
-        query = constructQuery(query + " WHERE id = ? AND rid = ?");
+        String addition = " WHERE id = ? AND rid = ?";
+        countQuery += addition;
+        query += addition + LIMIT_OFFSET;
+        countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
+        countStmt.setInt(1, Integer.parseInt(oid));
+        countStmt.setInt(2, Integer.parseInt(rid));
+        // Regular Query
         stmt.setInt(1, Integer.parseInt(oid));
         stmt.setInt(2, Integer.parseInt(rid));
-        // Regular Query
-        stmt.setInt(3, Integer.parseInt(oid));
-        stmt.setInt(4, Integer.parseInt(rid));
-        // Limit and Offset
-        stmt.setInt(5, range[1] - range[0]);
-        stmt.setInt(6, range[0]);
+        stmt.setInt(3, range[1] - range[0]);
+        stmt.setInt(4, range[0]);
       } else if (ridSet && !userSet) {
-        query = constructQuery(query + " WHERE rid = ?");
+        String addition = " WHERE rid = ?";
+        countQuery += addition;
+        query += addition + LIMIT_OFFSET;
+        countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
-        stmt.setInt(1, Integer.parseInt(rid));
+        countStmt.setInt(1, Integer.parseInt(rid));
         // Regular Query
-        stmt.setInt(2, Integer.parseInt(rid));
-        // Limit and Offset
-        stmt.setInt(3, range[1] - range[0]);
-        stmt.setInt(4, range[0]);
+        stmt.setInt(1, Integer.parseInt(rid));
+        stmt.setInt(2, range[1] - range[0]);
+        stmt.setInt(3, range[0]);
       } else if (ridSet && userSet) {
-        query = constructQuery(query + " WHERE rid = ? AND user = ?");
+        String addition = " WHERE rid = ? AND user = ?";
+        countQuery += addition;
+        query += addition + LIMIT_OFFSET;
+        countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
+        countStmt.setInt(1, Integer.parseInt(rid));
+        countStmt.setString(2, user);
+        // Regular Query
         stmt.setInt(1, Integer.parseInt(rid));
         stmt.setString(2, user);
-        // Regular Query
-        stmt.setInt(3, Integer.parseInt(rid));
-        stmt.setString(4, user);
-        // Limit and Offset
-        stmt.setInt(5, range[1] - range[0]);
-        stmt.setInt(6, range[0]);
-      } else if (userSet) {
-        query = constructQuery(query + " WHERE user = ?");
-        stmt = conn.prepareStatement(query);
-        // Count Query
-        stmt.setString(1, user);
-        // Regular Query
-        stmt.setString(2, user);
-        // Limit and Offset
         stmt.setInt(3, range[1] - range[0]);
         stmt.setInt(4, range[0]);
+      } else if (userSet) {
+        String addition = " WHERE user = ?";
+        countQuery += addition;
+        query += addition + LIMIT_OFFSET;
+        countStmt = conn.prepareStatement(countQuery);
+        stmt = conn.prepareStatement(query);
+        // Count Query
+        countStmt.setString(1, user);
+        // Regular Query
+        stmt.setString(1, user);
+        stmt.setInt(2, range[1] - range[0]);
+        stmt.setInt(3, range[0]);
       }
       // Execute query
       results = stmt.executeQuery();
@@ -289,17 +302,6 @@ public class OrdersServlet extends BaseServlet {
     } finally {
       close(result, stmt, conn, writer);
     }
-  }
-
-  /**
-   * Constructs a query for the purpose of selecting a limited number of rows while counting
-   * available rows.
-   * 
-   * @param query
-   * @return
-   */
-  private String constructQuery(String query) {
-    return query.replace("REPLACE", query).replace(", (REPLACE)", "").replace("* ", "COUNT(*) ") + " LIMIT ? OFFSET ?";
   }
   
   /**
