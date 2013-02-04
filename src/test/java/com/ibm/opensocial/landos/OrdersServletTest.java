@@ -58,10 +58,24 @@ public class OrdersServletTest {
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
     expect(req.getParameter("user")).andReturn(null).once();
+    expect(req.getHeader("Range")).andReturn("items=0-20").once();
+    PreparedStatement countStmt = control.createMock(PreparedStatement.class);
+    expect(conn.prepareStatement(anyObject(String.class))).andReturn(countStmt);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class))).andReturn(stmt);
+    // Count Query
+    countStmt.setInt(1, rid);
+    expectLastCall().once();
+    // Regular Query
     stmt.setInt(1, rid);
     expectLastCall().once();
+    stmt.setInt(2, 20);
+    expectLastCall().once();
+    stmt.setInt(3, 0);
+    ResultSet countResults = control.createMock(ResultSet.class);
+    expect(countStmt.executeQuery()).andReturn(countResults);
+    expect(countResults.next()).andReturn(true);
+    expect(countResults.getInt(1)).andReturn(2);
     ResultSet results = control.createMock(ResultSet.class);
     expect(stmt.executeQuery()).andReturn(results).once();
     for (int i = 0; i < 2; i++) {
@@ -75,6 +89,16 @@ public class OrdersServletTest {
       expect(results.getString(7)).andReturn(comments[i]).once();
     }
     expect(results.next()).andReturn(false).once();
+    res.setHeader("Content-Range", "items 0-2/2");
+    expectLastCall().once();
+    countStmt.close();
+    expectLastCall().once();
+    stmt.close();
+    expectLastCall().once();
+    results.close();
+    expectLastCall().once();
+    countResults.close();
+    expectLastCall().once();
 
     // Run test
     control.replay();
@@ -109,6 +133,8 @@ public class OrdersServletTest {
     stmt.setInt(2, rid);
     expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1);
+    stmt.close();
+    expectLastCall().once();
 
     // Run test
     control.replay();

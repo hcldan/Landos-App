@@ -100,8 +100,8 @@ Returns `application/json`. Should include all order parameters.
 }
 ```
 ## Getting orders for a run
-### GET /orders/&lt;runid&gt;[/&lt;orderid&gt;][?user=&lt;user&gt;]
-Returns `application/json` of an array containing all matching orders. `user` is optional.
+### GET /orders/[&lt;runid&gt;[/&lt;orderid&gt;]][?user=&lt;user&gt;]
+Returns `application/json` of an array containing all matching orders. `user` is optional. This method examines the `Range` header to determine how many records to retrieve and sets the `Content-Range` header on the response as appropriate. `Range` defaults to `items=0-25`.
 ```javascript
 [{
   "rid": 12,
