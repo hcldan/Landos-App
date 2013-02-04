@@ -91,6 +91,14 @@ public class OrdersServletTest {
     expect(results.next()).andReturn(false).once();
     res.setHeader("Content-Range", "items 0-2/2");
     expectLastCall().once();
+    countStmt.close();
+    expectLastCall().once();
+    stmt.close();
+    expectLastCall().once();
+    results.close();
+    expectLastCall().once();
+    countResults.close();
+    expectLastCall().once();
 
     // Run test
     control.replay();
@@ -125,6 +133,8 @@ public class OrdersServletTest {
     stmt.setInt(2, rid);
     expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1);
+    stmt.close();
+    expectLastCall().once();
 
     // Run test
     control.replay();

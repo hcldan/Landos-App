@@ -147,7 +147,7 @@ public class OrdersServlet extends BaseServlet {
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
     } finally {
-      close(resWriter, jsonWriter, conn);
+      close(resWriter, jsonWriter, conn, stmt, countStmt, results, countResults, body);
     }
   }
 
@@ -167,7 +167,9 @@ public class OrdersServlet extends BaseServlet {
     // Check for required parameters
     if (numSegments(req) < 2) {
       try {
-        writer.object().key("error").value("Deleting requires a run id and an order id.");
+        writer.object()
+          .key("error").value("Deleting requires a run id and an order id.")
+        .endObject();
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
       } finally {
@@ -192,13 +194,13 @@ public class OrdersServlet extends BaseServlet {
       stmt = conn.prepareStatement(query + "id = ? AND rid = ?");
       stmt.setInt(1, Integer.parseInt(order, 10));
       stmt.setInt(2, Integer.parseInt(rid, 10));
-      writer.object();
-      writer.key("delete").value(stmt.executeUpdate());
-      writer.endObject();
+      writer.object()
+        .key("delete").value(stmt.executeUpdate())
+      .endObject();
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
     } finally {
-      close(writer, conn);
+      close(writer, conn, stmt);
     }
   }
 
@@ -230,8 +232,9 @@ public class OrdersServlet extends BaseServlet {
     // Check for required parameters
     if (req == null || user == null || item == null || price == null) {
       try {
-        writer.object().key("error")
-                .value("Putting requires a run id, an user id, an item, and a price.");
+        writer.object()
+          .key("error").value("Putting requires a run id, an user id, an item, and a price.")
+        .endObject();
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
       } finally {
@@ -285,7 +288,9 @@ public class OrdersServlet extends BaseServlet {
         writeJSONObjectOrder(writer, Integer.valueOf(order, 10), rid, user, item, size, cents,
                 comments);
       } else {
-        writer.object().key("error").value("Did not insert order.").endObject();
+        writer.object()
+          .key("error").value("Did not insert order.")
+        .endObject();
       }
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
@@ -313,8 +318,14 @@ public class OrdersServlet extends BaseServlet {
   private void writeJSONObjectOrder(JSONWriter writer, int id, int rid, String user, String item,
           String size, int price, String comments) throws IllegalStateException,
           NullPointerException, IOException, JSONException {
-    writer.object().key("id").value(id).key("rid").value(rid).key("user").value(user).key("item")
-            .value(item).key("size").value(size).key("price").value(price).key("comments")
-            .value(comments).endObject();
+    writer.object()
+      .key("id").value(id)
+      .key("rid").value(rid)
+      .key("user").value(user)
+      .key("item").value(item)
+      .key("size").value(size)
+      .key("price").value(price)
+      .key("comments").value(comments)
+    .endObject();
   }
 }
