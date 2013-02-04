@@ -147,7 +147,7 @@ public class OrdersServlet extends BaseServlet {
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());
     } finally {
-      close(resWriter, jsonWriter, conn, stmt, countStmt, results, countResults, body);
+      close(resWriter, jsonWriter, body, countResults, countStmt ,results, stmt, conn);
     }
   }
 
@@ -200,7 +200,7 @@ public class OrdersServlet extends BaseServlet {
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
     } finally {
-      close(writer, conn, stmt);
+      close(writer, stmt, conn);
     }
   }
 
