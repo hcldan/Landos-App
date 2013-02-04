@@ -58,6 +58,7 @@ public class OrdersServlet extends BaseServlet {
     PreparedStatement stmt = null;
     PreparedStatement countStmt = null;
     ResultSet results = null;
+    ResultSet countResults = null;
 
     // Writers
     //JSONWriter writer = getJSONWriter(res);
@@ -141,6 +142,8 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(3, range[0]);
       }
       // Execute query
+      countResults = countStmt.executeQuery();
+      countResults.next();
       results = stmt.executeQuery();
       int count = 0;
       jsonWriter.array();
@@ -152,7 +155,7 @@ public class OrdersServlet extends BaseServlet {
       jsonWriter.endArray();
       
       // Write out range information
-      res.setHeader("Content-Range", "items " + range[0] + "-" + (range[0] + count) + "/" + results.getInt(8));
+      res.setHeader("Content-Range", "items " + range[0] + "-" + (range[0] + count) + "/" + countResults.getInt(1));
       resWriter.write(body.toString());
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doGet", e.getMessage());

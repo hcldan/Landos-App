@@ -72,6 +72,10 @@ public class OrdersServletTest {
     stmt.setInt(2, 20);
     expectLastCall().once();
     stmt.setInt(3, 0);
+    ResultSet countResults = control.createMock(ResultSet.class);
+    expect(countStmt.executeQuery()).andReturn(countResults);
+    expect(countResults.next()).andReturn(true);
+    expect(countResults.getInt(1)).andReturn(2);
     ResultSet results = control.createMock(ResultSet.class);
     expect(stmt.executeQuery()).andReturn(results).once();
     for (int i = 0; i < 2; i++) {
@@ -85,7 +89,6 @@ public class OrdersServletTest {
       expect(results.getString(7)).andReturn(comments[i]).once();
     }
     expect(results.next()).andReturn(false).once();
-    expect(results.getInt(8)).andReturn(2).once();
     res.setHeader("Content-Range", "items 0-2/2");
     expectLastCall().once();
 
