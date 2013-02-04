@@ -71,49 +71,23 @@ public class OrdersServlet extends BaseServlet {
     final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
     try {
       conn = getDataSource(req).getConnection();
-      if (ridSet && oidSet && userSet) {
-        String addition = " WHERE id = ? AND rid = ? AND user = ?";
+      if (oidSet) {
+        // Order id is set
+        String addition = " WHERE id = ?";
         countQuery += addition;
         query += addition + LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
         countStmt.setInt(1, Integer.parseInt(oid));
-        countStmt.setInt(2, Integer.parseInt(rid));
-        countStmt.setString(3, user);
         // Regular Query
         stmt.setInt(1, Integer.parseInt(oid));
         stmt.setInt(2, Integer.parseInt(rid));
         stmt.setString(3, user);
         stmt.setInt(4, range[1] - range[0]);
         stmt.setInt(5, range[0]);
-      } else if (ridSet && oidSet) {
-        String addition = " WHERE id = ? AND rid = ?";
-        countQuery += addition;
-        query += addition + LIMIT_OFFSET;
-        countStmt = conn.prepareStatement(countQuery);
-        stmt = conn.prepareStatement(query);
-        // Count Query
-        countStmt.setInt(1, Integer.parseInt(oid));
-        countStmt.setInt(2, Integer.parseInt(rid));
-        // Regular Query
-        stmt.setInt(1, Integer.parseInt(oid));
-        stmt.setInt(2, Integer.parseInt(rid));
-        stmt.setInt(3, range[1] - range[0]);
-        stmt.setInt(4, range[0]);
-      } else if (ridSet && !userSet) {
-        String addition = " WHERE rid = ?";
-        countQuery += addition;
-        query += addition + LIMIT_OFFSET;
-        countStmt = conn.prepareStatement(countQuery);
-        stmt = conn.prepareStatement(query);
-        // Count Query
-        countStmt.setInt(1, Integer.parseInt(rid));
-        // Regular Query
-        stmt.setInt(1, Integer.parseInt(rid));
-        stmt.setInt(2, range[1] - range[0]);
-        stmt.setInt(3, range[0]);
       } else if (ridSet && userSet) {
+        // run, user -- no order
         String addition = " WHERE rid = ? AND user = ?";
         countQuery += addition;
         query += addition + LIMIT_OFFSET;
@@ -127,7 +101,21 @@ public class OrdersServlet extends BaseServlet {
         stmt.setString(2, user);
         stmt.setInt(3, range[1] - range[0]);
         stmt.setInt(4, range[0]);
+      } else if (ridSet && !userSet) {
+        // run -- no user or order
+        String addition = " WHERE rid = ?";
+        countQuery += addition;
+        query += addition + LIMIT_OFFSET;
+        countStmt = conn.prepareStatement(countQuery);
+        stmt = conn.prepareStatement(query);
+        // Count Query
+        countStmt.setInt(1, Integer.parseInt(rid));
+        // Regular Query
+        stmt.setInt(1, Integer.parseInt(rid));
+        stmt.setInt(2, range[1] - range[0]);
+        stmt.setInt(3, range[0]);
       } else if (userSet) {
+        // User only
         String addition = " WHERE user = ?";
         countQuery += addition;
         query += addition + LIMIT_OFFSET;
