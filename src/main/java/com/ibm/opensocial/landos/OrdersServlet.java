@@ -61,7 +61,6 @@ public class OrdersServlet extends BaseServlet {
     ResultSet countResults = null;
 
     // Writers
-    //JSONWriter writer = getJSONWriter(res);
     PrintWriter resWriter = res.getWriter();
     StringWriter body = new StringWriter();
     JSONWriter jsonWriter = new JSONWriter(body);
