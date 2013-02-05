@@ -102,7 +102,7 @@ define([
         // Construct url
         var url = landos.getAPIUri('orders') + this.run.id + '?' + ioQuery.objectToQuery(values);
         
-        osapi.http.put({format: 'json', href: url}).execute(lang.hitch(this, function (res) {
+        osapi.http.put(lang.mixin({href: url}, landos.getRequestParams(id))).execute(lang.hitch(this, function (res) {
           if (res.status === 200 && !res.content.error) {
             new Dialog({
               title: 'Success!',
