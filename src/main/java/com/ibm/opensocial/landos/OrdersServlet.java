@@ -244,9 +244,10 @@ public class OrdersServlet extends BaseServlet {
           .key("error").value("Forbidden operation.")
         .endObject();
         res.setStatus(403);
+        return;
       }
     } catch (Exception e) {
-      LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage(), e);
       res.setStatus(500);
     }
     
@@ -258,7 +259,7 @@ public class OrdersServlet extends BaseServlet {
         .endObject();
         res.setStatus(400);
       } catch (Exception e) {
-        LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage(), e);
         res.setStatus(500);
       } finally {
         close(writer);
