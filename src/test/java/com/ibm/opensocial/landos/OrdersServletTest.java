@@ -6,14 +6,6 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Maps;
-
-import org.apache.wink.json4j.JSONWriter;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,6 +15,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+
+import org.apache.wink.json4j.JSONWriter;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.collect.Maps;
 
 public class OrdersServletTest {
   private OrdersServlet servlet;
@@ -48,7 +48,6 @@ public class OrdersServletTest {
     output = new StringWriter();
     control = EasyMock.createControl();
     conn = TestControlUtils.mockConnection(control);
-    conn.close(); expectLastCall().once();
     source = TestControlUtils.mockDataSource(control, conn);
     attributes = Maps.newHashMap();
     res = TestControlUtils.mockResponse(control, output);
@@ -56,6 +55,8 @@ public class OrdersServletTest {
 
   @Test
   public void testGetOrdersForRun() throws Exception {
+    conn.close(); expectLastCall().once();
+    
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
     expect(req.getParameter("user")).andReturn(null).once();
@@ -127,6 +128,8 @@ public class OrdersServletTest {
 
   @Test
   public void testDeleteOrder() throws Exception {
+    conn.close(); expectLastCall().once();
+    
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid + "/" + oid);
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
@@ -150,6 +153,19 @@ public class OrdersServletTest {
   public void testPutOrder() throws Exception {
     // Set up mocks and expectations
     req = TestControlUtils.mockRequest(control, attributes, source, "/" + rid);
+    
+    conn.close(); expectLastCall().times(2);
+    
+    expect(req.getHeader("OPENSOCIAL-ID")).andReturn(Integer.toString(uid, 10)).once();
+    PreparedStatement authstmt = control.createMock(PreparedStatement.class);
+    expect(conn.prepareStatement("SELECT * FROM `subscribed` WHERE `user`=? AND `admin`=1")).andReturn(authstmt).once();
+    authstmt.setString(1, Integer.toString(uid, 10)); expectLastCall().once();
+    ResultSet authresult = control.createMock(ResultSet.class);
+    expect(authstmt.executeQuery()).andReturn(authresult).once();
+    expect(authresult.first()).andReturn(true).once();
+    authresult.close(); expectLastCall().once();
+    authstmt.close(); expectLastCall().once();
+    
     expect(req.getParameter("user")).andReturn(Integer.toString(uid, 10)).once();
     expect(req.getParameter("item")).andReturn(items[0]).once();
     expect(req.getParameter("price")).andReturn("" + prices[0]).once();

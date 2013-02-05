@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -233,10 +234,22 @@ public class OrdersServlet extends BaseServlet {
       if (!Strings.isNullOrEmpty(paidString))
         paid = Boolean.parseBoolean(paidString);
     } catch (Exception e) {}
-
+    
     // Writer
     JSONWriter writer = getJSONWriter(res);
-
+    
+    try {
+      if (!isAllowedToPut(req, user, paid)) {
+        writer.object()
+          .key("error").value("Forbidden operation.")
+        .endObject();
+        res.setStatus(403);
+      }
+    } catch (Exception e) {
+      LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+      res.setStatus(500);
+    }
+    
     // Check for required parameters
     if (run == null || user == null || item == null || price == null) {
       try {
@@ -245,7 +258,8 @@ public class OrdersServlet extends BaseServlet {
         .endObject();
         res.setStatus(400);
       } catch (Exception e) {
-        LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
+        LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage());
+        res.setStatus(500);
       } finally {
         close(writer);
       }
@@ -340,5 +354,12 @@ public class OrdersServlet extends BaseServlet {
       .key("comments").value(comments)
       .key("paid").value(paid)
     .endObject();
+  }
+  
+  private boolean isAllowedToPut(HttpServletRequest req, String user, boolean paid) throws SQLException {
+    String actionUser = getUser(req);
+    if (paid || !actionUser.equals(user))
+      return isAdmin(req, actionUser);
+    return true;
   }
 }
