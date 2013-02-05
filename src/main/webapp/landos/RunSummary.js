@@ -8,9 +8,8 @@ define([
   'dojo/store/Memory',
   'dojo/store/Observable',
   'dojo/currency',
-  'dijit/form/CheckBox',
-  'dojo/io-query'
-], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, CheckBox, ioQuery) {
+  'dijit/form/CheckBox'
+], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, CheckBox) {
   var undef;
   return declare(LazyContainer, {
     title: 'Run Summary',
@@ -177,26 +176,26 @@ define([
           });
       checkbox._onClick = lang.hitch(checkbox, function(/*Event*/ evt) {
         if (!self._grid.get('disabled') && (!this.wire || this.wire.isFulfilled())) {
-          var inherited = this.getInherited('_onClick', arguments);
-          
           this.wire = new Deferred();
           this.wire.then(lang.hitch(this, function(result) {
-            inherited.call(this, evt);
+            self.store.put(result);
           })).otherwise(function(reason) {
             gadgets.error(reason);
           });
           
-          landos.getViewer().then(lang.hitch(this, function(viewer) {
-            var data = lang.mixin({}, item);
-            data.paid = !this.get('checked');
-            delete data.rid;
-            delete data.id;
-            
-            var params = lang.mixin({
-              href: landos.getAPIUri('orders') + item.rid + '/' + item.id + '?' + ioQuery.objectToQuery(data)
-            }, landos.getRequestParams(viewer));
-            osapi.http.put(params).execute(lang.hitch(this, function(result) {
-              this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
+          require(['dojo/io-query'], lang.hitch(this, function(ioQuery) {
+            landos.getViewer().then(lang.hitch(this, function(viewer) {
+              var data = lang.mixin({}, item);
+              data.paid = !this.get('checked');
+              delete data.rid;
+              delete data.id;
+              
+              var params = lang.mixin({
+                href: landos.getAPIUri('orders') + item.rid + '/' + item.id + '?' + ioQuery.objectToQuery(data)
+              }, landos.getRequestParams(viewer));
+              osapi.http.put(params).execute(lang.hitch(this, function(result) {
+                this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
+              }));
             }));
           }));
         }
