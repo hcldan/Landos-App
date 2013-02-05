@@ -8,8 +8,9 @@ define([
   'dojo/store/Memory',
   'dojo/store/Observable',
   'dojo/currency',
-  'dijit/form/CheckBox'
-], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, CheckBox) {
+  'dijit/form/CheckBox',
+  'dojo/io-query'
+], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, CheckBox, ioQuery) {
   var undef;
   return declare(LazyContainer, {
     title: 'Run Summary',
@@ -52,7 +53,7 @@ define([
           +           '<th field="comments" width="200px">Comments</th>'
           +           '<th field="user" width="120px">For</th>'
           +           '<th field="price" width="40px">Price</th>'
-          +           '<th field="paid" width="40px">Paid</th>'
+          +           '<th field="_item" width="40px">Paid</th>'
           +         '</tr>'
           +       '</thead>'
           +     '</table>'
@@ -169,10 +170,38 @@ define([
     _formatPrice: function(price) {
       return price ? ('$' + currency.format(price / 100)) : '';
     },
-    _formatPaid: function(paid) {
-      return new CheckBox({
-        checked: !!paid
+    _formatPaid: function(item) {
+      var self = this,
+          checkbox = new CheckBox({
+            checked: !!item.paid
+          });
+      checkbox._onClick = lang.hitch(checkbox, function(/*Event*/ evt) {
+        if (!self._grid.get('disabled') && (!this.wire || this.wire.isFulfilled())) {
+          var inherited = this.getInherited('_onClick', arguments);
+          
+          this.wire = new Deferred();
+          this.wire.then(lang.hitch(this, function(result) {
+            inherited.call(this, evt);
+          })).otherwise(function(reason) {
+            gadgets.error(reason);
+          });
+          
+          landos.getViewer().then(lang.hitch(this, function(viewer) {
+            var data = lang.mixin({}, item);
+            data.paid = !this.get('checked');
+            delete data.rid;
+            delete data.id;
+            
+            var params = lang.mixin({
+              href: landos.getAPIUri('orders') + item.rid + '/' + item.id + '?' + ioQuery.objectToQuery(data)
+            }, landos.getRequestParams(viewer));
+            osapi.http.put(params).execute(lang.hitch(this, function(result) {
+              this.wire[result.error || result.status != 200 ? 'reject' : 'resolve'](result);
+            }));
+          }));
+        }
       });
+      return checkbox;
     }
   });
 })

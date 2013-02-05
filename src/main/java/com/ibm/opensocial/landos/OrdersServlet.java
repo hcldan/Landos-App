@@ -238,11 +238,12 @@ public class OrdersServlet extends BaseServlet {
     JSONWriter writer = getJSONWriter(res);
 
     // Check for required parameters
-    if (req == null || user == null || item == null || price == null) {
+    if (run == null || user == null || item == null || price == null) {
       try {
         writer.object()
           .key("error").value("Putting requires a run id, an user id, an item, and a price.")
         .endObject();
+        res.setStatus(400);
       } catch (Exception e) {
         LOGGER.logp(Level.SEVERE, CLAZZ, "doDelete", e.getMessage());
       } finally {
@@ -265,8 +266,8 @@ public class OrdersServlet extends BaseServlet {
     if (!hasOrderId) {
       query.append(") ");
     } else {
-      query.append(",`id`) ON DUPLICATE KEY UPDATE ")
-              .append("`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`),`paid`=VALUES(`paid`)");
+      query.append(",?) ON DUPLICATE KEY UPDATE ")
+              .append("`id`=VALUES(`id`),`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`),`paid`=VALUES(`paid`)");
     }
 
     try {
@@ -284,6 +285,8 @@ public class OrdersServlet extends BaseServlet {
       stmt.setInt(5, cents);
       stmt.setString(6, comments);
       stmt.setBoolean(7, paid);
+      if (hasOrderId)
+        stmt.setInt(8, Integer.parseInt(order, 10));
 
       int affected = stmt.executeUpdate();
       if (!hasOrderId) {
