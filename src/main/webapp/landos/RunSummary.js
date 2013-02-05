@@ -7,8 +7,9 @@ define([
   'dojo/Deferred',
   'dojo/store/Memory',
   'dojo/store/Observable',
-  'dojo/currency'
-], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency) {
+  'dojo/currency',
+  'dijit/form/CheckBox'
+], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, CheckBox) {
   var undef;
   return declare(LazyContainer, {
     title: 'Run Summary',
@@ -169,7 +170,9 @@ define([
       return price ? ('$' + currency.format(price / 100)) : '';
     },
     _formatPaid: function(paid) {
-      return !!paid;
+      return new CheckBox({
+        checked: !!paid
+      });
     }
   });
 })
