@@ -249,6 +249,7 @@ public class OrdersServlet extends BaseServlet {
     } catch (Exception e) {
       LOGGER.logp(Level.SEVERE, CLAZZ, "doPut", e.getMessage(), e);
       res.setStatus(500);
+      return;
     }
     
     // Check for required parameters
