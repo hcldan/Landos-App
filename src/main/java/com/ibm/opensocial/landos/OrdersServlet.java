@@ -137,7 +137,8 @@ public class OrdersServlet extends BaseServlet {
       while (results.next()) {
         count++;
         writeJSONObjectOrder(jsonWriter, results.getInt(1), results.getInt(2), results.getString(3),
-                results.getString(4), results.getString(5), results.getInt(6), results.getString(7));
+                results.getString(4), results.getString(5), results.getInt(6), results.getString(7),
+                results.getBoolean(8));
       }
       jsonWriter.endArray();
       
@@ -225,6 +226,13 @@ public class OrdersServlet extends BaseServlet {
     // Get optional parameters
     String size = req.getParameter("size");
     String comments = req.getParameter("comments");
+    
+    boolean paid = false;
+    String paidString = req.getParameter("paid");
+    try {
+      if (!Strings.isNullOrEmpty(paidString))
+        paid = Boolean.parseBoolean(paidString);
+    } catch (Exception e) {}
 
     // Writer
     JSONWriter writer = getJSONWriter(res);
@@ -251,14 +259,14 @@ public class OrdersServlet extends BaseServlet {
     boolean hasOrderId = !Strings.isNullOrEmpty(order);
     // Query
     StringBuilder query = new StringBuilder("INSERT INTO `orders` ");
-    query.append("(`rid`,`user`,`item`,`size`,`price`,`comments`").append(
+    query.append("(`rid`,`user`,`item`,`size`,`price`,`comments`,`paid`").append(
             !hasOrderId ? ") " : ",`id`) ");
-    query.append("VALUES (?,?,?,?,?,?");
+    query.append("VALUES (?,?,?,?,?,?,?");
     if (!hasOrderId) {
       query.append(") ");
     } else {
       query.append(",`id`) ON DUPLICATE KEY UPDATE ")
-              .append("`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`)");
+              .append("`rid`=VALUES(`rid`),`user`=VALUES(`user`),`item`=VALUES(`item`),`size`=VALUES(`size`),`price`=VALUES(`price`),`comments`=VALUES(`comments`),`paid`=VALUES(`paid`)");
     }
 
     try {
@@ -275,6 +283,7 @@ public class OrdersServlet extends BaseServlet {
       stmt.setString(4, size);
       stmt.setInt(5, cents);
       stmt.setString(6, comments);
+      stmt.setBoolean(7, paid);
 
       int affected = stmt.executeUpdate();
       if (!hasOrderId) {
@@ -286,7 +295,7 @@ public class OrdersServlet extends BaseServlet {
       // Write back
       if (affected > 0 && !Strings.isNullOrEmpty(order)) {
         writeJSONObjectOrder(writer, Integer.valueOf(order, 10), rid, user, item, size, cents,
-                comments);
+                comments, paid);
       } else {
         writer.object()
           .key("error").value("Did not insert order.")
@@ -316,7 +325,7 @@ public class OrdersServlet extends BaseServlet {
    * @throws IllegalStateException
    */
   private void writeJSONObjectOrder(JSONWriter writer, int id, int rid, String user, String item,
-          String size, int price, String comments) throws IllegalStateException,
+          String size, int price, String comments, boolean paid) throws IllegalStateException,
           NullPointerException, IOException, JSONException {
     writer.object()
       .key("id").value(id)
@@ -326,6 +335,7 @@ public class OrdersServlet extends BaseServlet {
       .key("size").value(size)
       .key("price").value(price)
       .key("comments").value(comments)
+      .key("paid").value(paid)
     .endObject();
   }
 }

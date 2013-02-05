@@ -40,6 +40,7 @@ public class OrdersServletTest {
   private final String[] sizes = { "", "Small" };
   private final int[] prices = { 500, 150 };
   private final String[] comments = { "Foo", "Bar" };
+  private final boolean[] paids = { true, false };
 
   @Before
   public void before() throws Exception {
@@ -87,6 +88,7 @@ public class OrdersServletTest {
       expect(results.getString(5)).andReturn(sizes[i]).once();
       expect(results.getInt(6)).andReturn(prices[i]).once();
       expect(results.getString(7)).andReturn(comments[i]).once();
+      expect(results.getBoolean(8)).andReturn(paids[i]).once();
     }
     expect(results.next()).andReturn(false).once();
     res.setHeader("Content-Range", "items 0-2/2");
@@ -116,6 +118,7 @@ public class OrdersServletTest {
         .key("size").value(sizes[i])
         .key("price").value(prices[i])
         .key("comments").value(comments[i])
+        .key("paid").value(paids[i])
       .endObject();
     }
     writer.endArray().flush();
@@ -152,6 +155,7 @@ public class OrdersServletTest {
     expect(req.getParameter("price")).andReturn("" + prices[0]).once();
     expect(req.getParameter("size")).andReturn(sizes[0]).once();
     expect(req.getParameter("comments")).andReturn(comments[0]).once();
+    expect(req.getParameter("paid")).andReturn(Boolean.toString(paids[0])).once();
     PreparedStatement stmt = control.createMock(PreparedStatement.class);
     expect(conn.prepareStatement(anyObject(String.class), eq(PreparedStatement.RETURN_GENERATED_KEYS))).andReturn(stmt).once();
     stmt.setInt(1, rid); expectLastCall().once();
@@ -160,6 +164,7 @@ public class OrdersServletTest {
     stmt.setString(4, sizes[0]); expectLastCall().once();
     stmt.setInt(5, prices[0]); expectLastCall().once();
     stmt.setString(6, comments[0]); expectLastCall().once();
+    stmt.setBoolean(7, paids[0]); expectLastCall().once();
     expect(stmt.executeUpdate()).andReturn(1).once();
 
     ResultSet result = control.createMock(ResultSet.class);
@@ -184,6 +189,7 @@ public class OrdersServletTest {
       .key("size").value(sizes[0])
       .key("price").value(prices[0])
       .key("comments").value(comments[0])
+      .key("paid").value(paids[0])
     .endObject().flush();
       
     assertEquals("Unexpected servlet output.", sw.toString(), output.toString());
