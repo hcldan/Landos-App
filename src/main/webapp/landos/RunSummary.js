@@ -178,7 +178,8 @@ define([
         if (!self._grid.get('disabled') && (!this.wire || this.wire.isFulfilled())) {
           this.wire = new Deferred();
           this.wire.then(lang.hitch(this, function(result) {
-            self.store.put(result);
+            self.store.put(result.content, {overwrite: true});
+            self._grid.render();
           })).otherwise(function(reason) {
             gadgets.error(reason);
           });
