@@ -69,14 +69,14 @@ public class OrdersServlet extends BaseServlet {
     // Construct and prepare query
     String query = "SELECT * FROM orders";
     String countQuery = "SELECT COUNT(*) FROM orders";
-    final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
+    final String ORDER_LIMIT_OFFSET = " ORDER BY id DESC LIMIT ? OFFSET ?";
     try {
       conn = getDataSource(req).getConnection();
       if (oidSet) {
         // Order id is set
         String addition = " WHERE id = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -91,7 +91,7 @@ public class OrdersServlet extends BaseServlet {
         // run, user -- no order
         String addition = " WHERE rid = ? AND user = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -106,7 +106,7 @@ public class OrdersServlet extends BaseServlet {
         // run -- no user or order
         String addition = " WHERE rid = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -119,7 +119,7 @@ public class OrdersServlet extends BaseServlet {
         // User only
         String addition = " WHERE user = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
