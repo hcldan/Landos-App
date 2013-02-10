@@ -102,11 +102,16 @@ define([
     
     showOrderForm: function(run) {
       html.set(this.runpara, 'Viewing run ' + run.id + '.');
-      require(['landos/CreateOrderPane'], lang.hitch(this, function(CreateOrderPane) {
+      require(['landos/CreateOrderPane', 'landos/OrderHistoryPane'], lang.hitch(this, function(CreateOrderPane, OrderHistoryPane) {
+        var expired = new Date().getTime() > run.end;
         this.tabs.addChild(new CreateOrderPane({
           run: run,
-          disabled: new Date().getTime() > run.end
+          disabled: expired
         }), 1);
+        this.tabs.addChild(new OrderHistoryPane({
+          run: run,
+          orderDisabled: expired
+        }));
       }));
     }
   });
