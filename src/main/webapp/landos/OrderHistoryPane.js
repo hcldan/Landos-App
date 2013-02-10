@@ -8,8 +8,10 @@ define([
   'dojo/store/Memory',
   'dojo/store/Observable',
   'dojo/currency',
-  'dijit/form/Button'
-], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, Button) {
+  'dijit/form/Button',
+  'dojo/io-query',
+  'dijit/Dialog'
+], function(require, landos, lang, declare, LazyContainer, Deferred, MemoryStore, Observable, currency, Button, ioQuery, Dialog) {
   var undef;
   return declare(LazyContainer, {
     title: 'Order History',
@@ -155,10 +157,30 @@ define([
     _formatReorder: function(item) {
       return new Button({
         label: 'Reorder',
-        onClick: function () {
-          console.log(item);
-        },
-        disabled: this.orderDisabled
+        disabled: this.orderDisabled,
+        onClick: lang.hitch(this, function () {
+          // Defer request until username is known
+          landos.getViewer().then(lang.hitch(this, function (id) {
+            // Submit order
+            // Construct url
+            var url = landos.getAPIUri('orders') + this.run.id + '?' + ioQuery.objectToQuery(item);
+            console.log(url);
+            // Submit put request
+            osapi.http.put(lang.mixin({href: url}, landos.getRequestParams(id))).execute(lang.hitch(this, function (res) {
+              if (res.status === 200 && !res.content.error) {
+                new Dialog({
+                  title: 'Success!',
+                  content: 'Created new order.'
+                }).show();
+              } else {
+                new Dialog({
+                  title: 'Error!',
+                  content: 'There was an error creating your order. Please try again later.'
+                }).show();
+              }
+            }));
+          }));
+        })
       });
     }
   });

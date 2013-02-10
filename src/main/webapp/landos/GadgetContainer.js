@@ -92,7 +92,7 @@ define([
         this.adminStatus.then(lang.hitch(this, function(isAdmin) {
           if (isAdmin) {
             require(['landos/RunSummary'], lang.hitch(this, function(RunSummary) {
-              this.tabs.addChild(new RunSummary(run), Math.min(2, this.tabs.getChildren().length));
+              this.tabs.addChild(new RunSummary(run), Math.min(3, this.tabs.getChildren().length));
             }));
           }
         }));
@@ -104,14 +104,14 @@ define([
       html.set(this.runpara, 'Viewing run ' + run.id + '.');
       require(['landos/CreateOrderPane', 'landos/OrderHistoryPane'], lang.hitch(this, function(CreateOrderPane, OrderHistoryPane) {
         var expired = new Date().getTime() > run.end;
+        this.tabs.addChild(new OrderHistoryPane({
+          run: run,
+          orderDisabled: expired
+        }), 1);
         this.tabs.addChild(new CreateOrderPane({
           run: run,
           disabled: expired
         }), 1);
-        this.tabs.addChild(new OrderHistoryPane({
-          run: run,
-          orderDisabled: expired
-        }));
       }));
     }
   });
