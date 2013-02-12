@@ -67,7 +67,7 @@ define([
     
     onShow: function() {
       this.inherited(arguments);
-      this._fetchNewData();
+      this._fetchData();
     },
     
     onHide: function() {
@@ -77,9 +77,9 @@ define([
     },
     
     /**
-     * Fetches new data and sets up a schedule for periodic refresh.
+     * Fetches new data.
      */
-    _fetchNewData: function() {
+    _fetchData: function() {
       // Defer load until user is known
       landos.getViewer().then(lang.hitch(this, function (user) {
         var url = landos.getAPIUri('orders') + '?user=' + encodeURIComponent(user);
@@ -155,7 +155,8 @@ define([
       return price ? ('$' + currency.format(price / 100)) : '';
     },
     _formatReorder: function(item) {
-      return new Button({
+      // Create Button
+      var b = new Button({
         label: 'Reorder',
         disabled: this.orderDisabled,
         onClick: lang.hitch(this, function () {
@@ -182,6 +183,14 @@ define([
           }));
         })
       });
+      // Timeout Button
+      if (!this.orderDisabled) {
+        setTimeout(function () {
+          b.set('disabled', true);
+        }, this.run.end - (new Date().getTime()));
+      }
+      // Return button
+      return b;
     }
   });
 });
