@@ -93,7 +93,7 @@ define([
       landos.getViewer().then(lang.hitch(this, function (id) {
         values.user = id;
         values.item = this.item.getDisplayedValue();
-        values.price = (Number(values.price) * 100).toFixed(0);
+        values.price = (Math.ceil(Number(values.price)) * 100).toFixed(0);
         if (!values.comments)
           delete values.comments;
         if (!values.size)
