@@ -280,7 +280,7 @@ public class RunServlet extends BaseServlet {
       MimeMessage msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress("\"" + getEmailForUser(getUser(req)) + "\" <ddumont@us.ibm.com>"));
       msg.setRecipients(Message.RecipientType.BCC, emails.toArray(new InternetAddress[]{}));
-      msg.setSubject("New Lando's Run!");
+      msg.setSubject("New " + (test ? " TEST " : " ") + "Lando's Run!");
       msg.setSentDate(new Date());
       
       // Build multipart message
@@ -289,7 +289,7 @@ public class RunServlet extends BaseServlet {
       // Create message
       String startString = start.toString();
       String endString = end.toString();
-      String message = "A new Lando's run has been created! The run id is " + id
+      String message = "A new" + (test ? " TEST " : " ") + "Lando's run has been created! The run id is " + id
               + ". You may order food bewteen " + startString + " and " + endString
               + " by opening up the Lando's app.";
 
