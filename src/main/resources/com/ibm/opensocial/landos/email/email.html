@@ -1,1 +1,9 @@
-A new Lando's run has been created! The run id is ${id}. You may order food bewteen ${start} and ${end} by opening up the Lando's app.
+<html>
+	<head>
+	  <title>T.C. Lando&apos;s ${isTest ? "*test*" : ""}run for ${dFormat.format(end)}</title>
+	</head>
+	<body>
+	  A new ${isTest ? "<b>test</b>" : ""}Lando's run has been created! The run id is ${id}. 
+	  You may order food bewteen ${start} and ${end} by opening up the Lando's app.
+  </body>
+</html>

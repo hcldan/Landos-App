@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -289,24 +291,19 @@ public class RunServlet extends BaseServlet {
       msg.setSubject("New " + (test ? " TEST " : " ") + "Lando's Run!");
       msg.setSentDate(new Date());
       
+      EmailRenderer renderer = new EmailRenderer(id, start.getTime(), end.getTime(), test);
+
       // Build multipart message
       MimeMultipart mmp = new MimeMultipart("alternative");
 
-      // Create message
-      String startString = start.toString();
-      String endString = end.toString();
-      String message = "A new" + (test ? " TEST " : " ") + "Lando's run has been created! The run id is " + id
-              + ". You may order food bewteen " + startString + " and " + endString
-              + " by opening up the Lando's app.";
-
       // Create the text part
       MimeBodyPart mbp1 = new MimeBodyPart();
-      mbp1.setContent(message, "text/plain");
+      mbp1.setContent(renderer.renderTextEmail(), "text/plain");
       mmp.addBodyPart(mbp1);
 
       // Create the html part
       MimeBodyPart mbp2 = new MimeBodyPart();
-      mbp2.setContent(new EmailRenderer(id, start, end).renderHtmlEmail(), "text/html");
+      mbp2.setContent(renderer.renderHtmlEmail(), "text/html");
       mmp.addBodyPart(mbp2);
       
       // Create the application/embed+json part
