@@ -21,7 +21,7 @@ public class EmailRenderer {
     context.setVariable("start", factory.createValueExpression(new Date(start), Date.class));
     context.setVariable("end", factory.createValueExpression(new Date(end), Date.class));
     context.setVariable("isTest", factory.createValueExpression(isTest, boolean.class));
-    context.setVariable("dFormat", factory.createValueExpression(DateFormat.getDateInstance(), DateFormat.class));
+    context.setVariable("dFormat", factory.createValueExpression(DateFormat.getDateInstance(DateFormat.FULL), DateFormat.class));
     context.setVariable("tFormat", factory.createValueExpression(DateFormat.getTimeInstance(), DateFormat.class));
     context.setVariable("dtFormat", factory.createValueExpression(DateFormat.getDateTimeInstance(), DateFormat.class));
     context.setVariable("subject", factory.createValueExpression(getEmailSubject(), String.class));

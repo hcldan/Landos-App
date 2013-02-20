@@ -1,1 +1,1 @@
-T.C. Lando&apos;s ${isTest ? "*test* " : ""}run for ${dFormat.format(end)}
+T.C. Lando's ${isTest ? "*test* " : ""}run for ${dFormat.format(end)}
