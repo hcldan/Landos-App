@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.el.ELContext;
+import javax.el.ExpressionFactory;
+import javax.el.ValueExpression;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -29,6 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.wink.json4j.JSONWriter;
 
 import com.google.common.base.Strings;
+import com.ibm.opensocial.landos.email.EmailRenderer;
+
+import de.odysseus.el.util.SimpleContext;
 
 public class RunServlet extends BaseServlet {
   private static final long serialVersionUID = 2718572285038956077L;
@@ -300,7 +306,7 @@ public class RunServlet extends BaseServlet {
 
       // Create the html part
       MimeBodyPart mbp2 = new MimeBodyPart();
-      mbp2.setContent(message, "text/html");
+      mbp2.setContent(new EmailRenderer(id, start, end).renderHtmlEmail(), "text/html");
       mmp.addBodyPart(mbp2);
       
       // Create the application/embed+json part
@@ -328,4 +334,5 @@ public class RunServlet extends BaseServlet {
       LOGGER.log(Level.SEVERE, "Could not send mail message.", e);
     }
   }
+  
 }
