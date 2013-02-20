@@ -51,7 +51,7 @@ define([
         require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
           this.adminStatus.then(lang.hitch(this, function(isAdmin) {
             if (isAdmin) {
-              this.tabs.addChild(new CreateRunPane(), this.tabs.getChildren().length);
+              this.tabs.addChild(new CreateRunPane(), Math.min(4, this.tabs.getChildren().length));
             }
           }));
         }));
@@ -104,14 +104,14 @@ define([
       html.set(this.runpara, 'Viewing run ' + run.id + '.');
       require(['landos/CreateOrderPane', 'landos/OrderHistoryPane'], lang.hitch(this, function(CreateOrderPane, OrderHistoryPane) {
         var expired = new Date().getTime() > run.end;
-        this.tabs.addChild(new OrderHistoryPane({
-          run: run,
-          orderDisabled: expired
-        }), 1);
         this.tabs.addChild(new CreateOrderPane({
           run: run,
           disabled: expired
-        }), 1);
+        }), Math.min(1, this.tabs.getChildren().length));
+        this.tabs.addChild(new OrderHistoryPane({
+          run: run,
+          orderDisabled: expired
+        }), Math.min(2, this.tabs.getChildren().length));
       }));
     }
   });
