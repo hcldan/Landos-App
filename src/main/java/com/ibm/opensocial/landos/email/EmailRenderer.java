@@ -24,22 +24,27 @@ public class EmailRenderer {
     context.setVariable("dFormat", factory.createValueExpression(DateFormat.getDateInstance(), DateFormat.class));
     context.setVariable("tFormat", factory.createValueExpression(DateFormat.getTimeInstance(), DateFormat.class));
     context.setVariable("dtFormat", factory.createValueExpression(DateFormat.getDateTimeInstance(), DateFormat.class));
+    context.setVariable("subject", factory.createValueExpression(getEmailSubject(), String.class));
   }
   
   public String renderHtmlEmail() {
-    return renderEmail(getEmailTemplate("email.html"));
+    return render(getTemplate("email.html"));
   }
   
   public String renderTextEmail() {
-    return renderEmail(getEmailTemplate("email.txt"));
+    return render(getTemplate("email.txt"));
+  }
+  
+  public String getEmailSubject() {
+    return render(getTemplate("subject.txt"));
   }
  
-  private String getEmailTemplate(String template) {
+  private String getTemplate(String template) {
     return new Scanner(EmailRenderer.class.getResourceAsStream(template), "UTF-8")
         .useDelimiter("\\z").next(); 
   }
   
-  private String renderEmail(String template) {
+  private String render(String template) {
     return (String) factory.createValueExpression(context, template, String.class).getValue(context);
   }
  

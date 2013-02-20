@@ -284,14 +284,14 @@ public class RunServlet extends BaseServlet {
       Context envCtx = (Context) initCtx.lookup("java:comp/env");
       Session session = (Session) envCtx.lookup("mail/Session");
       
+      EmailRenderer renderer = new EmailRenderer(id, start.getTime(), end.getTime(), test);
+      
       // MimeMessage
       MimeMessage msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress("\"" + getEmailForUser(getUser(req)) + "\" <ddumont@us.ibm.com>"));
       msg.setRecipients(Message.RecipientType.BCC, emails.toArray(new InternetAddress[]{}));
-      msg.setSubject("New " + (test ? " TEST " : " ") + "Lando's Run!");
+      msg.setSubject(renderer.getEmailSubject());
       msg.setSentDate(new Date());
-      
-      EmailRenderer renderer = new EmailRenderer(id, start.getTime(), end.getTime(), test);
 
       // Build multipart message
       MimeMultipart mmp = new MimeMultipart("alternative");
