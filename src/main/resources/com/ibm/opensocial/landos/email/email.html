@@ -3,7 +3,10 @@
 	  <title>${subject}</title>
 	</head>
 	<body>
-	  A new ${isTest ? "<b>test</b> " : ""}Lando's run has been created! The run id is ${id}. 
-	  You may order food bewteen ${start} and ${end} by opening up the Lando's app.
+	  <p><b>You are seeing this because you do not have "The Lando's App!" widget installed.</b></p>
+	  <p>
+      A new ${isTest ? "<b>test</b> " : ""}Lando's run has been created! The run id is ${id}.<br>
+      You may order food until <b>${tFormat.format(end)}</b> on <b>${dFormat.format(end)}</b> by installing and opening "The Lando's App!" widget.
+	  </p> 
   </body>
 </html>
