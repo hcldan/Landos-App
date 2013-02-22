@@ -275,7 +275,7 @@ public class RunServlet extends BaseServlet {
         emails.add(new InternetAddress(getEmailForUser(results.getString(1))));
       }
     } catch (Exception e) {
-      LOGGER.logp(Level.SEVERE, CLAZZ, "sendEmails", e.getMessage());
+      LOGGER.logp(Level.SEVERE, CLAZZ, "sendEmails", e.getMessage(), e);
     }
     
     try {
@@ -294,20 +294,22 @@ public class RunServlet extends BaseServlet {
       msg.setSentDate(new Date());
 
       // Build multipart message
-      MimeMultipart mmp = new MimeMultipart("alternative");
+      MimeMultipart multipart = new MimeMultipart("alternative");
 
       // Create the text part
-      MimeBodyPart mbp1 = new MimeBodyPart();
-      mbp1.setContent(renderer.renderTextEmail(), "text/plain");
-      mmp.addBodyPart(mbp1);
+      MimeBodyPart part = new MimeBodyPart();
+      part.setText(renderer.renderTextEmail());
+      multipart.addBodyPart(part);
+      LOGGER.logp(Level.WARNING, CLAZZ, "sendEmails", part.getContentType() + " - " + part.getContent());
 
       // Create the html part
-      MimeBodyPart mbp2 = new MimeBodyPart();
-      mbp2.setContent(renderer.renderHtmlEmail(), "text/html");
-      mmp.addBodyPart(mbp2);
+      part = new MimeBodyPart();
+      part.setContent(renderer.renderHtmlEmail(), "text/html");
+      multipart.addBodyPart(part);
+      LOGGER.logp(Level.WARNING, CLAZZ, "sendEmails", part.getContentType() + " - " + part.getContent());
       
       // Create the application/embed+json part
-      MimeBodyPart mbp3 = new MimeBodyPart();
+      part = new MimeBodyPart();
       
       StringWriter payload = new StringWriter();
       new JSONWriter(payload).object()
@@ -319,11 +321,12 @@ public class RunServlet extends BaseServlet {
           .key("test").value(test)
         .endObject()
       .endObject().flush().close();
-      mbp3.setContent(payload.toString(), "application/embed+json");
-      mmp.addBodyPart(mbp3);
+      part.setContent(payload.toString(), "application/embed+json");
+      multipart.addBodyPart(part);
+      LOGGER.logp(Level.WARNING, CLAZZ, "sendEmails", part.getContentType() + " - " + part.getContent());
       
       // Set message content
-      msg.setContent(mmp);
+      msg.setContent(multipart);
       
       // Send the message
       Transport.send(msg);
