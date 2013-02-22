@@ -41,7 +41,7 @@ public class EmailRenderer {
  
   private String getTemplate(String template) {
     return new Scanner(EmailRenderer.class.getResourceAsStream(template), "UTF-8")
-        .useDelimiter("\\z").next(); 
+        .useDelimiter("\\A").next(); 
   }
   
   private String render(String template) {
