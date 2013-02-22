@@ -300,13 +300,11 @@ public class RunServlet extends BaseServlet {
       MimeBodyPart part = new MimeBodyPart();
       part.setText(renderer.renderTextEmail());
       multipart.addBodyPart(part);
-      LOGGER.logp(Level.WARNING, CLAZZ, "sendEmails", part.getContentType() + " - " + part.getContent());
 
       // Create the html part
       part = new MimeBodyPart();
       part.setContent(renderer.renderHtmlEmail(), "text/html");
       multipart.addBodyPart(part);
-      LOGGER.logp(Level.WARNING, CLAZZ, "sendEmails", part.getContentType() + " - " + part.getContent());
       
       // Create the application/embed+json part
       part = new MimeBodyPart();
@@ -323,7 +321,6 @@ public class RunServlet extends BaseServlet {
       .endObject().flush().close();
       part.setContent(payload.toString(), "application/embed+json");
       multipart.addBodyPart(part);
-      LOGGER.logp(Level.WARNING, CLAZZ, "sendEmails", part.getContentType() + " - " + part.getContent());
       
       // Set message content
       msg.setContent(multipart);

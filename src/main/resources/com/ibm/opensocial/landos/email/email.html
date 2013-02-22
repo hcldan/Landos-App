@@ -1,18 +1,28 @@
 <html>
-<head>
-<style type="text/css">
-.bb{-moz-box-sizing:border-box;box-sizing: border-box;}
-body{background:darkred;margin:0;padding:0;}
-.content{position:relative;height:100%;width:100%;max-width:800px;min-width:390px;margin:0 auto;background:#FAFAFA;padding:10px;}
-.warning {font-weight:bold;text-align:center;padding-bottom:20px;}
-.note{text-align:center;font-style:italic;position:absolute;bottom:0;left:0;width:100%;padding:10px;}
-p{text-indent:2em;}
-</style>
-</head>
-<body><div class="content bb">
-<div class="warning">You are seeing this because you do not have "The Lando's App!" widget installed.</div>
-<p>A new ${isTest ? "<b>test</b>(id=".concat(id.toString()).concat(") ") : ""}Lando's run is taking place on <b>${dFormat.format(end)}</b>!
-  You may order food until <b>${tFormat.format(end)}</b> on that day by installing and opening "The Lando's App!" widget.</p>
-<div class="note bb">* To unsubscribe these emails, install and open "The Lando's App!" widget, then uncheck the "Sign me up!" button.</div>
-</div></body>
+	<body style="margin: 0; padding: 0;">
+	  <table border="0" cellspacing="0" cellpadding="0" style="background: darkred; height:100%; width:100%;">
+      <tr>
+        <td width="*">&nbsp;</td>
+        <td width="800px" style="background: #FAFAFA; padding: 20px;">
+	        <table border="0" cellspacing="0" cellpadding="0" style="height:100%; width:100%;">
+	          <tr>
+	            <td height="1em" valign="top" style="font-weight: bold; text-align: center;">You are seeing this because you do not have "The Lando's App!" widget installed.</td>
+	          </tr>
+	          <tr>
+	            <td valign="top" style="text-indent: 2em; padding-top: 30px;">
+	              A new ${isTest ? "<b>test</b>(id=".concat(id.toString()).concat(") ") : ""}Lando's run is taking place on <b>${dFormat.format(end)}</b>!
+	              You may place your order until <b>${tFormat.format(end)}</b> on <b>${dFormat.format(end)}</b> by installing "The Lando's App!" widget and then reopening this email.
+	            </td>
+	          </tr>
+	          <tr height="1em">
+	            <td style="text-align: center; font-style: italic;">
+	              * To unsubscribe these emails, install and open "The Lando's App!" widget, then uncheck the "Sign me up!" button.
+	            </td>
+	          </tr>
+	        </table>
+        </td>
+        <td width="*">&nbsp;</td>
+      </tr>
+	  </table>
+  </body>
 </html>
