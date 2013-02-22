@@ -1,4 +1,6 @@
 !! You are seeing this because you do not have "The Lando's App!" widget installed !!
 
-A new ${isTest ? "<b>test</b> " : ""}Lando's run has been created! The run id is ${id}.
+A new ${isTest ? ("<b>test</b>(id=" + id + ") " : ""}Lando's run is taking place on <b>${dFormat.format(end)}</b>!
 You may order food until <b>${tFormat.format(end)}</b> on <b>${dFormat.format(end)}</b> by installing and opening "The Lando's App!" widget.
+
+* To unsubscribe from emails like this, please install and open "The Lando's App!" widget.  Then un-check the "Sign me up!" button.
