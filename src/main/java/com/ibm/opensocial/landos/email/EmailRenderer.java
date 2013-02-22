@@ -13,11 +13,11 @@ public class EmailRenderer {
   private final ExpressionFactory factory;
   private final SimpleContext context;
   
-  public EmailRenderer(long id, long start, long end, boolean isTest) {
+  public EmailRenderer(Integer id, long start, long end, boolean isTest) {
     factory = ExpressionFactory.newInstance();
     context = new SimpleContext();
     
-    context.setVariable("id", factory.createValueExpression(id, long.class));
+    context.setVariable("id", factory.createValueExpression(id, Integer.class));
     context.setVariable("start", factory.createValueExpression(new Date(start), Date.class));
     context.setVariable("end", factory.createValueExpression(new Date(end), Date.class));
     context.setVariable("isTest", factory.createValueExpression(isTest, boolean.class));

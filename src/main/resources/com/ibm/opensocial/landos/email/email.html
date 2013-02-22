@@ -51,7 +51,7 @@
 	  <div id="content">
 	    <div class="warning">You are seeing this because you do not have "The Lando's App!" widget installed.</div>
 	    <p>
-	      A new ${isTest ? ("<b>test</b>(id=" + id + ") " : ""}Lando's run is taking place on <b>${dFormat.format(end)}</b>!
+	      A new ${isTest ? "<b>test</b>(id=".concat(id.toString()).concat(") ") : ""}Lando's run is taking place on <b>${dFormat.format(end)}</b>!
 	    </p>
 	    <p>
         You may order food until <b>${tFormat.format(end)}</b> on <b>${dFormat.format(end)}</b> by installing and opening "The Lando's App!" widget.
