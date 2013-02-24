@@ -24,8 +24,20 @@ define([
     // Attached via template
     _grid: undef,
 
+    // stores buttons for re-ordering
+    _buttons: [],
+
     constructor: function (args) {
       declare.safeMixin(this, args);
+    },
+
+    disableButtons: function () {
+      // Make sure future buttons are disabled when created
+      this.orderDisabled = true;
+      // Disable each button
+      this._buttons.forEach(function (b) {
+        b.set('disabled', true);
+      });
     },
     
     postCreate: function() {
@@ -183,11 +195,9 @@ define([
           }));
         })
       });
-      // Timeout Button
+      // Add button to collection if not disabled
       if (!this.orderDisabled) {
-        setTimeout(function () {
-          b.set('disabled', true);
-        }, this.run.end - (new Date().getTime()));
+        this._buttons.push(b);
       }
       // Return button
       return b;

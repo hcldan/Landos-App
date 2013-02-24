@@ -103,15 +103,24 @@ define([
     showOrderForm: function(run) {
       html.set(this.runpara, 'Viewing run ' + run.id + '.');
       require(['landos/CreateOrderPane', 'landos/OrderHistoryPane'], lang.hitch(this, function(CreateOrderPane, OrderHistoryPane) {
-        var expired = new Date().getTime() > run.end;
-        this.tabs.addChild(new CreateOrderPane({
+        var time = new Date().getTime();
+        var expired = time >= run.end;
+        var cop = new CreateOrderPane({
           run: run,
           disabled: expired
-        }), Math.min(1, this.tabs.getChildren().length));
-        this.tabs.addChild(new OrderHistoryPane({
+        });
+        var ohp = new OrderHistoryPane({
           run: run,
-          orderDisabled: expired
-        }), Math.min(2, this.tabs.getChildren().length));
+          disabled: expired
+        });
+        this.tabs.addChild(cop, Math.min(1, this.tabs.getChildren().length));
+        this.tabs.addChild(ohp, Math.min(2, this.tabs.getChildren().length));
+        if (!expired) {
+          setTimeout(function () {
+            ohp.disableButtons();
+            cop.set('disabled', true);
+          }, run.end - time);
+        }
       }));
     }
   });
