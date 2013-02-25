@@ -181,6 +181,9 @@ define([
             // Submit put request
             osapi.http.put(lang.mixin({href: url}, landos.getRequestParams(id))).execute(lang.hitch(this, function (res) {
               if (res.status === 200 && !res.content.error) {
+                // Refresh grid
+                this._fetchData();
+                // Display success message
                 new Dialog({
                   title: 'Success!',
                   content: 'Created new order.'
