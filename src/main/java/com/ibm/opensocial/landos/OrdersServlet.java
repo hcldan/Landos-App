@@ -67,14 +67,14 @@ public class OrdersServlet extends BaseServlet {
     JSONWriter jsonWriter = new JSONWriter(body);
 
     // Construct and prepare query
-    String query = "SELECT orders.id, orders.rid, orders.user, orders.item, orders.size, orders.price, orders.comments, orders.paid, runs.end FROM orders, runs";
-    String countQuery = "SELECT COUNT(*) FROM orders, runs";
+    String query = "SELECT orders.id, orders.rid, orders.user, orders.item, orders.size, orders.price, orders.comments, orders.paid, runs.end FROM orders LEFT JOIN runs ON (orders.rid = runs.id)";
+    String countQuery = "SELECT COUNT(*) FROM orders";
     final String ORDER_LIMIT_OFFSET = " ORDER BY runs.end DESC LIMIT ? OFFSET ?";
     try {
       conn = getDataSource(req).getConnection();
       if (oidSet) {
         // Order id is set
-        String addition = " WHERE orders.id = ? AND orders.rid = runs.id";
+        String addition = " WHERE orders.id = ?";
         countQuery += addition;
         query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
@@ -89,7 +89,7 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(5, range[0]);
       } else if (ridSet && userSet) {
         // run, user -- no order
-        String addition = " WHERE orders.rid = ? AND orders.user = ? AND orders.rid = runs.id";
+        String addition = " WHERE orders.rid = ? AND orders.user = ?";
         countQuery += addition;
         query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
@@ -104,7 +104,7 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(4, range[0]);
       } else if (ridSet && !userSet) {
         // run -- no user or order
-        String addition = " WHERE orders.rid = ? AND orders.rid = runs.id";
+        String addition = " WHERE orders.rid = ?";
         countQuery += addition;
         query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
@@ -117,7 +117,7 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(3, range[0]);
       } else if (userSet) {
         // User only
-        String addition = " WHERE orders.user = ? AND orders.rid = runs.id";
+        String addition = " WHERE orders.user = ?";
         countQuery += addition;
         query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
