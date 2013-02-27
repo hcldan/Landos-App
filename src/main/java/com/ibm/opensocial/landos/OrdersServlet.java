@@ -67,16 +67,16 @@ public class OrdersServlet extends BaseServlet {
     JSONWriter jsonWriter = new JSONWriter(body);
 
     // Construct and prepare query
-    String query = "SELECT * FROM orders";
+    String query = "SELECT orders.id, orders.rid, orders.user, orders.item, orders.size, orders.price, orders.comments, orders.paid, runs.end FROM orders LEFT JOIN runs ON (orders.rid = runs.id)";
     String countQuery = "SELECT COUNT(*) FROM orders";
-    final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
+    final String ORDER_LIMIT_OFFSET = " ORDER BY runs.end DESC LIMIT ? OFFSET ?";
     try {
       conn = getDataSource(req).getConnection();
       if (oidSet) {
         // Order id is set
-        String addition = " WHERE id = ?";
+        String addition = " WHERE orders.id = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -89,9 +89,9 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(5, range[0]);
       } else if (ridSet && userSet) {
         // run, user -- no order
-        String addition = " WHERE rid = ? AND user = ?";
+        String addition = " WHERE orders.rid = ? AND orders.user = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -104,9 +104,9 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(4, range[0]);
       } else if (ridSet && !userSet) {
         // run -- no user or order
-        String addition = " WHERE rid = ?";
+        String addition = " WHERE orders.rid = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -117,9 +117,9 @@ public class OrdersServlet extends BaseServlet {
         stmt.setInt(3, range[0]);
       } else if (userSet) {
         // User only
-        String addition = " WHERE user = ?";
+        String addition = " WHERE orders.user = ?";
         countQuery += addition;
-        query += addition + LIMIT_OFFSET;
+        query += addition + ORDER_LIMIT_OFFSET;
         countStmt = conn.prepareStatement(countQuery);
         stmt = conn.prepareStatement(query);
         // Count Query
@@ -139,7 +139,7 @@ public class OrdersServlet extends BaseServlet {
         count++;
         writeJSONObjectOrder(jsonWriter, results.getInt(1), results.getInt(2), results.getString(3),
                 results.getString(4), results.getString(5), results.getInt(6), results.getString(7),
-                results.getBoolean(8));
+                results.getBoolean(8), results.getTimestamp(9).getTime());
       }
       jsonWriter.endArray();
       
@@ -314,7 +314,7 @@ public class OrdersServlet extends BaseServlet {
       // Write back
       if (affected > 0 && !Strings.isNullOrEmpty(order)) {
         writeJSONObjectOrder(writer, Integer.valueOf(order, 10), rid, user, item, size, cents,
-                comments, paid);
+                comments, paid, -1);
       } else {
         writer.object()
           .key("error").value("Did not insert order.")
@@ -335,16 +335,17 @@ public class OrdersServlet extends BaseServlet {
    * @param user
    * @param item
    * @param size
-   * @param qty
    * @param price
    * @param comments
+   * @param end TODO
+   * @param qty
    * @throws JSONException
    * @throws IOException
    * @throws NullPointerException
    * @throws IllegalStateException
    */
   private void writeJSONObjectOrder(JSONWriter writer, int id, int rid, String user, String item,
-          String size, int price, String comments, boolean paid) throws IllegalStateException,
+          String size, int price, String comments, boolean paid, long end) throws IllegalStateException,
           NullPointerException, IOException, JSONException {
     writer.object()
       .key("id").value(id)
@@ -354,8 +355,11 @@ public class OrdersServlet extends BaseServlet {
       .key("size").value(size)
       .key("price").value(price)
       .key("comments").value(comments)
-      .key("paid").value(paid)
-    .endObject();
+      .key("paid").value(paid);
+    if (end > 0) {
+      writer.key("end").value(end);
+    }
+    writer.endObject();
   }
   
   private boolean isAllowedToPut(HttpServletRequest req, String user, boolean paid) throws SQLException {

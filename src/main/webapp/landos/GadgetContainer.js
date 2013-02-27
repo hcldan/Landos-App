@@ -51,7 +51,7 @@ define([
         require(['landos/CreateRunPane'], lang.hitch(this, function(CreateRunPane) {
           this.adminStatus.then(lang.hitch(this, function(isAdmin) {
             if (isAdmin) {
-              this.tabs.addChild(new CreateRunPane(), this.tabs.getChildren().length);
+              this.tabs.addChild(new CreateRunPane(), Math.min(4, this.tabs.getChildren().length));
             }
           }));
         }));
@@ -92,7 +92,7 @@ define([
         this.adminStatus.then(lang.hitch(this, function(isAdmin) {
           if (isAdmin) {
             require(['landos/RunSummary'], lang.hitch(this, function(RunSummary) {
-              this.tabs.addChild(new RunSummary(run), Math.min(2, this.tabs.getChildren().length));
+              this.tabs.addChild(new RunSummary(run), Math.min(3, this.tabs.getChildren().length));
             }));
           }
         }));
@@ -102,11 +102,25 @@ define([
     
     showOrderForm: function(run) {
       html.set(this.runpara, 'Viewing run ' + run.id + '.');
-      require(['landos/CreateOrderPane'], lang.hitch(this, function(CreateOrderPane) {
-        this.tabs.addChild(new CreateOrderPane({
+      require(['landos/CreateOrderPane', 'landos/OrderHistoryPane'], lang.hitch(this, function(CreateOrderPane, OrderHistoryPane) {
+        var time = new Date().getTime();
+        var expired = time >= run.end;
+        var cop = new CreateOrderPane({
           run: run,
-          disabled: new Date().getTime() > run.end
-        }), 1);
+          disabled: expired
+        });
+        var ohp = new OrderHistoryPane({
+          run: run,
+          disabled: expired
+        });
+        this.tabs.addChild(cop, Math.min(1, this.tabs.getChildren().length));
+        this.tabs.addChild(ohp, Math.min(2, this.tabs.getChildren().length));
+        if (!expired) {
+          setTimeout(function () {
+            ohp.disableButtons();
+            cop.set('disabled', true);
+          }, run.end - time);
+        }
       }));
     }
   });
