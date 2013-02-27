@@ -58,11 +58,12 @@ define([
         def.resolve(
             '<div data-dojo-attach-point="containerNode" class="noscroll">'
           +   '<div class="grid-container">'
-          +     '<table data-dojo-attach-point="_grid" data-dojo-type="dojox/grid/DataGrid">'
+          +     '<table data-dojo-attach-point="_grid" sortInfo="1" clientSort="true" data-dojo-type="dojox/grid/DataGrid">'
           +       '<thead>'
           +         '<tr>'
+          +           '<th field="end" width="80px" sortDesc="true">Date</th>'
           +           '<th field="size" width="50px">Size</th>'
-          +           '<th field="item" width="auto" sortDesc="1">Item</th>'
+          +           '<th field="item" width="auto">Item</th>'
           +           '<th field="comments" width="120px">Comments</th>'
           +           '<th field="price" width="40px">Price</th>'
           +           '<th field="_item" width="80px">Reorder</th>'
@@ -154,8 +155,9 @@ define([
       require(['dojo/data/ObjectStore'], lang.hitch(this, function(ObjectStore) {
         var structure = this._grid.get('structure'),
         columns = structure[0].cells[0];
-        columns[3].formatter = lang.hitch(this, '_formatPrice');
-        columns[4].formatter = lang.hitch(this, '_formatReorder');
+        columns[0].formatter = lang.hitch(this, '_formatDate');
+        columns[4].formatter = lang.hitch(this, '_formatPrice');
+        columns[5].formatter = lang.hitch(this, '_formatReorder');
         this._grid.set('structure', structure);
         this._grid.set('store', new ObjectStore({objectStore: this.store}));
         this._grid.update();
@@ -163,10 +165,14 @@ define([
       }));
     },
     
-    _formatPrice: function(price) {
+    _formatDate: function (millis) {
+      var d = new Date(millis);
+      return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+    },
+    _formatPrice: function (price) {
       return price ? ('$' + currency.format(price / 100)) : '';
     },
-    _formatReorder: function(item) {
+    _formatReorder: function (item) {
       // Create Button
       var b = new Button({
         label: 'Reorder',
