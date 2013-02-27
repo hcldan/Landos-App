@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public class OrdersServletTest {
   private final int oid = 7357;
   private final int rid = 9001;
   private final int uid = 101;
+  private final long time = System.currentTimeMillis();
   private final String[] items = { "Pizza", "Soda" };
   private final String[] sizes = { "", "Small" };
   private final int[] prices = { 500, 150 };
@@ -90,6 +92,9 @@ public class OrdersServletTest {
       expect(results.getInt(6)).andReturn(prices[i]).once();
       expect(results.getString(7)).andReturn(comments[i]).once();
       expect(results.getBoolean(8)).andReturn(paids[i]).once();
+      Timestamp timestamp = control.createMock(Timestamp.class);
+      expect(timestamp.getTime()).andReturn(time).once();
+      expect(results.getTimestamp(9)).andReturn(timestamp).once();
     }
     expect(results.next()).andReturn(false).once();
     res.setHeader("Content-Range", "items 0-2/2");
@@ -120,6 +125,7 @@ public class OrdersServletTest {
         .key("price").value(prices[i])
         .key("comments").value(comments[i])
         .key("paid").value(paids[i])
+        .key("end").value(time)
       .endObject();
     }
     writer.endArray().flush();

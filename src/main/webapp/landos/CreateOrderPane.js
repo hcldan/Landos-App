@@ -7,9 +7,9 @@ define([
   'dojo/html',
   'dojo/Deferred',
   'dojo/on',
-  'dijit/Dialog',
-  'dojo/io-query'
-], function(require, landos, lang, declare, LazyContainer, html, Deferred, on, Dialog, ioQuery) {
+  'dojo/io-query',
+  'dijit/Dialog'
+], function(require, landos, lang, declare, LazyContainer, html, Deferred, on, ioQuery, Dialog) {
   
   return declare(LazyContainer, {
     title: 'Place Order',
@@ -98,10 +98,10 @@ define([
           delete values.comments;
         if (!values.size)
           delete values.size;
-        
+        // Submit order
         // Construct url
         var url = landos.getAPIUri('orders') + this.run.id + '?' + ioQuery.objectToQuery(values);
-        
+        // Submit put request
         osapi.http.put(lang.mixin({href: url}, landos.getRequestParams(id))).execute(lang.hitch(this, function (res) {
           if (res.status === 200 && !res.content.error) {
             new Dialog({
