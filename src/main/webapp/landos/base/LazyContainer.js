@@ -53,8 +53,8 @@ define([
     onShow: function() {
       if (!this._loaded) {
         var old = this.domNode,
-            parent = old.parentNode,
-            sibling = old.previousSibling;
+            parent = old.parentElement,
+            sibling = old.previousElementSibling;
 
         this.busy(this._loadpromise);
         this.getRealTemplateString().then(lang.hitch(this, function(template) {
