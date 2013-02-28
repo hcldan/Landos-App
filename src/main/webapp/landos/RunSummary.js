@@ -175,7 +175,7 @@ define([
             checked: !!item.paid
           });
       checkbox._onClick = lang.hitch(checkbox, function(/*Event*/ evt) {
-        if (!self._grid.get('disabled') && (!this.wire || this.wire.isFulfilled())) {
+        if (!this.wire || this.wire.isFulfilled()) {
           this.wire = new Deferred();
           this.wire.then(lang.hitch(this, function(result) {
             self.store.put(result.content, {overwrite: true});
