@@ -178,6 +178,9 @@ define([
         label: 'Reorder',
         disabled: this.orderDisabled,
         onClick: lang.hitch(this, function () {
+          var busy = new Deferred();
+          this.busy(busy);
+          
           // Defer request until username is known
           landos.getViewer().then(lang.hitch(this, function (id) {
             // Submit order
@@ -187,6 +190,7 @@ define([
             // Submit put request
             osapi.http.put(lang.mixin({href: url}, landos.getRequestParams(id))).execute(lang.hitch(this, function (res) {
               if (res.status === 200 && !res.content.error) {
+                busy.resolve(res);
                 // Refresh grid
                 this._fetchData();
                 // Display success message
@@ -195,6 +199,7 @@ define([
                   content: 'Created new order.'
                 }).show();
               } else {
+                busy.reject(res);
                 new Dialog({
                   title: 'Error!',
                   content: 'There was an error creating your order. Please try again later.'

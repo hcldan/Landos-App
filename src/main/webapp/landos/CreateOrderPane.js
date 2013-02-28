@@ -87,7 +87,9 @@ define([
         return false;
       }
       
-      var values = this.form.getValues();
+      var values = this.form.getValues(),
+          busy = new Deferred();
+      this.busy(busy);
       
       // Defer request until username is known (use viewer promise)
       landos.getViewer().then(lang.hitch(this, function (id) {
@@ -102,14 +104,17 @@ define([
         // Construct url
         var url = landos.getAPIUri('orders') + this.run.id + '?' + ioQuery.objectToQuery(values);
         // Submit put request
+        
         osapi.http.put(lang.mixin({href: url}, landos.getRequestParams(id))).execute(lang.hitch(this, function (res) {
           if (res.status === 200 && !res.content.error) {
+            busy.resolve(res);
             new Dialog({
               title: 'Success!',
               content: 'Created new order.'
             }).show();
             this.form.reset();
           } else {
+            busy.reject(res);
             new Dialog({
               title: 'Error!',
               content: 'There was an error creating your order. Please try again later.'
