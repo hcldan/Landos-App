@@ -183,7 +183,8 @@ define([
           
           // Defer request until username is known
           landos.getViewer().then(lang.hitch(this, function (id) {
-            // Submit order
+            // Remove paid marker
+            delete item.paid;
             // Construct url
             var url = landos.getAPIUri('orders') + this.run.id + '?' + ioQuery.objectToQuery(item);
             console.log(url);
