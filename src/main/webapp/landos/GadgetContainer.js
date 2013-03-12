@@ -6,10 +6,12 @@ define([
   'landos/base/LazyContainer',
   'dojo/Deferred',
   'dojo/html',
+  'dojo/on',
+  'dijit/form/Button',
   'landos/SubscribeButton',
   'dijit/layout/TabContainer',
   'dijit/layout/ContentPane'
-], function(landos, lang, declare, LazyContainer, Deferred, html) {
+], function(landos, lang, declare, LazyContainer, Deferred, html, on) {
   var undef;
   return declare(LazyContainer, {
     templateString:
@@ -21,7 +23,10 @@ define([
       +     '</div>'
       +   '</div>'
       +   '<h1>The Lando\'s App</h1>'
-      +   '<button class="subscribe" data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
+      +   '<div id="buttons">'
+      +     '<button data-dojo-attach-point="browse" data-dojo-type="dijit/form/Button">Browse Menu</button>'
+      +     '<button data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
+      +   '</div>'
       + '</div>',
     
     /** {dojo/Deferred<Object>} deferred containing the run info */
@@ -97,6 +102,11 @@ define([
           }
         }));
         this.showOrderForm(run);
+      }));
+
+      // Handle browse button click
+      on(this.browse, 'click', lang.hitch(this, function () {
+        gadgets.views.openUrl('http://thecheesesteakguys.com/landos/', undefined, 'dialog');
       }));
     },
     

@@ -29,7 +29,7 @@
   border-right: 1px solid #bbb;
 }
 
-.container .subscribe {
+#buttons {
   position: absolute;
   top: 20px;
   right: 20px;
