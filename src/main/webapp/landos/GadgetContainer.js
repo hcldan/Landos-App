@@ -7,12 +7,16 @@ define([
   'dojo/Deferred',
   'dojo/html',
   'dojo/on',
+  'dijit/Dialog',
+  'dijit/layout/ContentPane',
   'dijit/form/Button',
   'landos/SubscribeButton',
   'dijit/layout/TabContainer',
   'dijit/layout/ContentPane'
-], function(landos, lang, declare, LazyContainer, Deferred, html, on) {
+], function(landos, lang, declare, LazyContainer, Deferred, html, on, Dialog, ContentPane) {
   var undef;
+  var isEmbedded = gadgets.views.getCurrentView().getName() == 'embedded';
+
   return declare(LazyContainer, {
     templateString:
         '<div class="container" data-dojo-attach-point="containerNode">'
@@ -76,7 +80,7 @@ define([
       }); 
       
       gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
-        if (gadgets.views.getCurrentView().getName() == 'embedded') {
+        if (isEmbedded) {
           // Listen for EE context (which should come pretty fast after rendering the gadget).
           opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
             var data = opensocial.data.getDataContext().getDataSet(key);
@@ -105,8 +109,19 @@ define([
       }));
 
       // Handle browse button click
+      var href = 'http://thecheesesteakguys.com/landos/';
       on(this.browse, 'click', lang.hitch(this, function () {
-        gadgets.views.openUrl('http://thecheesesteakguys.com/landos/', undefined, 'dialog');
+        if (isEmbedded) {
+          var iframe = '<iframe src="' + href + '"></iframe>';
+          new Dialog({
+            title: 'Lando\'s Menu',
+            content: iframe,
+            id: 'menu-dialog'
+            // style: 'width: 960px; height: 75%;'
+          }).show();
+        } else {
+          gadgets.views.openUrl(href, undefined, 'dialog');
+        }
       }));
     },
     
