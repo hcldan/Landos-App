@@ -15,7 +15,8 @@ define([
   'dijit/layout/ContentPane'
 ], function(landos, lang, declare, LazyContainer, Deferred, html, on, Dialog, ContentPane) {
   var undef;
-  var isEmbedded = gadgets.views.getCurrentView().getName() == 'embedded';
+  var isEmbedded = gadgets.views.getCurrentView().getName() == 'embedded'
+      menuLink = 'http://thecheesesteakguys.com/landos/';
 
   return declare(LazyContainer, {
     templateString:
@@ -28,7 +29,7 @@ define([
       +   '</div>'
       +   '<h1>The Lando\'s App</h1>'
       +   '<div id="buttons">'
-      +     '<button data-dojo-attach-point="browse" data-dojo-type="dijit/form/Button">Browse Menu</button>'
+      +     '<a data-dojo-attach-point="browse" href="' + menuLink + '" target="_blank">Browse Menu</a>'
       +     '<button data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
       +   '</div>'
       + '</div>',
@@ -109,18 +110,11 @@ define([
       }));
 
       // Handle browse button click
-      var href = 'http://thecheesesteakguys.com/landos/';
-      on(this.browse, 'click', lang.hitch(this, function () {
-        if (isEmbedded) {
-          var iframe = '<iframe src="' + href + '"></iframe>';
-          new Dialog({
-            title: 'Lando\'s Menu',
-            content: iframe,
-            id: 'menu-dialog'
-            // style: 'width: 960px; height: 75%;'
-          }).show();
-        } else {
-          gadgets.views.openUrl(href, undefined, 'dialog');
+      on(this.browse, 'click', lang.hitch(this, function (e) {
+        // If we aren't embedded, open up a view. Otherwise, continue as normal.
+        if (!isEmbedded) {
+          e.preventDefault();
+          gadgets.views.openUrl(menuLink, undefined, 'dialog');
         }
       }));
     },

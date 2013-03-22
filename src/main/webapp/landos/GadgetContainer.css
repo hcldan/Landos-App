@@ -47,16 +47,6 @@
   overflow: hidden;
 }
 
-#menu-dialog {
-  width: 960px;
-  height: 75%;
-}
-
-#menu-dialog iframe {
-  width: 100%;
-  height: 100%;
-}
-
 .dijitTabContainerTop-child {
 	padding: 8px;
 	height: 100%;
