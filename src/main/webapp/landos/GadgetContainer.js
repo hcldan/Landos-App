@@ -15,7 +15,7 @@ define([
   'dijit/layout/ContentPane'
 ], function(landos, lang, declare, LazyContainer, Deferred, html, on, Dialog, ContentPane) {
   var undef;
-  var isEmbedded = gadgets.views.getCurrentView().getName() == 'embedded'
+  var isEmbedded = gadgets.views.getCurrentView().getName() == 'embedded';
       menuLink = 'http://thecheesesteakguys.com/landos/';
 
   return declare(LazyContainer, {
