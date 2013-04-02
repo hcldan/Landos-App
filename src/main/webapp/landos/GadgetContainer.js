@@ -7,12 +7,17 @@ define([
   'dojo/Deferred',
   'dojo/html',
   'dojo/on',
+  'dijit/Dialog',
+  'dijit/layout/ContentPane',
   'dijit/form/Button',
   'landos/SubscribeButton',
   'dijit/layout/TabContainer',
   'dijit/layout/ContentPane'
-], function(landos, lang, declare, LazyContainer, Deferred, html, on) {
+], function(landos, lang, declare, LazyContainer, Deferred, html, on, Dialog, ContentPane) {
   var undef;
+  var isEmbedded = gadgets.views.getCurrentView().getName() == 'embedded';
+      menuLink = 'http://thecheesesteakguys.com/landos/';
+
   return declare(LazyContainer, {
     templateString:
         '<div class="container" data-dojo-attach-point="containerNode">'
@@ -24,7 +29,7 @@ define([
       +   '</div>'
       +   '<h1>The Lando\'s App</h1>'
       +   '<div id="buttons">'
-      +     '<button data-dojo-attach-point="browse" data-dojo-type="dijit/form/Button">Browse Menu</button>'
+      +     '<a data-dojo-attach-point="browse" href="' + menuLink + '" target="_blank">Browse Menu</a>'
       +     '<button data-dojo-type="landos/SubscribeButton">Sign me up!</button>'
       +   '</div>'
       + '</div>',
@@ -76,7 +81,7 @@ define([
       }); 
       
       gadgets.util.registerOnLoadHandler(lang.hitch(this, function() {
-        if (gadgets.views.getCurrentView().getName() == 'embedded') {
+        if (isEmbedded) {
           // Listen for EE context (which should come pretty fast after rendering the gadget).
           opensocial.data.getDataContext().registerListener('org.opensocial.ee.context', lang.hitch(this, function (key) {
             var data = opensocial.data.getDataContext().getDataSet(key);
@@ -105,8 +110,12 @@ define([
       }));
 
       // Handle browse button click
-      on(this.browse, 'click', lang.hitch(this, function () {
-        gadgets.views.openUrl('http://thecheesesteakguys.com/landos/', undefined, 'dialog');
+      on(this.browse, 'click', lang.hitch(this, function (e) {
+        // If we aren't embedded, open up a view. Otherwise, continue as normal.
+        if (!isEmbedded) {
+          e.preventDefault();
+          gadgets.views.openUrl(menuLink, undefined, 'dialog');
+        }
       }));
     },
     
