@@ -25,5 +25,5 @@
 		url="jdbc:mysql://localhost:3306/landos?useUnicode=true&amp;characterEncoding=UTF-8" />
 	<Resource name="mail/Session"
 	   type="javax.mail.Session"
-	   mail.smtp.host="ace.swg.usma.ibm.com" />
+	   mail.smtp.host="traffic.swg.usma.ibm.com" />
 </Context>
