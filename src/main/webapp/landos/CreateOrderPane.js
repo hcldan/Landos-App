@@ -48,7 +48,9 @@ define([
               +       '</tr>'
               +       '<tr>'
               +         '<td><label for="price">Price:</label></td>'
-              +         '<td><input id="price" name="price" type="text" data-dojo-type="dijit/form/CurrencyTextBox" data-dojo-attach-point="price" required /></td>'
+              +         '<td>'
+              +            '<input id="price" name="price" type="text" data-dojo-type="dijit/form/CurrencyTextBox" data-dojo-attach-point="price" required />'
+              +         '</td>'
               +       '</tr>'
               +       '<tr>'
               +         '<td><label for="comments">Comments:</label></td>'
@@ -78,6 +80,8 @@ define([
         }), this.run.end - 10000 - new Date().getTime());
         
         on(this.submit, 'click', lang.hitch(this, '_onSubmit'));
+        
+        this.price.constraints.min = 4; // I can't get the declarative method for setting this to work...
       }
     },
     
